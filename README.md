@@ -2,7 +2,7 @@
 
 Ricardo Duarte Cardoso Bernardino - 47283\
 Miguel Almeida - 47249\
-David Costa - 45935\
+David Costa - 45935
 
 # Mentors
 
