@@ -3,6 +3,6 @@ Full-Stack Web and Mobile Application for document workflow that provides users,
 
 # Members
 
-Ricardo Bernardino - 47283
-Miguel Almeida - 47249
-David Costa - 45935
+Ricardo Bernardino - 47283 |
+Miguel Almeida - 47249 |
+David Costa - 45935 
