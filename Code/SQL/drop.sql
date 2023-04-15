@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS dbDWP.UtilizadorEtapa;
 DROP TABLE IF EXISTS dbDWP.UtilizadorProcesso;
 DROP TABLE IF EXISTS dbDWP.ComentarioEtapa;
 DROP TABLE IF EXISTS dbDWP.ComentarioUtilizador;
+DROP TABLE IF EXISTS dbDWP.Comentario;
 DROP TABLE IF EXISTS dbDWP.Utilizador;
 DROP TABLE IF EXISTS dbDWP.Etapa;
 DROP TABLE IF EXISTS dbDWP.Processo;

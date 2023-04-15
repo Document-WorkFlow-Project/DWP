@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS dbDWP.Processo (
 CREATE TABLE IF NOT EXISTS dbDWP.Documento (
     id serial PRIMARY KEY,
     descricao varchar(100),
-    status varchar(32) NOT NULL,
+    estado varchar(32) NOT NULL,
     nome varchar(32) NOT NULL,
     localizacao varchar(100) NOT NULL
 );
@@ -58,12 +58,14 @@ CREATE TABLE IF NOT EXISTS dbDWP.Etapa (
 );
 --Comentario(id,texto,data)
 CREATE TABLE IF NOT EXISTS dbDWP.Comentario(
-    num serial PRIMARY KEY,
-    id_conversa int NOT NULL,
+    id serial PRIMARY KEY,
     data date NOT NULL,
     hora time NOT NULL,
     texto varchar(150),
-    id_jogador varchar(32) NOT NULL
+    remetente varchar(32) NOT NULL,
+    FOREIGN KEY (remetente) REFERENCES dbDWP.Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
+
+
 );
 
 --Tabela de associação entre Documentos e Processos
