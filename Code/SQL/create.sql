@@ -1,5 +1,5 @@
 BEGIN TRANSACTION;
-CREATE SCHEMA IF NOT EXISTS dbDWP;
+CREATE DATABASE dbPWP;
 
 CREATE DOMAIN email AS varchar(32) 
 CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
