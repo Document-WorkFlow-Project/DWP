@@ -1,6 +1,6 @@
 package isel.ps.dwp
 
-import isel.ps.dwp.database.configure
+import isel.ps.dwp.database.jdbi.configure
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication

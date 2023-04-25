@@ -1,9 +1,9 @@
-package isel.ps.dwp.database.processes
+package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
 
-interface ProcessRepository {
+interface ProcessesInterface {
 
     /** Criar template de um processo (função de administrador)
      */

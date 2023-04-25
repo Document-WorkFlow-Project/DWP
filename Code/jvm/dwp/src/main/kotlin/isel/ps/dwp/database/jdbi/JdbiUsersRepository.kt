@@ -1,8 +1,15 @@
-package isel.ps.dwp.database.users
+package isel.ps.dwp.database.jdbi
 
-class JdbiUsersRepository: UsersRepository {
+import isel.ps.dwp.interfaces.UsersInterface
+import org.jdbi.v3.core.Handle
+
+class JdbiUsersRepository(private val handle: Handle) : UsersInterface {
 
     override fun checkBearerToken(bearerToken: String): String? {
+        TODO("Not yet implemented")
+    }
+
+    override fun authUser(username: String, hashPassword: String): String {
         TODO("Not yet implemented")
     }
 

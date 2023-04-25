@@ -1,4 +1,4 @@
-package isel.ps.dwp.database
+package isel.ps.dwp.database.jdbi
 
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.kotlin.KotlinPlugin

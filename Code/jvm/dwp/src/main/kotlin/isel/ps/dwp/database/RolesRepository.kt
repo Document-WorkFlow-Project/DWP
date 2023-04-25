@@ -1,8 +1,9 @@
-package isel.ps.dwp.database.roles
+package isel.ps.dwp.database
 
+import isel.ps.dwp.interfaces.RolesInterface
 import isel.ps.dwp.model.Role
 
-class JdbiRolesRepository : RolesRepository {
+class RolesRepository : RolesInterface {
     override fun createRole(roleId: String) {
         TODO("Not yet implemented")
     }

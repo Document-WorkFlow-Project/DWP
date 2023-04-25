@@ -1,8 +1,8 @@
-package isel.ps.dwp.database.roles
+package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Role
 
-interface RolesRepository {
+interface RolesInterface {
 
     fun createRole(roleId: String)
 

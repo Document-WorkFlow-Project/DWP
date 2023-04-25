@@ -1,9 +1,9 @@
-package isel.ps.dwp.database.stages
+package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
 
-interface StagesRepository {
+interface StagesInterface {
 
     /**
      * Obter lista de etapas pendentes (função de administrador ou utilizador associado à etapa)

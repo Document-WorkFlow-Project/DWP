@@ -1,6 +1,6 @@
-package isel.ps.dwp.database.documents
+package isel.ps.dwp.interfaces
 
-interface DocumentsRepository {
+interface DocumentsInterface {
 
     /**
      * Upload/download de documentos

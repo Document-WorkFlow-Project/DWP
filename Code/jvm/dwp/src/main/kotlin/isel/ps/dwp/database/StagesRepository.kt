@@ -1,9 +1,10 @@
-package isel.ps.dwp.database.stages
+package isel.ps.dwp.database
 
+import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
 
-class JdbiStagesRepository: StagesRepository {
+class StagesRepository: StagesInterface {
     override fun pendingStages(processId: String): List<Stage> {
         TODO("Not yet implemented")
     }
