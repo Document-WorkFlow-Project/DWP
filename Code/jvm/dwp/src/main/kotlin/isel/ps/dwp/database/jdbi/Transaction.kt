@@ -1,16 +1,16 @@
-package isel.daw.battleships.database.jdbi
+package isel.ps.dwp.database.jdbi
 
-import isel.daw.battleships.database.GamesRepository
-import isel.daw.battleships.database.InfoRepository
-import isel.daw.battleships.database.UsersRepository
+import isel.ps.dwp.database.ProcessesRepository
+import isel.ps.dwp.database.RolesRepository
+import isel.ps.dwp.database.StagesRepository
+import isel.ps.dwp.database.UsersRepository
 
 interface Transaction {
 
     val usersRepository: UsersRepository
-
-    val gamesRepository: GamesRepository
-
-    val infoRepository: InfoRepository
+    val processesRepository: ProcessesRepository
+    val rolesRepository: RolesRepository
+    val stagesRepository: StagesRepository
 
     fun rollback()
 }

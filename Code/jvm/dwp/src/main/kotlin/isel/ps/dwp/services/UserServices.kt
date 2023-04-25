@@ -1,6 +1,6 @@
 package isel.ps.dwp.services
 
-import isel.daw.battleships.database.jdbi.TransactionManager
+import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.controllers.UserDetails
 import isel.ps.dwp.interfaces.UsersInterface
@@ -37,7 +37,7 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
             throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
         return transactionManager.run {
-            it.usersRepository.register(email, password.md5())
+            it.usersRepository.register(email, name, password.md5())
         }
     }
 

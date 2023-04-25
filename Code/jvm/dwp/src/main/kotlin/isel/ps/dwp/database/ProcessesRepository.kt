@@ -3,8 +3,9 @@ package isel.ps.dwp.database
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
+import org.jdbi.v3.core.Handle
 
-class ProcessesRepository : ProcessesInterface {
+class ProcessesRepository(handle: Handle) : ProcessesInterface {
     override fun createTemplate() {
         TODO("Not yet implemented")
     }

@@ -1,6 +1,6 @@
 package isel.ps.dwp.controllers
 
-import isel.daw.battleships.database.jdbi.JdbiTransactionManager
+import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
