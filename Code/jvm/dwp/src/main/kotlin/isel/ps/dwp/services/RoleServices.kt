@@ -3,7 +3,9 @@ package isel.ps.dwp.services
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.RolesInterface
 import isel.ps.dwp.model.Role
+import org.springframework.stereotype.Component
 
+@Component
 class RoleServices(private val transactionManager: TransactionManager): RolesInterface {
     override fun createRole(roleId: String) {
         TODO("Not yet implemented")

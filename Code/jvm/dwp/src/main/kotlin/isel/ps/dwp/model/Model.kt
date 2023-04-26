@@ -45,8 +45,9 @@ data class Comment (
 )
 
 data class Document (
-    val documentId: String,
-    val name: String,
-    val description: String,
-    val location: String
+    val id: String,
+    val nome: String,
+    val tipo: String,
+    val tamanho: Long,
+    val localizacao: String
 )

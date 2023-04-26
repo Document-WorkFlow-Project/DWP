@@ -4,7 +4,9 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
+import org.springframework.stereotype.Component
 
+@Component
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
     override fun createTemplate() {
         TODO("Not yet implemented")

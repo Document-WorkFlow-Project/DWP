@@ -4,7 +4,9 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
+import org.springframework.stereotype.Component
 
+@Component
 class StageServices(private val transactionManager: TransactionManager): StagesInterface {
     override fun pendingStages(processId: String): List<Stage> {
         TODO("Not yet implemented")

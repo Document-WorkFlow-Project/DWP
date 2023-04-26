@@ -36,10 +36,10 @@ CREATE TABLE IF NOT EXISTS Processo (
 
 --Documento(id,descricao,status,nome,localizacao)
 CREATE TABLE IF NOT EXISTS Documento (
-    id serial PRIMARY KEY,
-    descricao varchar(100),
-    estado varchar(32) NOT NULL,
+    id varchar(36) PRIMARY KEY,
     nome varchar(32) NOT NULL,
+    tipo varchar(32) not null,
+    tamanho bigint not null, 
     localizacao varchar(100) NOT NULL
 );
 
@@ -63,13 +63,11 @@ CREATE TABLE IF NOT EXISTS Comentario(
     texto varchar(150),
     remetente varchar(32) NOT NULL,
     FOREIGN KEY (remetente) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
-
-
 );
 
 --Tabela de associação entre Documentos e Processos
 CREATE TABLE IF NOT EXISTS DocumentoProcesso (
-    id_documento int NOT NULL,
+    id_documento varchar(36) NOT NULL,
     id_processo int NOT NULL,
     PRIMARY KEY (id_documento, id_processo),
     FOREIGN KEY (id_documento) REFERENCES Documento (id) ON DELETE CASCADE ON UPDATE CASCADE,

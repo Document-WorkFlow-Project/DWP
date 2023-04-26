@@ -31,7 +31,7 @@ dependencies {
 	implementation('org.postgresql:postgresql:42.5.1')
 }
 
-tasks.withType(KotlinCompile) {
+tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
 		freeCompilerArgs = ['-Xjsr305=strict']
 		jvmTarget = '17'
