@@ -17,14 +17,6 @@ import java.nio.file.Path
 @Component
 class DocumentServices(private val transactionManager: TransactionManager): DocumentServicesInterface {
 
-    /*
-    override fun init(): Result<Path> =
-        runCatching {
-            Files.createDirectories(uploadsFolderPath)
-        }
-            .onFailure { throw ExceptionControllerAdvice.ParameterIsBlank("Error creating uploads folder: ${it.message}") }
-     */
-
     override fun uploadDoc(file: MultipartFile): String {
         // Save file in filesystem
         val filePath = "$uploadsFolderPath/${file.originalFilename}"
@@ -38,25 +30,6 @@ class DocumentServices(private val transactionManager: TransactionManager): Docu
             it.documentsRepository.saveDocReference(file)
         }
     }
-
-    /*
-    override fun uploadDoc(file: MultipartFile): String {
-        // Save file in filesystem
-        runCatching {
-            val uploadedTargetFilePath = uploadsFolderPath.resolve(file.originalFilename)
-            Files.copy(file.inputStream, uploadedTargetFilePath)
-            uploadedTargetFilePath.isRegularFile()
-        }.onFailure {
-            throw ExceptionControllerAdvice.DataTransferError("Error uploading file ${file.originalFilename} reason: ${it.javaClass}")
-        }
-
-        // Save file description in database
-        return transactionManager.run {
-            it.documentsRepository.saveDocReference(file)
-        }
-    }
-
-     */
 
     override fun downloadDoc(fileId: String): Result<Resource> =
         runCatching {

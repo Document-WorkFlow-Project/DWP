@@ -23,4 +23,5 @@ interface DocumentsInterface {
     /**
      * Histórico de documentos (função de administrador ou utilizador autorizado)
      */
+    //TODO
 }

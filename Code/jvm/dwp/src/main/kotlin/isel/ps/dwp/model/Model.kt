@@ -1,6 +1,6 @@
 package isel.ps.dwp.model
 
-import java.util.Date
+import java.util.*
 
 data class User (
     val email: String,
@@ -50,4 +50,10 @@ data class Document (
     val tipo: String,
     val tamanho: Long,
     val localizacao: String
+)
+
+data class EmailDetails (
+    val recipient: String,
+    val msgBody: String,
+    val subject: String
 )
