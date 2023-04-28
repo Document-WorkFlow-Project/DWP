@@ -20,6 +20,21 @@ CREATE TABLE IF NOT EXISTS Utilizador (
     authToken varchar(64) UNIQUE NOT NULL,
     pass alfanumeric_password NOT NULL CHECK (pass ~ '^[A-Za-z0-9]{10,}$') --verifica se tem pelo menos 10 caracteres minimo
 );
+
+create table if not exists template_processo (
+	nome varchar(32) primary key,
+	descricao text not null,
+	path text not null
+);
+
+create table if not exists acesso_template (
+	nome_template varchar(32),
+	utilizador email,
+	primary key(nome_template, utilizador),
+	foreign key (nome_template) references template_processo (nome) ON DELETE CASCADE ON UPDATE cascade,
+	foreign key (utilizador) references utilizador (email) ON DELETE CASCADE ON UPDATE cascade
+);
+
 --Processo(id,nome,responsavel,descricao,data_inicio,data_fim,prazo,estado,tipo)
 CREATE TABLE IF NOT EXISTS Processo (
     id serial PRIMARY KEY,
@@ -30,7 +45,8 @@ CREATE TABLE IF NOT EXISTS Processo (
     data_fim date,
     prazo date NOT NULL,
     estado varchar(32) NOT NULL,
-    tipo varchar(32) NOT NULL,
+    template_processo varchar(32) NOT NULL,
+    foreign key (template_processo) references template_processo (nome) ON DELETE CASCADE ON UPDATE cascade,
     FOREIGN KEY (responsavel) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -56,7 +72,7 @@ CREATE TABLE IF NOT EXISTS Etapa (
     FOREIGN KEY (responsavel) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 --Comentario(id,texto,data)
-CREATE TABLE IF NOT EXISTS Comentario(
+CREATE TABLE IF NOT EXISTS Comentario (
     id serial PRIMARY KEY,
     data date NOT NULL,
     hora time NOT NULL,
@@ -66,7 +82,7 @@ CREATE TABLE IF NOT EXISTS Comentario(
 );
 
 --Tabela de associação entre Documentos e Processos
-CREATE TABLE IF NOT EXISTS DocumentoProcesso (
+CREATE TABLE IF NOT EXISTS Documento_Processo (
     id_documento varchar(36) NOT NULL,
     id_processo int NOT NULL,
     PRIMARY KEY (id_documento, id_processo),
@@ -75,7 +91,7 @@ CREATE TABLE IF NOT EXISTS DocumentoProcesso (
 );
 
 --Tabela de associação entre Etapas e Processos
-CREATE TABLE IF NOT EXISTS EtapaProcesso (
+CREATE TABLE IF NOT EXISTS Etapa_Processo (
     id_etapa int NOT NULL,
     id_processo int NOT NULL,
     PRIMARY KEY (id_etapa, id_processo),
@@ -84,7 +100,7 @@ CREATE TABLE IF NOT EXISTS EtapaProcesso (
 );
 
 -- Tabela que associa Comentarios a Etapas
-CREATE TABLE IF NOT EXISTS ComentarioEtapa (
+CREATE TABLE IF NOT EXISTS Comentario_Etapa (
     id_comentario int NOT NULL,
     id_etapa int NOT NULL,
     FOREIGN KEY (id_comentario) REFERENCES Comentario(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -93,7 +109,7 @@ CREATE TABLE IF NOT EXISTS ComentarioEtapa (
 );
 
 -- Tabela que associa Utilizadores a Papel
-CREATE TABLE IF NOT EXISTS UtilizadorPapel (
+CREATE TABLE IF NOT EXISTS Utilizador_Papel (
     id_papel int NOT NULL,
     email_utilizador varchar(32) NOT NULL,
     FOREIGN KEY (id_papel) REFERENCES Papel(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -102,7 +118,7 @@ CREATE TABLE IF NOT EXISTS UtilizadorPapel (
 );
 
 -- Tabela que associa Comentarios a Utilizadores
-CREATE TABLE IF NOT EXISTS ComentarioUtilizador (
+CREATE TABLE IF NOT EXISTS Comentario_Utilizador (
     num_comentario int NOT NULL,
     email_utilizador varchar(32) NOT NULL,
     FOREIGN KEY (num_comentario) REFERENCES Comentario(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -111,7 +127,7 @@ CREATE TABLE IF NOT EXISTS ComentarioUtilizador (
 );
 
 -- Tabela que associa Utilizadores a Processos
-CREATE TABLE IF NOT EXISTS UtilizadorProcesso (
+CREATE TABLE IF NOT EXISTS Utilizador_Processo (
     email_utilizador varchar(32) NOT NULL,
     id_processo int NOT NULL,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -121,7 +137,7 @@ CREATE TABLE IF NOT EXISTS UtilizadorProcesso (
 
 
 -- Tabela que associa Utilizadores a Etapas
-CREATE TABLE IF NOT EXISTS UtilizadorEtapa (
+CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
     email_utilizador varchar(32) NOT NULL,
     id_etapa int NOT NULL,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,

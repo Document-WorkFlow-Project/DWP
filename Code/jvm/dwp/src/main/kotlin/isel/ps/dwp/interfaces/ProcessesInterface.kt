@@ -1,33 +1,35 @@
 package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.model.Stage
+import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
 
-    /** Criar template de um processo (função de administrador)
+    /** Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
      */
-    fun createTemplate()
+    fun addTemplate(templateFile: MultipartFile)
 
     /**
      * Remover template de um processo (função de administrador)
      */
-    fun deleteTemplate()
+    fun deleteTemplate(templateName: String)
 
     /**
      * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)
      */
-    fun pendingProcesses(): List<Process>
+    fun pendingProcesses(userEmail: String?): List<String>
 
     /**
      * Obter lista de processos terminados (função de administrador ou utilizador associado ao processo)
      */
-    fun finishedProcesses(): List<Process>
+    fun finishedProcesses(userEmail: String?): List<String>
 
     /**
      * Obter lista de processos de um certo tipo de template
      */
-    fun getProcesses(type: String): List<Process>
+    fun getProcesses(type: String): List<String>
 
     /**
      * Obter lista de utilizadores associados a um processo (função de administrador ou utilizador associado ao processo)
@@ -37,7 +39,7 @@ interface ProcessesInterface {
     /**
      * Obter lista de processos de um utilizador (responsável ou participante)
      */
-    fun userProcesses(userId: String): List<Process>
+    fun userProcesses(userEmail: String): List<Process>
 
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)
@@ -47,12 +49,12 @@ interface ProcessesInterface {
     /**
      * Adicionar utilizadores que podem usar template (função de administrador)
      */
-    fun assUserToTemplate(userId: String, templateId: String)
+    fun addUserToTemplate(userId: String, templateName: String)
 
     /**
      * Remover utilizadores que podem usar template (função de administrador)
      */
-    fun removeUserFromTemplate(userId: String, templateId: String)
+    fun removeUserFromTemplate(userId: String, templateName: String)
 
     /**
     * Detalhes de um processo (função de utilizadores associados ao processo)
@@ -62,7 +64,7 @@ interface ProcessesInterface {
     /**
      * Criar processo (função de administrador ou utilizador autorizado)
      */
-    fun newProcess(): String
+    fun newProcessFromTemplate(templateName: String): String
 
     /**
      * Remover processo (função de administrador ou utilizador autorizado)

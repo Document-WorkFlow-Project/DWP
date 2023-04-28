@@ -33,15 +33,6 @@ class DocumentsController (
 
     @GetMapping("/{id}")
     fun fileDownload(@PathVariable id: String, response: HttpServletResponse): ResponseEntity<out Any> {
-        /*return when (val res = documentServices.downloadDoc(id).getOrNull()) {
-            is Resource ->
-                ResponseEntity.status(200)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=${id}")
-                    .body<Resource>(res)
-            else ->
-                throw ExceptionControllerAdvice.DocumentNotFoundException("Document $id not found.")
-        }
-        */
         val docDetails = documentServices.documentDetails(id) ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Document $id not found.")
         val fileObj = File(docDetails.localizacao)
 

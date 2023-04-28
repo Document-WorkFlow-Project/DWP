@@ -33,5 +33,9 @@ class EmailServiceImpl : NotificationsService {
             "Error while Sending Mail"
         }
     }
+
+    override fun scheduleEmail(details: EmailDetails, delay: Long): String {
+        TODO("Not yet implemented")
+    }
 }
 

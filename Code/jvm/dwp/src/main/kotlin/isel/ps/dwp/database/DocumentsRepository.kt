@@ -14,7 +14,7 @@ class DocumentsRepository(private val handle: Handle) : DocumentsInterface {
         val fileName = file.originalFilename
         val fileType = file.contentType
         val fileSize = file.size
-        val filePath = "$uploadsFolderPath/${fileName}"
+        val filePath = "$uploadsFolderPath/$fileName"
 
         handle.createUpdate(
             "insert into documento(id, nome, tipo, tamanho, localizacao) values (:uuid,:name,:type,:size,:path)"

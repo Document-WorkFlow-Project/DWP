@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 class ExceptionControllerAdvice {
 
     class DocumentNotFoundException(message: String) : RuntimeException(message)
+    class TemplateNotFoundException(message: String) : RuntimeException(message)
     class UserNotFoundException(message: String) : RuntimeException(message)
     class InvalidParameterException(message : String) : RuntimeException(message)
     class FailedAuthenticationException(message: String) : RuntimeException(message)
@@ -21,7 +22,8 @@ class ExceptionControllerAdvice {
     fun handleRuntimeException(ex: RuntimeException): ResponseEntity<String> {
         val status = when (ex) {
             is UserNotFoundException,
-            is DocumentNotFoundException -> HttpStatus.NOT_FOUND
+            is DocumentNotFoundException,
+            is TemplateNotFoundException -> HttpStatus.NOT_FOUND
             is InvalidParameterException,
             is FailedAuthenticationException,
             is ParameterIsBlank -> HttpStatus.BAD_REQUEST

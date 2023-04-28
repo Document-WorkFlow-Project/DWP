@@ -18,23 +18,21 @@ data class Process (
     val processId: String,
     val name: String,
     val description: String,
-    val type: String,
-    var state: String,
-    val responsible: String,
-    val startDate: Date,
-    val endDate: Date,
+    val type: String, // type of process template
+    var state: String, // pending, finished with success/failure
+    val responsible: String, // author of the process
+    val startDate: Date, // date of creation
+    var endDate: Date, // date of conclusion
     val duration: Int
 )
 
 data class Stage (
     val stageId: String,
-    val name: String,
-    val description: String,
+    var name: String,
+    var description: String,
     var state: String,
-    val responsible: String,
-    val startDate: Date,
-    val endDate: Date,
-    val duration: Int
+    val responsible: String, // stage responsibles
+    var duration: Int // stage duration in days
 )
 
 data class Comment (
@@ -56,4 +54,10 @@ data class EmailDetails (
     val recipient: String,
     val msgBody: String,
     val subject: String
+)
+
+data class ProcessTemplate (
+    var nome: String,
+    val descricao: String,
+    val path: String
 )
