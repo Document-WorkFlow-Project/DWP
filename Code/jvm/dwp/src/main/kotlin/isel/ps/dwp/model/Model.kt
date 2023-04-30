@@ -37,9 +37,10 @@ data class Stage (
 
 data class Comment (
     val commentId: String,
+    val stageId: String,
     val date: Date,
     val text: String,
-    val userId: String
+    val sender: String
 )
 
 data class Document (

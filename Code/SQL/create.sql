@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS Documento (
 --Etapa(id,nome,responsavel,descricao,data_inicio,data_fim,prazo,estado)
 CREATE TABLE IF NOT EXISTS Etapa (
     id serial PRIMARY KEY,
+    id_processo int NOT NULL,
     nome varchar(32) NOT NULL,
     responsavel varchar(32) NOT NULL,
     descricao varchar(100),
@@ -69,15 +70,17 @@ CREATE TABLE IF NOT EXISTS Etapa (
     data_fim date,
     prazo date NOT NULL,
     estado varchar(32) NOT NULL,
+    FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (responsavel) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 --Comentario(id,texto,data)
 CREATE TABLE IF NOT EXISTS Comentario (
     id serial PRIMARY KEY,
+    id_etapa int NOT NULL,
     data date NOT NULL,
-    hora time NOT NULL,
     texto varchar(150),
     remetente varchar(32) NOT NULL,
+    FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (remetente) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -100,13 +103,13 @@ CREATE TABLE IF NOT EXISTS Etapa_Processo (
 );
 
 -- Tabela que associa Comentarios a Etapas
-CREATE TABLE IF NOT EXISTS Comentario_Etapa (
-    id_comentario int NOT NULL,
-    id_etapa int NOT NULL,
-    FOREIGN KEY (id_comentario) REFERENCES Comentario(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    PRIMARY KEY (id_comentario, id_etapa)
-);
+--CREATE TABLE IF NOT EXISTS Comentario_Etapa (
+    --id_comentario int NOT NULL,
+   -- id_etapa int NOT NULL,
+    --FOREIGN KEY (id_comentario) REFERENCES Comentario(id) ON DELETE CASCADE ON UPDATE CASCADE,
+   -- FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  --  PRIMARY KEY (id_comentario, id_etapa)
+--);
 
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel (
@@ -115,15 +118,6 @@ CREATE TABLE IF NOT EXISTS Utilizador_Papel (
     FOREIGN KEY (id_papel) REFERENCES Papel(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (id_papel, email_utilizador)
-);
-
--- Tabela que associa Comentarios a Utilizadores
-CREATE TABLE IF NOT EXISTS Comentario_Utilizador (
-    num_comentario int NOT NULL,
-    email_utilizador varchar(32) NOT NULL,
-    FOREIGN KEY (num_comentario) REFERENCES Comentario(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
-    PRIMARY KEY (num_comentario, email_utilizador)
 );
 
 -- Tabela que associa Utilizadores a Processos
