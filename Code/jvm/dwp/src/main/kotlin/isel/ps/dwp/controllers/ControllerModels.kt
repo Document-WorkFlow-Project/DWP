@@ -1,5 +1,7 @@
 package isel.ps.dwp.controllers
 
+import java.sql.Date
+
 data class SignInModel(val email: String, val password: String)
 
 data class RegisterModel(val email: String, val name: String, val password: String)
@@ -7,3 +9,14 @@ data class RegisterModel(val email: String, val name: String, val password: Stri
 data class Token(val token: String)
 
 data class UserDetails (val email: String, val name: String)
+
+data class StageModel(
+    val id_processo: Int,
+    val nome: String,
+    val responsavel: String,
+    val descricao: String,
+    val data_inicio: String,
+    val data_fim: String,
+    val prazo: String,
+    val estado: String
+)

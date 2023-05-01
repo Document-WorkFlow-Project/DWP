@@ -1,10 +1,13 @@
 package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
+import isel.ps.dwp.database.StagesRepository
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.services.StageServices
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/stages")
@@ -13,64 +16,94 @@ class StagesController (
         JdbiTransactionManager(jdbi = DwpApplication().jdbi())
     )
 ) {
-
-    @PostMapping("/create")
-    fun createEtapa(@RequestBody etapa: Etapa): ResponseEntity<Etapa> {
-        val savedEtapa = etapaRepository.save(etapa)
-        return ResponseEntity.ok(savedEtapa)
+    /** --------------------------- Stages -------------------------------**/
+    @GetMapping("/{stageId}")
+    fun getStageDetails(@PathVariable stageId: String): ResponseEntity<*> {
+        val stage = stageServices.stageDetails(stageId)
+        return ResponseEntity.ok(stage)
     }
 
-    @DeleteMapping("/{id}")
-    fun deleteEtapa(@PathVariable id: Long): ResponseEntity<Void> {
-        etapaRepository.deleteById(id)
-        return ResponseEntity.noContent().build()
+    @PostMapping("/{stageId}/approve")
+    fun approveStage(@PathVariable stageId: String): ResponseEntity<Void> {
+        stageServices.approveStage(stageId)
+        return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
-    @PutMapping("/{id}/approve")
-    fun approveEtapa(@PathVariable id: Long): ResponseEntity<Etapa> {
-        val etapa = etapaRepository.findById(id)
-            .orElseThrow { throw EntityNotFoundException("Etapa with id $id not found") }
-
-        etapa.estado = "Aprovada"
-        val updatedEtapa = etapaRepository.save(etapa)
-        return ResponseEntity.ok(updatedEtapa)
+    @PostMapping("/{stageId}/disapprove")
+    fun disaproveStage(@PathVariable stageId: String): ResponseEntity<Void> {
+        stageServices.disaproveStage(stageId)
+        return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
-    @PutMapping("/{id}/disapprove")
-    fun disapproveEtapa(@PathVariable id: Long): ResponseEntity<Etapa> {
-        val etapa = etapaRepository.findById(id)
-            .orElseThrow { throw EntityNotFoundException("Etapa with id $id not found") }
-
-        etapa.estado = "Rejeitada"
-        val updatedEtapa = etapaRepository.save(etapa)
-        return ResponseEntity.ok(updatedEtapa)
+    @PostMapping
+    fun createStage(
+        @RequestParam processId: Int,
+        @RequestParam nome: String,
+        @RequestParam responsavel: String,
+        @RequestParam descricao: String,
+        @RequestParam data_inicio: String,
+        @RequestParam data_fim: String,
+        @RequestParam prazo: String,
+        @RequestParam estado: String
+    ): ResponseEntity<Void> {
+        stageServices.createStage(processId, nome, responsavel, descricao, data_inicio, data_fim, prazo, estado)
+        return ResponseEntity(HttpStatus.CREATED)
     }
 
-    @GetMapping("/{id}")
-    fun viewEtapa(@PathVariable id: Long): ResponseEntity<Etapa> {
-        val etapa = etapaRepository.findById(id)
-            .orElseThrow { throw EntityNotFoundException("Etapa with id $id not found") }
-
-        return ResponseEntity.ok(etapa)
+    @DeleteMapping("/{stageId}")
+    fun deleteStage(@PathVariable stageId: String): ResponseEntity<Void> {
+        stageServices.deleteStage(stageId)
+        return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
-    @GetMapping("/{id}/details")
-    fun getEtapaDetails(@PathVariable id: Long): ResponseEntity<EtapaDetails> {
-        val etapa = etapaRepository.findById(id)
-            .orElseThrow { throw EntityNotFoundException("Etapa with id $id not found") }
+    @PutMapping("/{stageId}")
+    fun editStage(
+        @PathVariable stageId: String,
+        @RequestParam nome: String,
+        @RequestParam descricao: String,
+        @RequestParam data_inicio: String,
+        @RequestParam data_fim: String,
+        @RequestParam prazo: String,
+        @RequestParam estado: String
+    ): ResponseEntity<Void> {
+        stageServices.editStage(stageId, nome, descricao, data_inicio, data_fim, prazo, estado)
+        return ResponseEntity(HttpStatus.NO_CONTENT)
+    }
 
-        val etapaDetails = EtapaDetails(
-            etapa.id,
-            etapa.nome,
-            etapa.responsavel,
-            etapa.descricao,
-            etapa.data_inicio,
-            etapa.data_fim,
-            etapa.prazo,
-            etapa.estado
-        )
+    @GetMapping("/process/{processId}")
+    fun viewStages(@PathVariable processId: String): ResponseEntity<List<*>> {
+        val stages = stageServices.viewStages(processId)
+        return ResponseEntity.ok(stages)
+    }
 
-        return ResponseEntity.ok(etapaDetails)
+    @GetMapping("/process/{processId}/pending")
+    fun pendingStages(@PathVariable processId: String): ResponseEntity<List<*>> {
+        val stages = stageServices.pendingStages(processId)
+        return ResponseEntity.ok(stages)
+    }
+
+    @GetMapping("/{stageId}/users")
+    fun stageUsers(@PathVariable stageId: String): ResponseEntity<List<*>> {
+        val users = stageServices.stageUsers(stageId)
+        return ResponseEntity.ok(users)
+    }
+
+    @PostMapping("/{stageId}/comments")
+    fun addComment(
+        @PathVariable stageId: String,
+        @RequestParam id: String,
+        @RequestParam date: String,
+        @RequestParam text: String,
+        @RequestParam authorEmail: String
+    ): ResponseEntity<Void> {
+        stageServices.addComment(id, stageId, date, text, authorEmail)
+        return ResponseEntity(HttpStatus.CREATED)
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    fun deleteComment(@PathVariable commentId: String): ResponseEntity<Void> {
+        stageServices.deleteComment(commentId)
+        return ResponseEntity(HttpStatus.CREATED)
     }
 
 }
