@@ -16,35 +16,50 @@ class StagesRepository(handle: Handle) : StagesInterface {
             .one()
     }
 
-    override fun approveStage(value: Boolean) {
-        // TODO:
-    }
 
-    override fun disaproveStage(value: Boolean) {
-        // TODO:
-    }
-
-    override fun createStage(value: Boolean) {
-        // TODO:
-    }
-
-    override fun deleteStage(value: Boolean) {
-        // TODO:
-    }
-
-    override fun editStage(stageId: String, editedStage: Stage) {
-        //TODO:
-        handle.createUpdate("UPDATE stages SET name = :name, description = :description, updated_at = :updatedAt WHERE id = :stageId")
-            .bindBean(
-                editedStage.copy(
-                    id = stageId,
-                    processId = null,
-                    createdAt = null,
-                    stageIndex = null,
-                    status = null
-                )
-            )
+    override fun approveStage(stageId: String) {
+        handle.createUpdate("UPDATE Stage SET estado = 'Aprovado' WHERE id = :stageId")
             .bind("stageId", stageId)
+            .execute()
+    }
+
+    override fun disaproveStage(stageId: String) {
+        handle.createUpdate("UPDATE Stage SET estado = 'Rejeitado' WHERE id = :stageId")
+            .bind("stageId", stageId)
+            .execute()
+    }
+
+
+    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
+        handle.createUpdate("INSERT INTO Etapa (id_processo, nome, responsavel, descricao, data_inicio, data_fim, prazo, estado) VALUES (:id_processo, :nome, :responsavel, :descricao, :data_inicio, :data_fim, :prazo, :estado)")
+            .bind("id_processo", processId)
+            .bind("nome", nome)
+            .bind("responsavel", responsavel)
+            .bind("descricao", descricao)
+            .bind("data_inicio", data_inicio)
+            .bind("data_fim", data_fim)
+            .bind("prazo", prazo)
+            .bind("estado", estado)
+            .execute()
+    }
+
+    override fun deleteStage(stageId: String) {
+        handle.createUpdate("DELETE FROM Stage WHERE id = :stageId")
+            .bind("stageId", stageId)
+            .execute()
+    }
+
+    override fun editStage(stageId: String, nome: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
+        handle.createUpdate(
+            "UPDATE Stage SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
+        )
+            .bind("stageId", stageId)
+            .bind("nome", nome)
+            .bind("descricao", descricao)
+            .bind("data_inicio", data_inicio)
+            .bind("data_fim", data_fim)
+            .bind("prazo", prazo)
+            .bind("estado", estado)
             .execute()
     }
 
