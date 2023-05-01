@@ -3,9 +3,10 @@ package isel.ps.dwp.database
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
 
-class StagesRepository(handle: Handle) : StagesInterface {
+class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Stages -------------------------------**/
 
@@ -71,15 +72,15 @@ class StagesRepository(handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun pendingStages(stageId: String): List<Stage> {
-        return handle.createQuery("SELECT * FROM stages WHERE id = :stageId AND status = 'Pending'")
-            .bind("stageId", stageId)
+    override fun pendingStages(processId: String): List<Stage> {
+        return handle.createQuery("SELECT * FROM stages WHERE id_processo = :processId AND status = 'Pending'")
+            .bind("processId", processId)
             .mapTo(Stage::class.java)
             .list()
     }
 
-    override fun stageUsers(stageId: String): List<String> {
-        return handle.createQuery("SELECT * FROM Utilizador_Etapa WHERE id_etapa = :stageId")
+    override fun stageUsers(stageId: String): List<User> {
+        return handle.createQuery("SELECT Utilizador.email, Utilizador.nome FROM Utilizador JOIN Utilizador_Etapa ON Utilizador.email = Utilizador_Etapa.email_utilizador JOIN Etapa ON Etapa.id = Utilizador_Etapa.id_etapa WHERE Etapa.id = :stageId")
             .bind("stageId", stageId)
             .mapTo(User::class.java)
             .list()
@@ -89,7 +90,6 @@ class StagesRepository(handle: Handle) : StagesInterface {
 
     /** --------------------------- Comments -------------------------------**/
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-        val id = generateId()
 
         handle.createUpdate("INSERT INTO Comentario (id, id_etapa, data, texto, remetente) VALUES (:id, :stageId, :date, :text, :authorEmail)")
             .bind("id", id)
