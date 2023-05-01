@@ -5,7 +5,7 @@ import isel.ps.dwp.model.Role
 import org.jdbi.v3.core.Handle
 
 class RolesRepository(handle: Handle) : RolesInterface {
-    override fun createRole(roleId: String) {
+    override fun createRole(name: String, description: String): String {
         TODO("Not yet implemented")
     }
 
@@ -13,7 +13,7 @@ class RolesRepository(handle: Handle) : RolesInterface {
         TODO("Not yet implemented")
     }
 
-    override fun editRole(roleId: String) {
+    override fun editRole(roleId: String, name: String, description: String) {
         TODO("Not yet implemented")
     }
 
