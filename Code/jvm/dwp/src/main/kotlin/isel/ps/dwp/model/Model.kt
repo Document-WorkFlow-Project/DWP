@@ -9,7 +9,7 @@ data class User (
 )
 
 data class Role (
-    val roleId: String,
+    val roleId: Int,
     val name: String,
     val description: String
 )
