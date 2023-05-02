@@ -4,7 +4,7 @@ import isel.ps.dwp.model.Role
 
 interface RolesInterface {
 
-    fun createRole(name: String, description: String): String
+    fun createRole(name: String, description: String): Int
 
     fun deleteRole(roleId: String)
 

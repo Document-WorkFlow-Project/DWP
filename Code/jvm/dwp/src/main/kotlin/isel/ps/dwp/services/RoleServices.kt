@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class RoleServices(private val transactionManager: TransactionManager) : RolesInterface {
-    override fun createRole(name: String, description: String): String {
+    override fun createRole(name: String, description: String): Int {
         if (name.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Role Name can't be blank.")
         if (description.isBlank())
