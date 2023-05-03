@@ -9,7 +9,7 @@ interface ProcessesInterface {
 
     /** Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
      */
-    fun addTemplate(templateFile: MultipartFile)
+    fun addTemplate(templateFile: MultipartFile): String
 
     /**
      * Remover template de um processo (função de administrador)

@@ -19,19 +19,19 @@ class ProcessesController (
 
     @PostMapping("/template")
     fun newTemplate(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
-        val savedFileId = processesServices.addTemplate(file)
+        val templateName = processesServices.addTemplate(file)
         return ResponseEntity
                 .status(201)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(savedFileId)
+                .body(templateName)
     }
 
     @DeleteMapping("/template/{name}")
     fun deleteTemplate(@PathVariable name: String): ResponseEntity<*> {
-        val res = processesServices.deleteTemplate(name)
+        processesServices.deleteTemplate(name)
         return ResponseEntity
                 .status(201)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(res)
+                .body("Template $name deleted")
     }
 }

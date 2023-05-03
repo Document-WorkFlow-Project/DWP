@@ -11,18 +11,22 @@ import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
+import java.util.*
 
 @Component
 class DocumentServices(private val transactionManager: TransactionManager): DocumentServicesInterface {
 
     override fun uploadDoc(file: MultipartFile): String {
+        val uuid = UUID.randomUUID().toString()
+
         // Save file in filesystem
-        saveInFilesystem(file, "$uploadsFolderPath/${file.originalFilename}")
+        saveInFilesystem(file, "$uploadsFolderPath/$uuid-${file.originalFilename}")
 
         // Save file description in database
-        return transactionManager.run {
-            it.documentsRepository.saveDocReference(file)
+        transactionManager.run {
+            it.documentsRepository.saveDocReference(file, uuid)
         }
+        return uuid
     }
 
     override fun downloadDoc(fileId: String): Result<Resource> =

@@ -5,6 +5,7 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.deleteFromFilesystem
 import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.templatesFolderPath
 import org.springframework.stereotype.Component
@@ -16,9 +17,7 @@ import java.io.FileOutputStream
 @Component
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
 
-    override fun addTemplate(templateFile: MultipartFile) {
-        //TODO instead of saving file by name, save using an id to avoid replacements on collision
-
+    override fun addTemplate(templateFile: MultipartFile): String {
         if (templateFile.contentType != "application/json")
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
 
@@ -34,6 +33,13 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
     override fun deleteTemplate(templateName: String) {
         if (templateName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
+
+        val templatePath = transactionManager.run {
+            it.processesRepository.findTemplatePathByName(templateName)
+        }
+
+        // Delete template file from filesystem
+        deleteFromFilesystem(templatePath)
 
         transactionManager.run {
             it.processesRepository.deleteTemplate(templateName)

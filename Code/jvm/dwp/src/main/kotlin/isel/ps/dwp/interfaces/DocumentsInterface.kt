@@ -8,7 +8,7 @@ interface DocumentsInterface {
     /**
      * Guardar a descrição de documento na base de dados
      */
-    fun saveDocReference(file: MultipartFile): String
+    fun saveDocReference(file: MultipartFile, newId: String)
 
     /**
      * Obter localização de um documento através do seu id

@@ -22,13 +22,13 @@ CREATE TABLE IF NOT EXISTS Utilizador (
 );
 
 create table if not exists template_processo (
-	nome varchar(32) primary key,
+	nome text primary key,
 	descricao text not null,
 	path text not null
 );
 
 create table if not exists acesso_template (
-	nome_template varchar(32),
+	nome_template text,
 	utilizador email,
 	primary key(nome_template, utilizador),
 	foreign key (nome_template) references template_processo (nome) ON DELETE CASCADE ON UPDATE cascade,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Processo (
 --Documento(id,descricao,status,nome,localizacao)
 CREATE TABLE IF NOT EXISTS Documento (
     id varchar(36) PRIMARY KEY,
-    nome varchar(32) NOT NULL,
+    nome text NOT NULL,
     tipo varchar(32) not null,
     tamanho bigint not null, 
     localizacao varchar(100) NOT NULL

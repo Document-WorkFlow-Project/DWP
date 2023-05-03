@@ -13,11 +13,18 @@ import java.util.*
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun addTemplate(templateFile: MultipartFile) {
-        val fileName = templateFile.originalFilename
+    override fun addTemplate(templateFile: MultipartFile): String {
+        val fileNameWithType = templateFile.originalFilename
+        val fileName = fileNameWithType!!.substringBeforeLast(".json")
         //TODO add description
         val description = "sample description"
-        val filePath = "$templatesFolderPath/$fileName"
+        val filePath = "$templatesFolderPath/$fileNameWithType"
+
+        if (handle.createQuery("select * from template_processo where nome = :nome")
+            .bind("nome", fileName)
+            .mapTo(String::class.java)
+            .firstOrNull() != null)
+            throw ExceptionControllerAdvice.InvalidParameterException("Template $fileName already exists.")
 
         handle.createUpdate(
                 "insert into template_processo(nome, descricao, path) values (:name,:description,:path)"
@@ -26,6 +33,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .bind("description", description)
                 .bind("path", filePath)
                 .execute()
+        return fileName
     }
 
     override fun deleteTemplate(templateName: String) {
@@ -34,6 +42,15 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         )
             .bind("name", templateName)
             .execute()
+    }
+
+    fun findTemplatePathByName(templateName: String): String {
+        return handle.createQuery(
+            "select path from template_processo where nome = :name"
+        )
+            .bind("name", templateName)
+            .mapTo(String::class.java)
+            .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template $templateName not found.")
     }
 
     override fun pendingProcesses(userEmail: String?): List<String> {
