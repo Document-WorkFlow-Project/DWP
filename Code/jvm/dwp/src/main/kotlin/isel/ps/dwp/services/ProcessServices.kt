@@ -5,6 +5,7 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.templatesFolderPath
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
@@ -22,11 +23,7 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
 
         // Save template file in filesystem
-        val filePath = "$templatesFolderPath/${templateFile.originalFilename}"
-        val bytes = templateFile.bytes
-        val stream = BufferedOutputStream(FileOutputStream(File(filePath)))
-        stream.write(bytes)
-        stream.close()
+        saveInFilesystem(templateFile, "$templatesFolderPath/${templateFile.originalFilename}")
 
         // Save template file description in database
         return transactionManager.run {
