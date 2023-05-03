@@ -89,4 +89,40 @@ class ProcessesController (
             .body(stages)
     }
 
+    @GetMapping("{processId}")
+    fun processDetails(@PathVariable processId: String): ResponseEntity<*> {
+        val details = processesServices.processDetails(processId)
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(details)
+    }
+
+    @PostMapping("{templateName}")
+    fun newProcess(@PathVariable templateName: String): ResponseEntity<*> {
+        val processId = processesServices.newProcessFromTemplate(templateName)
+        return ResponseEntity
+                .status(201)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(processId)
+    }
+
+    @DeleteMapping("{processId}")
+    fun deleteProcess(@PathVariable processId: String): ResponseEntity<*> {
+        processesServices.deleteProcess(processId)
+        return ResponseEntity
+                .status(201)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Process $processId deleted")
+    }
+
+    @PutMapping("{processId}")
+    fun cancelProcess(@PathVariable processId: String): ResponseEntity<*> {
+        processesServices.cancelProcess(processId)
+        return ResponseEntity
+                .status(201)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Process $processId cancelled")
+    }
+
 }
