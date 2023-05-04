@@ -86,7 +86,7 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
-    override fun processStages(processId: String): List<Stage> {
+    override fun processStages(processId: String): List<String> {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 

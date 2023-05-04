@@ -16,11 +16,13 @@ class ExceptionControllerAdvice {
     class FailedAuthenticationException(message: String) : RuntimeException(message)
     class ParameterIsBlank(message: String) : RuntimeException(message)
     class DataTransferError(message: String) : RuntimeException(message)
+    class ProcessNotFound(message: String) : RuntimeException(message)
 
 
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntimeException(ex: RuntimeException): ResponseEntity<String> {
         val status = when (ex) {
+            is ProcessNotFound,
             is UserNotFoundException,
             is DocumentNotFoundException,
             is TemplateNotFoundException -> HttpStatus.NOT_FOUND

@@ -51,7 +51,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     }
 
     override fun getProcesses(type: String): List<String> {
-        return handle.createQuery("select id from processo where tipo = :type")
+        return handle.createQuery("select id from processo where template_processo = :type")
             .bind("type", type)
             .mapTo(String::class.java)
             .list()
@@ -85,20 +85,45 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .list()
     }
 
-    override fun processStages(processId: String): List<Stage> {
-        TODO("Not yet implemented")
+    // TODO obter por ordem
+    override fun processStages(processId: String): List<String> {
+        val stages = handle.createQuery("select id_etapa from etapa_processo where id_processo = :processId")
+            .bind("processId", processId)
+            .mapTo(String::class.java)
+            .list()
+        return stages.ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.") }
     }
 
     override fun addUsersToTemplate(templateName: String, email: String) {
-        TODO("Not yet implemented")
+        if (handle.createQuery("select * from acesso_template where nome_template = :template and utilizador = :email")
+                .bind("template", templateName)
+                .bind("email", email)
+                .mapTo(String::class.java)
+                .firstOrNull() != null)
+            throw ExceptionControllerAdvice.InvalidParameterException("User $email already added to $templateName.")
+
+        handle.createUpdate(
+            "insert into acesso_template(nome_template, utilizador) values (:template,:email)"
+        )
+            .bind("template", templateName)
+            .bind("email", email)
+            .execute()
     }
 
     override fun removeUserFromTemplate(templateName: String, email: String) {
-        TODO("Not yet implemented")
+        handle.createUpdate(
+            "delete from acesso_template where nome_template = :template and utilizador = :email"
+        )
+            .bind("template", templateName)
+            .bind("email", email)
+            .execute()
     }
 
     override fun processDetails(processId: String): Process {
-        TODO("Not yet implemented")
+        return handle.createQuery("select * from processo where id = :processId")
+            .bind("processId", processId)
+            .mapTo(Process::class.java)
+            .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.")
     }
 
     override fun newProcessFromTemplate(templateName: String): String {
@@ -106,11 +131,19 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     }
 
     override fun deleteProcess(processId: String) {
-        TODO("Not yet implemented")
+        handle.createUpdate(
+            "delete from processo where id = :processId"
+        )
+            .bind("processId", processId)
+            .execute()
     }
 
     override fun cancelProcess(processId: String) {
-        TODO("Not yet implemented")
+        handle.createUpdate(
+            "update processo set estado = 'CANCELLED' where id = :processId"
+        )
+            .bind("processId", processId)
+            .execute()
     }
 
 }

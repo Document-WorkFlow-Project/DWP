@@ -44,7 +44,7 @@ interface ProcessesInterface {
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)
      */
-    fun processStages(processId: String): List<Stage>
+    fun processStages(processId: String): List<String>
 
     /**
     * Detalhes de um processo (função de utilizadores associados ao processo)
