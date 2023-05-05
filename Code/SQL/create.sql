@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS Documento (
 CREATE TABLE IF NOT EXISTS Etapa (
     id serial PRIMARY KEY,
     id_processo int NOT NULL,
+    --modo varchar(32) NOT NULL,
     nome varchar(32) NOT NULL,
     responsavel varchar(32) NOT NULL,
     descricao varchar(100),

@@ -41,7 +41,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
-    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String){
+    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
 
         /*TODO: Averiguar se etapa já existe*/
 
@@ -56,7 +56,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
         return transactionManager.run {
             val stageRepo = it.stagesRepository
-            stageRepo.createStage(processId, nome,responsavel,descricao,data_inicio,data_fim,prazo,estado)
+            stageRepo.createStage(processId, nome,responsavel,descricao,data_inicio,null,prazo,estado)
         }
 
     }

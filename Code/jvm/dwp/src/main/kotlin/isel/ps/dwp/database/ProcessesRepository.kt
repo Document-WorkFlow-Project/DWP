@@ -10,46 +10,6 @@ import org.springframework.web.multipart.MultipartFile
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun addTemplate(templateFile: MultipartFile): String {
-        val fileNameWithType = templateFile.originalFilename
-        val fileName = fileNameWithType!!.substringBeforeLast(".json")
-        //TODO add description
-        val description = "sample description"
-        val filePath = "$templatesFolderPath/$fileNameWithType"
-
-        if (handle.createQuery("select * from template_processo where nome = :nome")
-            .bind("nome", fileName)
-            .mapTo(String::class.java)
-            .firstOrNull() != null)
-            throw ExceptionControllerAdvice.InvalidParameterException("Template $fileName already exists.")
-
-        handle.createUpdate(
-                "insert into template_processo(nome, descricao, path) values (:name,:description,:path)"
-        )
-                .bind("name", fileName)
-                .bind("description", description)
-                .bind("path", filePath)
-                .execute()
-        return fileName
-    }
-
-    override fun deleteTemplate(templateName: String) {
-        handle.createUpdate(
-            "delete from template_processo where nome = :name"
-        )
-            .bind("name", templateName)
-            .execute()
-    }
-
-    fun findTemplatePathByName(templateName: String): String {
-        return handle.createQuery(
-            "select path from template_processo where nome = :name"
-        )
-            .bind("name", templateName)
-            .mapTo(String::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template $templateName not found.")
-    }
-
     override fun getProcesses(type: String): List<String> {
         return handle.createQuery("select id from processo where template_processo = :type")
             .bind("type", type)
@@ -94,31 +54,6 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         return stages.ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.") }
     }
 
-    override fun addUsersToTemplate(templateName: String, email: String) {
-        if (handle.createQuery("select * from acesso_template where nome_template = :template and utilizador = :email")
-                .bind("template", templateName)
-                .bind("email", email)
-                .mapTo(String::class.java)
-                .firstOrNull() != null)
-            throw ExceptionControllerAdvice.InvalidParameterException("User $email already added to $templateName.")
-
-        handle.createUpdate(
-            "insert into acesso_template(nome_template, utilizador) values (:template,:email)"
-        )
-            .bind("template", templateName)
-            .bind("email", email)
-            .execute()
-    }
-
-    override fun removeUserFromTemplate(templateName: String, email: String) {
-        handle.createUpdate(
-            "delete from acesso_template where nome_template = :template and utilizador = :email"
-        )
-            .bind("template", templateName)
-            .bind("email", email)
-            .execute()
-    }
-
     override fun processDetails(processId: String): Process {
         return handle.createQuery("select * from processo where id = :processId")
             .bind("processId", processId)
@@ -146,4 +81,17 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .execute()
     }
 
+    fun createProcess(nome: String, autor: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String, template_processo:String): Int? {
+        val result = handle.createUpdate("INSERT INTO Processo (nome, autor, descricao, data_inicio, data_fim, prazo, estado, template_processo) VALUES (:nome, :autor, :responsavel, :descricao, :data_inicio, :data_fim, :prazo, :estado, :template_processo)")
+            .bind("nome", nome)
+            .bind("autor", autor)
+            .bind("descricao", descricao)
+            .bind("data_inicio", data_inicio)
+            .bind("data_fim", data_fim)
+            .bind("prazo", prazo)
+            .bind("estado", estado)
+            .bind("template_processo", template_processo)
+            .executeAndReturnGeneratedKeys()
+        return result.mapTo(Int::class.java).one()
+    }
 }

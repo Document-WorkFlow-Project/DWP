@@ -31,7 +31,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
 
-    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
+    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String) {
         handle.createUpdate("INSERT INTO Etapa (id_processo, nome, responsavel, descricao, data_inicio, data_fim, prazo, estado) VALUES (:id_processo, :nome, :responsavel, :descricao, :data_inicio, :data_fim, :prazo, :estado)")
             .bind("id_processo", processId)
             .bind("nome", nome)

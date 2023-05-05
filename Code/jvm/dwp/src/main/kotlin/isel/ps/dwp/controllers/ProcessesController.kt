@@ -2,7 +2,6 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
-import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.services.ProcessServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -17,41 +16,6 @@ class ProcessesController (
     )
 ) {
 
-    @PostMapping("/templates")
-    fun newTemplate(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
-        val templateName = processesServices.addTemplate(file)
-        return ResponseEntity
-                .status(201)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(templateName)
-    }
-
-    @PutMapping("/templates/{templateName}")
-    fun addUserToTemplate(@PathVariable templateName: String, @RequestBody email: String): ResponseEntity<*> {
-        processesServices.addUsersToTemplate(templateName, email)
-        return ResponseEntity
-            .status(201)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body("Emails added to $templateName template.")
-    }
-
-    @DeleteMapping("/templates/{templateName}")
-    fun removeUserFromTemplate(@PathVariable templateName: String, @RequestBody email: String): ResponseEntity<*> {
-        processesServices.removeUserFromTemplate(templateName, email)
-        return ResponseEntity
-            .status(201)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body("$email removed from $templateName template.")
-    }
-
-    @DeleteMapping("/templates/{name}")
-    fun deleteTemplate(@PathVariable name: String): ResponseEntity<*> {
-        processesServices.deleteTemplate(name)
-        return ResponseEntity
-                .status(201)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Template $name deleted")
-    }
 
     @GetMapping("/{type}")
     fun userProcesses(@PathVariable type: String): ResponseEntity<*> {

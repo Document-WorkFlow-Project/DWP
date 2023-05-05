@@ -15,6 +15,8 @@ class JdbiTransaction (private val handle: Handle) : Transaction {
 
     override val documentsRepository: DocumentsRepository by lazy { DocumentsRepository(handle) }
 
+    override val templatesRepository: TemplatesRepository by lazy { TemplatesRepository(handle) }
+
     override fun rollback() {
         handle.rollback()
     }

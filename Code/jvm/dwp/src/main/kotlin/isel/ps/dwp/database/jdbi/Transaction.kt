@@ -9,6 +9,7 @@ interface Transaction {
     val rolesRepository: RolesRepository
     val stagesRepository: StagesRepository
     val documentsRepository: DocumentsRepository
+    val templatesRepository: TemplatesRepository
 
     fun rollback()
 }

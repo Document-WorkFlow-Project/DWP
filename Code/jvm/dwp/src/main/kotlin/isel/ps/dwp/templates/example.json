@@ -1,0 +1,32 @@
+{
+  "ProcessTemplate": {
+    "nome": null,
+    "autor": null,
+    "descricao": null,
+    "data_inicio": null,
+    "data_fim": null,
+    "prazo": null,
+    "estado": "Pending",
+    "template_processo": "FUC",
+    "etapas": [
+      {
+        "nome": null,
+        "responsavel": ["email1","email2","email3s"],
+        "descricao": null,
+        "data_inicio": null,
+        "data_fim": null,
+        "prazo": null,
+        "estado": "Pending"
+      },
+      {
+        "nome": null,
+        "responsavel": ["email1","email2","email3s"],
+        "descricao": null,
+        "data_inicio": null,
+        "data_fim": null,
+        "prazo": null,
+        "estado": "Pending"
+      }
+    ]
+  }
+}
