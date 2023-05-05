@@ -22,8 +22,8 @@ data class Process (
     var state: String, // pending, finished with success/failure
     val responsible: String, // author of the process
     val startDate: Date, // date of creation
-    var endDate: Date, // date of conclusion
-    val duration: Int
+    var endDate: Date,   /*TODO: Pode ser Date?, nullable*/    // date of conclusion
+     val duration: Int
 )
 
 data class Stage (

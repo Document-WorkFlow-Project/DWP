@@ -1,0 +1,34 @@
+{
+  "Processo": {
+    "nome": null,
+    "autor": null,
+    "descricao": null,
+    "data_inicio": null,
+    "data_fim": null,
+    "prazo": null,
+    "estado": "Pending",
+    "template_processo": "FUC",
+    "etapas": [
+      {
+        "id": "",
+        "nome": "",
+        "responsavel": "",
+        "descricao": "",
+        "data_inicio": "",
+        "data_fim": "",
+        "prazo": "",
+        "estado": ""
+      },
+      {
+        "id": "",
+        "nome": "",
+        "responsavel": "",
+        "descricao": "",
+        "data_inicio": "",
+        "data_fim": "",
+        "prazo": "",
+        "estado": ""
+      }
+    ]
+  }
+}
