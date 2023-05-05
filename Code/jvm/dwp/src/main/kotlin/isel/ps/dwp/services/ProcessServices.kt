@@ -5,28 +5,21 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.deleteFromFilesystem
+import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.templatesFolderPath
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 @Component
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
 
-    override fun addTemplate(templateFile: MultipartFile) {
-        //TODO instead of saving file by name, save using an id to avoid replacements on collision
-
+    override fun addTemplate(templateFile: MultipartFile): String {
         if (templateFile.contentType != "application/json")
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
 
         // Save template file in filesystem
-        val filePath = "$templatesFolderPath/${templateFile.originalFilename}"
-        val bytes = templateFile.bytes
-        val stream = BufferedOutputStream(FileOutputStream(File(filePath)))
-        stream.write(bytes)
-        stream.close()
+        saveInFilesystem(templateFile, "$templatesFolderPath/${templateFile.originalFilename}")
 
         // Save template file description in database
         return transactionManager.run {
@@ -34,12 +27,50 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
-    override fun deleteTemplate(templateName: String) {
+    override fun addUsersToTemplate(templateName: String, email: String) {
+        if (email.isEmpty())
+            throw ExceptionControllerAdvice.ParameterIsBlank("Missing user emails.")
         if (templateName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
+            it.processesRepository.addUsersToTemplate(templateName, email)
+        }
+    }
+
+    override fun removeUserFromTemplate(templateName: String, email: String) {
+        if (email.isBlank())
+            throw ExceptionControllerAdvice.ParameterIsBlank("Missing user email.")
+        if (templateName.isBlank())
+            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
+
+        transactionManager.run {
+            it.processesRepository.removeUserFromTemplate(templateName, email)
+        }
+    }
+
+    override fun deleteTemplate(templateName: String) {
+        if (templateName.isBlank())
+            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
+
+        val templatePath = transactionManager.run {
+            it.processesRepository.findTemplatePathByName(templateName)
+        }
+
+        // Delete template file from filesystem
+        deleteFromFilesystem(templatePath)
+
+        transactionManager.run {
             it.processesRepository.deleteTemplate(templateName)
+        }
+    }
+
+    override fun getProcesses(type: String): List<String> {
+        if (type.isBlank())
+            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template type.")
+
+        return transactionManager.run {
+            it.processesRepository.getProcesses(type)
         }
     }
 
@@ -55,61 +86,12 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
-    override fun getProcesses(type: String): List<String> {
-        if (type.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template type.")
-
-        return transactionManager.run {
-            it.processesRepository.getProcesses(type)
-        }
-    }
-
-    override fun processUsers(processId: String): List<String> {
-        if (processId.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
-
-        return transactionManager.run {
-            it.processesRepository.processUsers(processId)
-        }
-    }
-
-    override fun userProcesses(userId: String): List<Process> {
-        if (userId.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing user id.")
-
-        return transactionManager.run {
-            it.processesRepository.userProcesses(userId)
-        }
-    }
-
-    override fun processStages(processId: String): List<Stage> {
+    override fun processStages(processId: String): List<String> {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         return transactionManager.run {
             it.processesRepository.processStages(processId)
-        }
-    }
-
-    override fun addUserToTemplate(userId: String, templateName: String) {
-        if (userId.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing user id.")
-        if (templateName.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
-
-        transactionManager.run {
-            it.processesRepository.addUserToTemplate(userId, templateName)
-        }
-    }
-
-    override fun removeUserFromTemplate(userId: String, templateName: String) {
-        if (userId.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing user id.")
-        if (templateName.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
-
-        transactionManager.run {
-            it.processesRepository.removeUserFromTemplate(userId, templateName)
         }
     }
 

@@ -25,7 +25,10 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
     }
 
     override fun editRole(roleId: String, name: String, description: String) {
-        handle.createUpdate("update table papel set name='$name',description='$description' where id=$roleId")
+        handle.createUpdate("update papel set nome=:nome, descricao=:descricao where id=:roleId")
+            .bind("nome", name)
+            .bind("descricao", description)
+            .bind("roleId", roleId)
             .execute()
             .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist.") }
     }

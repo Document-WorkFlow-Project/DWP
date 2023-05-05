@@ -9,12 +9,27 @@ interface ProcessesInterface {
 
     /** Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
      */
-    fun addTemplate(templateFile: MultipartFile)
+    fun addTemplate(templateFile: MultipartFile): String
+
+    /**
+     * Adicionar utilizadores que podem usar template (função de administrador)
+     */
+    fun addUsersToTemplate(templateName: String, email: String)
+
+    /**
+     * Remover utilizadores que podem usar template (função de administrador)
+     */
+    fun removeUserFromTemplate(templateName: String, email: String)
 
     /**
      * Remover template de um processo (função de administrador)
      */
     fun deleteTemplate(templateName: String)
+
+    /**
+     * Obter lista de processos de um certo tipo de template
+     */
+    fun getProcesses(type: String): List<String>
 
     /**
      * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)
@@ -27,34 +42,9 @@ interface ProcessesInterface {
     fun finishedProcesses(userEmail: String?): List<String>
 
     /**
-     * Obter lista de processos de um certo tipo de template
-     */
-    fun getProcesses(type: String): List<String>
-
-    /**
-     * Obter lista de utilizadores associados a um processo (função de administrador ou utilizador associado ao processo)
-     */
-    fun processUsers(processId: String): List<String>
-
-    /**
-     * Obter lista de processos de um utilizador (responsável ou participante)
-     */
-    fun userProcesses(userEmail: String): List<Process>
-
-    /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)
      */
-    fun processStages(processId: String): List<Stage>
-
-    /**
-     * Adicionar utilizadores que podem usar template (função de administrador)
-     */
-    fun addUserToTemplate(userId: String, templateName: String)
-
-    /**
-     * Remover utilizadores que podem usar template (função de administrador)
-     */
-    fun removeUserFromTemplate(userId: String, templateName: String)
+    fun processStages(processId: String): List<String>
 
     /**
     * Detalhes de um processo (função de utilizadores associados ao processo)
