@@ -35,11 +35,11 @@ create table if not exists acesso_template (
 	foreign key (utilizador) references utilizador (email) ON DELETE CASCADE ON UPDATE cascade
 );
 
---Processo(id,nome,responsavel,descricao,data_inicio,data_fim,prazo,estado,tipo)
+--Processo(id,nome,autor,descricao,data_inicio,data_fim,prazo,estado,tipo)
 CREATE TABLE IF NOT EXISTS Processo (
     id serial PRIMARY KEY,
     nome varchar(32) NOT NULL,
-    responsavel varchar(32) NOT NULL,
+    autor varchar(32) NOT NULL,
     descricao varchar(100),
     data_inicio date NOT NULL,
     data_fim date,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Processo (
     estado varchar(32) NOT NULL,
     template_processo varchar(32) NOT NULL,
     foreign key (template_processo) references template_processo (nome) ON DELETE CASCADE ON UPDATE cascade,
-    FOREIGN KEY (responsavel) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (autor) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 --Documento(id,descricao,status,nome,localizacao)
