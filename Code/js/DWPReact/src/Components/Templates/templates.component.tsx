@@ -10,10 +10,19 @@ function ModalContent({
   setStageName, 
   stageDescription, 
   setStageDescription, 
+  stageResponsibles,
+  setStageResponsibles,
   stageError, 
   setStageError,
-  stages
+  stages,
+  userGroups,
+  users
  }) {
+  const [searchInput, setSearchInput] = useState("")
+  const [selectedList, setSelectedList] = useState("Groups")
+  const [groups, setGroups] = useState(userGroups)
+  const [all, setAll] = useState(users)
+
   const handleSave = () => {
     if (stageName === "" || stageDescription === ""){
       setStageError("Nome e/ou descrição da etapa em falta.")
@@ -27,12 +36,55 @@ function ModalContent({
     }
   }
 
+  const filteredUsers = selectedList === "Groups" ?
+    groups.filter(item => item.toLowerCase().includes(searchInput.toLowerCase())) :
+    all.filter(item => item.toLowerCase().includes(searchInput.toLowerCase()))
+
+  function addResponsible(responsible) {
+    setStageResponsibles((prevResp) => [...prevResp, responsible])
+    
+    if(selectedList === "Groups")
+      setGroups(groups.filter(group => group !== responsible))
+    else
+      setAll(all.filter(user => user !== responsible))
+  }
+
+  function removeResp(responsible) {
+    setStageResponsibles(stageResponsibles.filter(resp => resp !== responsible))
+    
+    if (responsible.indexOf("@") === -1)
+      setGroups((prevResp) => [...prevResp, responsible])
+    else
+      setAll((prevResp) => [...prevResp, responsible])
+  }
+  
   return (
     <div className="bg">
       <div className="modal">
         <div>Nova etapa
           <p><label>Nome: <input type="text" value={stageName} onChange={e => setStageName(e.target.value)}/></label></p>
           <p><label>Descrição: <textarea value={stageDescription} onChange={e => setStageDescription(e.target.value)}/></label></p>
+          <div>
+            <label>Responsáveis: </label>
+            <div>
+              {stageResponsibles.map((resp, index) => {
+                return (
+                  <b>{resp}<button key={index} onClick={() => removeResp(resp)}>x</button></b>
+                )
+              })}
+            </div>
+            <div>
+              <input type="text" id="myInput" placeholder="Pesquisar responsáveis" 
+                onChange={(e) => {setSearchInput(e.target.value)}}></input>
+                <select value={selectedList} onChange={(e) => setSelectedList(e.target.value)}>
+                  <option value="Groups">Groups</option>
+                  <option value="All">All</option>
+                </select>
+            </div>
+            {filteredUsers.map((item, index) => (
+              <button key={index} onClick={() => addResponsible(item)}>{item}</button>
+            ))}
+          </div>
           <p className="error">{stageError}</p>
         </div>
         <button onClick={handleSave}>Guardar etapa</button>
@@ -44,22 +96,31 @@ function ModalContent({
 
 export default function Templates() {
 
+  const responsiblesSample = ["CP", "CTC", "user1@gmail.com", "user2@gmail.com", "user3@gmail.com"]
+
   const sample = {
     name: "stageName",
     description: "stageDescription",
-    responsibles: [],
+    responsibles: responsiblesSample,
   }
 
   const sample2 = {
     name: "stageName2",
     description: "stageDescription2",
-    responsibles: [],
+    responsibles: responsiblesSample,
   }
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
   const [templateDescription, setTemplateDescription] = useState("")
   const [stages, setStages] = useState([sample, sample2])
+
+  // TODO get users and user groups from API
+  const userGroups = ["RUC", "CCC", "CCD", "CP", "CTC", "Serviços Académicos"]
+  const users = ["Miguel Almeida <miguelalmeida@isel.pt>", "Ricado Bernardino <ricky@isel.pt>", "David Costa <david@isel.pt>"]
+  // This contains user emails associated to a role, fetched from the API
+  // TODO when a user group is added to stage responsibles, adding individual users, filters the previously added
+  const [groupUsers, setGroupUsers] = useState()
 
   // new stage name, description, and responsibles
   const [stageName, setStageName] = useState("")
@@ -102,6 +163,7 @@ export default function Templates() {
   }
 
   const saveTemplate = () => {
+    // TODO check if template name was already used
     if (templateName === "" || templateDescription === "") {
       setError("Nome e/ou descrição do template em falta.")
       return
@@ -134,10 +196,10 @@ export default function Templates() {
 
   return (
     <div>
-      <h2>Novo template de processo</h2>
       <div className="templateParams">
-        <p><label>Nome: <input type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/></label></p>
-        <p><label>Descrição: <textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/></label></p>
+        <h2>Novo template de processo</h2>
+        <p><label><b>Nome: </b><input type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/></label></p>
+        <p><label><b>Descrição: </b><textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/></label></p>
         <p className="error">{error}</p>
 
         <button onClick={() => setShowModal(true)}>Adicionar etapa</button>
@@ -153,18 +215,15 @@ export default function Templates() {
                   <Draggable key={stage.name} draggableId={stage.name} index={index}>
                     {(provided) => (
                       <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="clipping-container" key={index}>
-                        Nome: {stage.name}
-                        <p>Descrição: {stage.description}</p>
-                        <ul>Responsáveis:
-                          {stage.responsibles.map((email, index) => (
-                            <li key={index}>{email}</li>
-                          ))}
-                        </ul>
+                        <b>Nome: </b>{stage.name}
+                        <p><b>Descrição: </b>{stage.description}</p>
+                        <p><b>Responsáveis: </b></p>
+                        <p>{stage.responsibles}</p>
                         <button onClick={() => deleteStage(index)}>Apagar etapa</button>
                       </div>
                     )}
                   </Draggable>
-                );
+                )
               })}
               {provided.placeholder}
             </ul>
@@ -184,9 +243,13 @@ export default function Templates() {
             setStageName={setStageName} 
             stageDescription={stageDescription} 
             setStageDescription={setStageDescription}
+            stageResponsibles={stageResponsibles}
+            setStageResponsibles={setStageResponsibles}
             stageError={stageError} 
             setStageError={setStageError}
             stages={stages}
+            userGroups={userGroups}
+            users={users}
           />,
           document.body
         )}

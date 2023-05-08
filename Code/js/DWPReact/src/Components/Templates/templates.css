@@ -1,11 +1,16 @@
+.templateParams {
+    margin: 15px;
+}
+
 .clipping-container {
     position: relative;
     border: 1px solid #aaa;
     margin-bottom: 12px;
     padding: 12px;
-    width: 250px;
+    width: 400px;
     overflow: hidden;
     background-color: white;
+    border-radius: 12px;
 }
 
 .bg{
@@ -27,10 +32,10 @@
     border: 2px solid rgb(240, 240, 240);
     border-radius: 12px;
     position: absolute;
-    width: 270px;
-    height: 230px;
+    width: 500px;
+    height: 400px;
     top: 200px;
-    left: calc(50% - 125px);
+    left: calc(50% - 250px);
     justify-content: space-evenly;
     flex-direction: column;
     flex-wrap: wrap;
