@@ -46,6 +46,7 @@ data class Comment (
     val sender: String
 )
 
+// Representação de um documento guardado na base de dados
 data class Document (
     val id: String,
     val nome: String,
@@ -60,11 +61,13 @@ data class EmailDetails (
     val subject: String
 )
 
+// Representação de um ficheiro template json na base de dados
 data class ProcessTemplateFile (
     val nome: String,
     val descricao: String,
     val path: String
 )
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class ProcessTemplate(
     @JsonProperty("nome") val nome: String,

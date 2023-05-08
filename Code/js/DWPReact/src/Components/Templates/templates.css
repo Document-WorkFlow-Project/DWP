@@ -1,0 +1,42 @@
+.clipping-container {
+    position: relative;
+    border: 1px solid #aaa;
+    margin-bottom: 12px;
+    padding: 12px;
+    width: 250px;
+    overflow: hidden;
+    background-color: white;
+}
+
+.bg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(179, 179, 179, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    display: flex;
+    align-items: center;
+    box-shadow: rgba(100, 100, 111, 0.3) 0px 7px 29px 0px;
+    background-color: white;
+    border: 2px solid rgb(240, 240, 240);
+    border-radius: 12px;
+    position: absolute;
+    width: 270px;
+    height: 230px;
+    top: 200px;
+    left: calc(50% - 125px);
+    justify-content: space-evenly;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.error {
+    color: red;
+}
