@@ -12,11 +12,14 @@ class ExceptionControllerAdvice {
     class DocumentNotFoundException(message: String) : RuntimeException(message)
     class TemplateNotFoundException(message: String) : RuntimeException(message)
     class UserNotFoundException(message: String) : RuntimeException(message)
-    class InvalidParameterException(message : String) : RuntimeException(message)
+    class InvalidParameterException(message: String) : RuntimeException(message)
     class FailedAuthenticationException(message: String) : RuntimeException(message)
     class ParameterIsBlank(message: String) : RuntimeException(message)
     class DataTransferError(message: String) : RuntimeException(message)
     class ProcessNotFound(message: String) : RuntimeException(message)
+    class DatabaseIsNotAvailable(message: String) : RuntimeException(message)
+    class UserNotAuthorizedException(message: String) : RuntimeException(message)
+    class NativeRequestDoesntExistException(message: String) : RuntimeException(message) {}
 
 
     @ExceptionHandler(RuntimeException::class)
@@ -26,9 +29,16 @@ class ExceptionControllerAdvice {
             is UserNotFoundException,
             is DocumentNotFoundException,
             is TemplateNotFoundException -> HttpStatus.NOT_FOUND
+
+            is DatabaseIsNotAvailable -> HttpStatus.INTERNAL_SERVER_ERROR
             is InvalidParameterException,
+            is NativeRequestDoesntExistException -> HttpStatus.BAD_REQUEST
+
             is FailedAuthenticationException,
+            is UserNotAuthorizedException -> HttpStatus.FORBIDDEN
+
             is ParameterIsBlank -> HttpStatus.BAD_REQUEST
+
             is DataTransferError -> HttpStatus.FAILED_DEPENDENCY
             else -> HttpStatus.INTERNAL_SERVER_ERROR
         }
