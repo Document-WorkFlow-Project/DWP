@@ -7,6 +7,7 @@ import isel.ps.dwp.model.User
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Bean
 import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod

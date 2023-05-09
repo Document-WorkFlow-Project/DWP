@@ -5,10 +5,11 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.controllers.UserDetails
 import isel.ps.dwp.interfaces.UsersInterface
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.security.MessageDigest
 
-@Component
+@Service
 class UserServices(private val transactionManager: TransactionManager): UsersInterface {
 
     override fun checkBearerToken(bearerToken: String): String? = transactionManager.run {

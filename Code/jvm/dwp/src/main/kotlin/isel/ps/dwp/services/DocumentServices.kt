@@ -9,11 +9,12 @@ import isel.ps.dwp.uploadsFolderPath
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
 import java.util.*
 
-@Component
+@Service
 class DocumentServices(private val transactionManager: TransactionManager): DocumentServicesInterface {
 
     override fun uploadDoc(file: MultipartFile): String {

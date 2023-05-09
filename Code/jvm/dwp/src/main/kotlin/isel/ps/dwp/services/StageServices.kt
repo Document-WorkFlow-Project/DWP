@@ -7,8 +7,9 @@ import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
 import isel.ps.dwp.model.User
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 
-@Component
+@Service
 class StageServices(private val transactionManager: TransactionManager): StagesInterface {
 
 

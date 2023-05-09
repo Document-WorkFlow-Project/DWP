@@ -5,8 +5,9 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.RolesInterface
 import isel.ps.dwp.model.Role
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 
-@Component
+@Service
 class RoleServices(private val transactionManager: TransactionManager) : RolesInterface {
     override fun createRole(name: String, description: String): Int {
         if (name.isBlank())

@@ -6,8 +6,10 @@ import isel.ps.dwp.interfaces.TemplatesInterface
 import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
+import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 
+@Repository
 class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
 
     fun findTemplatePathByName(templateName: String): String {

@@ -6,9 +6,10 @@ import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.*
 import isel.ps.dwp.templatesFolderPath
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
-@Component
+@Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
 
 

@@ -8,8 +8,10 @@ import isel.ps.dwp.model.StageTemplate
 import isel.ps.dwp.model.deleteFromFilesystem
 import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.templatesFolderPath
+import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
+@Service
 class TemplatesServices(private val transactionManager: TransactionManager): TemplatesInterface {
     override fun addTemplate(templateFile: MultipartFile): String {
         if (templateFile.contentType != "application/json")

@@ -6,9 +6,11 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
 import isel.ps.dwp.services.md5
 import org.jdbi.v3.core.Handle
+import org.springframework.stereotype.Repository
 import java.util.*
 
-class UsersRepository(private val handle: Handle): UsersInterface {
+@Repository
+class UsersRepository(private val handle: Handle) : UsersInterface {
 
     override fun checkBearerToken(bearerToken: String): String? =
         handle.createQuery("select email from utilizador where authtoken = :token")
@@ -56,10 +58,10 @@ class UsersRepository(private val handle: Handle): UsersInterface {
 
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {
         handle.createQuery("select token from utilizador where email = :email and hashpassword = :hashpassword")
-                .bind("email", email)
-                .bind("password", hashPassword)
-                .mapTo(User::class.java)
-                .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Invalid password.")
+            .bind("email", email)
+            .bind("password", hashPassword)
+            .mapTo(User::class.java)
+            .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Invalid password.")
 
         handle.createUpdate(
             "update utilizador set pass = :newPass where email = :email"
