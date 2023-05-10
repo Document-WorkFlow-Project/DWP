@@ -24,12 +24,12 @@ function ModalContent({
   const [all, setAll] = useState(users)
 
   const handleSave = () => {
-    if (stageName === "" || stageDescription === ""){
+    if (stageName === "" || stageDescription === "")
       setStageError("Nome e/ou descrição da etapa em falta.")
-    } 
-    else if (stages.find(stage => stage.name === stageName) != null) {
+    else if(stageResponsibles.length === 0)
+      setStageError("Responsáveis em falta.")
+    else if (stages.find(stage => stage.name === stageName) != null) 
       setStageError("Nome de etapa deve ser único.")
-    }
     else {
       onSave()
       onClose()
@@ -97,7 +97,7 @@ function ModalContent({
 export default function Templates() {
 
   const responsiblesSample = ["CP", "CTC", "user1@gmail.com", "user2@gmail.com", "user3@gmail.com"]
-
+/*
   const sample = {
     name: "stageName",
     description: "stageDescription",
@@ -108,12 +108,12 @@ export default function Templates() {
     name: "stageName2",
     description: "stageDescription2",
     responsibles: responsiblesSample,
-  }
+  }*/
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
   const [templateDescription, setTemplateDescription] = useState("")
-  const [stages, setStages] = useState([sample, sample2])
+  const [stages, setStages] = useState([])
 
   // TODO get users and user groups from API
   const userGroups = ["RUC", "CCC", "CCD", "CP", "CTC", "Serviços Académicos"]

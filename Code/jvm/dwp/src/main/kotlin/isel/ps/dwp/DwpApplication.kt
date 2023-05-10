@@ -2,7 +2,6 @@ package isel.ps.dwp
 
 import isel.daw.battleships.http.pipeline.UserArgumentResolver
 import isel.ps.dwp.database.jdbi.configure
-import isel.ps.dwp.http.pipeline.AuthenticationInterceptor
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -33,26 +32,29 @@ class DwpApplication {
 
 }
 
-@Configuration
-class PipelineConfigurer(
-    val authenticationInterceptor: AuthenticationInterceptor,
-    val userArgumentResolver: UserArgumentResolver,
-) : WebMvcConfigurer {
 
-    override fun addInterceptors(registry: InterceptorRegistry) {
-        registry
-            .addInterceptor(authenticationInterceptor)
-            .addPathPatterns("/docs/**")
-            .addPathPatterns("/processes/**")
-            .addPathPatterns("/roles/**")
-            .addPathPatterns("/stages/**")
-            .addPathPatterns("/templates/**")
-    }
-
-    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(userArgumentResolver)
-    }
-}
+//@Configuration
+//class PipelineConfigurer(
+//    val authenticationInterceptor: AuthenticationInterceptor,
+//    val userArgumentResolver: UserArgumentResolver,
+//) : WebMvcConfigurer {
+//
+//    override fun addInterceptors(registry: InterceptorRegistry) {
+//        registry
+//            .addInterceptor(authenticationInterceptor)
+//            .addPathPatterns("/docs/**")
+//            .addPathPatterns("/processes/**")
+//            .addPathPatterns("/roles/**")
+//            .addPathPatterns("/stages/**")
+//            .addPathPatterns("/templates/**")
+//    }
+//
+//
+//
+//    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+//        resolvers.add(userArgumentResolver)
+//    }
+//}
 
 fun main(args: Array<String>) {
     runApplication<DwpApplication>(*args)

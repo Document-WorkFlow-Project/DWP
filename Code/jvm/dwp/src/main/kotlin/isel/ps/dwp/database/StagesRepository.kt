@@ -7,7 +7,6 @@ import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
 import org.springframework.stereotype.Repository
 
-@Repository
 class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Stages -------------------------------**/

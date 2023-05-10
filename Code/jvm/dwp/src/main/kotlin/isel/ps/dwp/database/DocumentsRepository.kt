@@ -7,7 +7,6 @@ import org.jdbi.v3.core.Handle
 import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 
-@Repository
 class DocumentsRepository(private val handle: Handle) : DocumentsInterface {
 
     override fun saveDocReference(file: MultipartFile, newId: String) {

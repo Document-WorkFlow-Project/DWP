@@ -7,7 +7,6 @@ import org.jdbi.v3.core.Handle
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
-@Repository
 class RolesRepository(private val handle: Handle) : RolesInterface {
     override fun createRole(name: String, description: String): Int {
         return handle.createQuery(

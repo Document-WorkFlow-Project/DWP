@@ -9,7 +9,6 @@ import org.jdbi.v3.core.Handle
 import org.springframework.stereotype.Repository
 import java.util.*
 
-@Repository
 class UsersRepository(private val handle: Handle) : UsersInterface {
 
     override fun checkBearerToken(bearerToken: String): String? =

@@ -9,7 +9,7 @@ import org.jdbi.v3.core.Handle
 import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 
-@Repository
+
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     override fun getProcesses(type: String): List<String> {
