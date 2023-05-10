@@ -135,6 +135,8 @@ CREATE TABLE IF NOT EXISTS Utilizador_Processo (
 CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
     email_utilizador varchar(32) NOT NULL,
     id_etapa int NOT NULL,
+    assina boolean,
+    data_assina date,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)
