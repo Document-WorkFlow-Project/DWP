@@ -33,10 +33,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
 
-    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String) {
-        handle.createUpdate("INSERT INTO Etapa (id_processo, nome, responsavel, descricao, data_inicio, data_fim, prazo, estado) VALUES (:id_processo, :nome, :responsavel, :descricao, :data_inicio, :data_fim, :prazo, :estado)")
+    override fun createStage(processId: Int, nome: String, modo:String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String) {
+        handle.createUpdate("INSERT INTO Etapa (id_processo, nome, responsavel, descricao, data_inicio,modo, data_fim, prazo, estado) VALUES (:id_processo, :nome, :responsavel, :descricao, :data_inicio, :modo, :data_fim, :prazo, :estado)")
             .bind("id_processo", processId)
             .bind("nome", nome)
+            .bind("modo",modo)
             .bind("responsavel", responsavel)
             .bind("descricao", descricao)
             .bind("data_inicio", data_inicio)
@@ -52,12 +53,13 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .execute()
     }
 
-    override fun editStage(stageId: String, nome: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
+    override fun editStage(stageId: String, nome: String, modo: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
         handle.createUpdate(
-            "UPDATE Stage SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
+            "UPDATE Stage SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, modo =:modo, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
         )
             .bind("stageId", stageId)
             .bind("nome", nome)
+            .bind("modo",modo)
             .bind("descricao", descricao)
             .bind("data_inicio", data_inicio)
             .bind("data_fim", data_fim)

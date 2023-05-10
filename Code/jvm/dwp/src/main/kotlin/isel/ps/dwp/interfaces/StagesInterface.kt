@@ -6,11 +6,11 @@ import isel.ps.dwp.model.User
 
 interface StagesInterface {
 
-    fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String)
+    fun createStage(processId: Int, nome: String, modo:String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String)
 
     fun deleteStage(stageId: String)
 
-    fun editStage(stageId: String, nome: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String)
+    fun editStage(stageId: String, nome: String, modo:String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String)
 
     fun viewStages(processId : String): List<Stage>
 

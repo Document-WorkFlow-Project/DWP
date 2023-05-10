@@ -32,6 +32,7 @@ data class Process (
 data class Stage (
     val stageId: String,
     val name: String,
+    val mode: String,
     val description: String,
     val state: String,
     val responsible: String, // stage responsibles
@@ -83,6 +84,7 @@ data class ProcessTemplate(
 
 data class StageTemplate(
     @JsonProperty("nome") val nome: String ,
+    @JsonProperty("modo") val modo: String,
     @JsonProperty("responsavel") val responsavel: List<String> = listOf(),
     @JsonProperty("descricao") val descricao: String ,
     @JsonProperty("data_inicio") val data_inicio: String ,

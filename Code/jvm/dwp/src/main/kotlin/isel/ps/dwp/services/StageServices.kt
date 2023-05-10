@@ -42,7 +42,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
-    override fun createStage(processId: Int, nome: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
+    override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
 
         /*TODO: Averiguar se etapa já existe*/
 
@@ -53,11 +53,17 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         if (descricao.length > 100)
             throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
 
+        /* Verificar se o modo é válido */
+        if (modo != "Unanimos" && modo != "Majority" && modo != "Unilateral") {
+            throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
+        }
+
+
         /*TODO: Mais Averiguações*/
 
         return transactionManager.run {
             val stageRepo = it.stagesRepository
-            stageRepo.createStage(processId, nome,responsavel,descricao,data_inicio,null,prazo,estado)
+            stageRepo.createStage(processId, nome, modo, responsavel,descricao,data_inicio,null,prazo,estado)
         }
 
     }
@@ -75,16 +81,20 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         TODO("Not yet implemented")
     }
 
-    override fun editStage(stageId: String, nome: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
+    override fun editStage(stageId: String, nome: String, modo:String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
         /*TODO: Averiguar se etapa existe*/
         if (nome.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
         if (descricao.length > 100)
             throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
-        /*TODO: Mais Averiguações*/
+
+        /* Verificar se o modo é válido */
+        if (modo != "Unanimos" && modo != "Majority" && modo != "Unilateral") {
+            throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
+        }
         return transactionManager.run {
             val stageRepo = it.stagesRepository
-            stageRepo.editStage(stageId,nome,descricao,data_inicio,data_fim,prazo,estado)
+            stageRepo.editStage(stageId,nome,modo,descricao,data_inicio,data_fim,prazo,estado)
         }
     }
 

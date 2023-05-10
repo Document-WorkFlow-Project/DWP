@@ -39,6 +39,7 @@ class StagesController (
     fun createStage(
         @RequestParam processId: Int,
         @RequestParam nome: String,
+        @RequestParam modo: String,
         @RequestParam responsavel: String,
         @RequestParam descricao: String,
         @RequestParam data_inicio: String,
@@ -46,7 +47,7 @@ class StagesController (
         @RequestParam prazo: String,
         @RequestParam estado: String
     ): ResponseEntity<Void> {
-        stageServices.createStage(processId, nome, responsavel, descricao, data_inicio, data_fim, prazo, estado)
+        stageServices.createStage(processId, nome, modo, responsavel, descricao, data_inicio, data_fim, prazo, estado)
         return ResponseEntity(HttpStatus.CREATED)
     }
 
@@ -60,13 +61,14 @@ class StagesController (
     fun editStage(
         @PathVariable stageId: String,
         @RequestParam nome: String,
+        @RequestParam modo: String,
         @RequestParam descricao: String,
         @RequestParam data_inicio: String,
         @RequestParam data_fim: String,
         @RequestParam prazo: String,
         @RequestParam estado: String
     ): ResponseEntity<Void> {
-        stageServices.editStage(stageId, nome, descricao, data_inicio, data_fim, prazo, estado)
+        stageServices.editStage(stageId, nome, modo, descricao, data_inicio, data_fim, prazo, estado)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

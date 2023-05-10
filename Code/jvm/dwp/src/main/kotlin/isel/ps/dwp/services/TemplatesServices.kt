@@ -92,6 +92,9 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
                 if (it.nome.isBlank())
                     throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage name.")
 
+                if (it.modo.isEmpty())
+                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
+
                 if (it.responsavel.isEmpty())
                     throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
 
@@ -130,6 +133,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
                 it.stagesRepository.createStage(
                     processId!!,
                     stage.nome,
+                    stage.modo,
                     stage.responsavel[idx],
                     stage.descricao,
                     stage.data_inicio,
