@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS Etapa (
     responsavel varchar(32) NOT NULL,
     descricao varchar(100),
     data_inicio date NOT NULL,
+    modo date NOT NULL,
+    constraint modo check (modo IN ('Unanimous', 'Majority', 'Unilateral')),
     data_fim date,
     prazo date NOT NULL,
     estado varchar(32) NOT NULL,
