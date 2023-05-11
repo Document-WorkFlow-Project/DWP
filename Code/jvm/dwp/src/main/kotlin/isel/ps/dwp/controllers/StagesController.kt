@@ -1,11 +1,9 @@
 package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.StagesRepository
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -23,15 +21,9 @@ class StagesController (
         return ResponseEntity.ok(stage)
     }
 
-    @PostMapping("/{stageId}/approve")
-    fun approveStage(@PathVariable stageId: String): ResponseEntity<Void> {
-        stageServices.approveStage(stageId)
-        return ResponseEntity(HttpStatus.NO_CONTENT)
-    }
-
-    @PostMapping("/{stageId}/disapprove")
-    fun disaproveStage(@PathVariable stageId: String): ResponseEntity<Void> {
-        stageServices.disaproveStage(stageId)
+    @PostMapping("sign/{stageId}")
+    fun signStage(@PathVariable stageId: String, @RequestParam(required = true) approve: Boolean): ResponseEntity<Void> {
+        stageServices.signStage(stageId, approve)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

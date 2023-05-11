@@ -1,6 +1,5 @@
 package isel.ps.dwp
 
-import isel.daw.battleships.http.pipeline.UserArgumentResolver
 import isel.ps.dwp.database.jdbi.configure
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
@@ -8,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.method.support.HandlerMethodArgumentResolver
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.scheduling.TaskScheduler
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -30,6 +29,15 @@ class DwpApplication {
         }
     ).configure()
 
+}
+
+@Configuration
+@EnableScheduling
+class TaskSchedulerConfig {
+    @Bean
+    fun taskScheduler(): TaskScheduler {
+        return ThreadPoolTaskScheduler()
+    }
 }
 
 

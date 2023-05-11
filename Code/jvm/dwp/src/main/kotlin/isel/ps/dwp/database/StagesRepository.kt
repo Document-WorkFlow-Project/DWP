@@ -5,7 +5,8 @@ import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
 import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
-import org.springframework.stereotype.Repository
+import org.jdbi.v3.core.kotlin.mapTo
+import java.util.*
 
 class StagesRepository(private val handle: Handle) : StagesInterface {
 
@@ -19,16 +20,65 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
 
-    override fun approveStage(stageId: String) {
-        handle.createUpdate("UPDATE Stage SET estado = 'Aprovado' WHERE id = :stageId")
+    override fun signStage(stageId: String, approve: Boolean): List<String> {
+        val date = Date()
+
+        handle.createUpdate(
+            "UPDATE utilizador_etapa SET assinatura = :value and data_assinatura = :signDate WHERE id_etapa = :stageId"
+        )
+            .bind("value", approve)
+            .bind("signDate", date)
             .bind("stageId", stageId)
             .execute()
+
+        // Em caso de reprovação a etapa e todo o processo é reprovado, sendo o seu fim
+        if (!approve) {
+            handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :stageId")
+                .bind("endDate", date)
+                .bind("stageId", stageId)
+                .execute()
+
+            val processId = handle.createQuery("select id_processo from etapa_processo where id_etapa = :stageId")
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .one()
+
+            handle.createUpdate("UPDATE processo SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :processId")
+                .bind("endDate", date)
+                .bind("processId", processId)
+                .execute()
+
+            // Retornar o id de todas as notificações ativas associadas a esta etapa
+            return handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId")
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .list()
+        } else {
+            return handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId and email_utilizador = :email")
+                .bind("stageId", stageId)
+                .bind("email", "") // TODO get email of user who signed
+                .mapTo<String>()
+                .list()
+        }
     }
 
-    override fun disaproveStage(stageId: String) {
-        handle.createUpdate("UPDATE Stage SET estado = 'Rejeitado' WHERE id = :stageId")
-            .bind("stageId", stageId)
-            .execute()
+
+    // TODO implementar aprovação de etapa de acordo com o modo
+    fun verifySignatures(stageId: String) {
+        // Todos os responsáveis já assinaram
+        if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .one() == null
+        ) {
+            handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
+                .bind("endDate", Date())
+                .bind("stageId", stageId)
+                .execute()
+
+            //TODO atualizar etapa seguinte com data inicio
+            //TODO notificar utilizadores da próxima etapa e agendar notificações recorrentes
+        }
     }
 
 
@@ -47,14 +97,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun deleteStage(stageId: String) {
-        handle.createUpdate("DELETE FROM Stage WHERE id = :stageId")
+        handle.createUpdate("DELETE FROM etapa WHERE id = :stageId")
             .bind("stageId", stageId)
             .execute()
     }
 
     override fun editStage(stageId: String, nome: String, modo: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
         handle.createUpdate(
-            "UPDATE Stage SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, modo =:modo, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
+            "UPDATE etapa SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, modo =:modo, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
         )
             .bind("stageId", stageId)
             .bind("nome", nome)
@@ -69,14 +119,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
 
     override fun viewStages(processId : String): List<Stage> {
-        return handle.createQuery("SELECT * FROM stages WHERE id_processo = :processId ")
+        return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId order by indice")
             .bind("processId", processId)
             .mapTo(Stage::class.java)
             .list()
     }
 
     override fun pendingStages(processId: String): List<Stage> {
-        return handle.createQuery("SELECT * FROM stages WHERE id_processo = :processId AND status = 'Pending'")
+        return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId AND estado = 'Pending'")
             .bind("processId", processId)
             .mapTo(Stage::class.java)
             .list()

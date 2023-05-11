@@ -3,11 +3,7 @@ package isel.ps.dwp.database
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
-import org.springframework.stereotype.Repository
-import org.springframework.web.multipart.MultipartFile
 
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
@@ -22,7 +18,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     override fun pendingProcesses(userEmail: String?): List<String> {
         //TODO email must be provided unless user is admin
         return if (userEmail != null) handle.createQuery(
-            "select id from processo where responsavel = :email and estado = 'PENDING'"
+            "select id from processo where autor = :email and estado = 'PENDING'"
         )
             .bind("email", userEmail)
             .mapTo(String::class.java)
@@ -36,13 +32,13 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     override fun finishedProcesses(userEmail: String?): List<String> {
         //TODO email must be provided unless user is admin
         return if (userEmail != null) handle.createQuery(
-            "select id from processo where responsavel = :email and (estado = 'SUCCESS' or estado = 'FAILURE')"
+            "select id from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED')"
         )
             .bind("email", userEmail)
             .mapTo(String::class.java)
             .list() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
         else
-            handle.createQuery("select id from processo where estado = 'SUCCESS' or estado = 'FAILURE'")
+            handle.createQuery("select id from processo where estado = 'APPROVED' or estado = 'DISAPPROVED'")
                 .mapTo(String::class.java)
                 .list()
     }

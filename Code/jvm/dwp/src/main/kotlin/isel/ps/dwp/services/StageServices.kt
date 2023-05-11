@@ -6,40 +6,34 @@ import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
 import isel.ps.dwp.model.User
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
 @Service
 class StageServices(private val transactionManager: TransactionManager): StagesInterface {
 
-
     override fun stageDetails(stageId: String): Stage {
         /*TODO: Averiguar se etapa existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.stageDetails(stageId)
-        }
-
-    }
-
-    override fun approveStage(stageId: String) {
-        /*TODO: Averiguar se etapa existe*/
-
-        return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.approveStage(stageId)
+            it.stagesRepository.stageDetails(stageId)
         }
     }
 
-    override fun disaproveStage(stageId: String) {
-        /*TODO: Averiguar se etapa existe*/
-
-        return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.disaproveStage(stageId)
+    override fun signStage(stageId: String, approve: Boolean): List<String> {
+        val notificationIds = transactionManager.run {
+            it.stagesRepository.signStage(stageId, approve)
         }
 
+        // TODO cancelar notificações
+
+        if (approve) {
+            // Verificar se os restantes responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
+            transactionManager.run {
+                it.stagesRepository.verifySignatures(stageId)
+            }
+        }
+
+        return emptyList()
     }
 
     override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
@@ -62,8 +56,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Mais Averiguações*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.createStage(processId, nome, modo, responsavel,descricao,data_inicio,null,prazo,estado)
+            it.stagesRepository.createStage(processId, nome, modo, responsavel,descricao,data_inicio,null,prazo,estado)
         }
 
     }
@@ -72,8 +65,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Averiguar se etapa existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.stageUsers(stageId)
+            it.stagesRepository.stageUsers(stageId)
         }
     }
 
@@ -93,8 +85,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
         }
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.editStage(stageId,nome,modo,descricao,data_inicio,data_fim,prazo,estado)
+            it.stagesRepository.editStage(stageId,nome,modo,descricao,data_inicio,data_fim,prazo,estado)
         }
     }
 
@@ -102,8 +93,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Averiguar se processo existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.viewStages(processId)
+            it.stagesRepository.viewStages(processId)
         }
     }
 
@@ -112,8 +102,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Averiguar se processo existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.pendingStages(processId)
+            it.stagesRepository.pendingStages(processId)
         }
     }
 
@@ -135,8 +124,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.addComment(id,stageId,date,text,authorEmail)
+            it.stagesRepository.addComment(id,stageId,date,text,authorEmail)
         }
 
     }
@@ -145,8 +133,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Averiguar se comentário existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.deleteComment(commentId)
+            it.stagesRepository.deleteComment(commentId)
         }
     }
 
@@ -154,8 +141,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         /*TODO: Averiguar se etapa existe*/
 
         return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.stageComments(stageId)
+            it.stagesRepository.stageComments(stageId)
         }
     }
 

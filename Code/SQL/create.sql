@@ -8,7 +8,7 @@ CHECK (value ~* '^[A-Za-z0-9]+$');
 
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel (
-    id serial PRIMARY KEY,
+    id varchar(36) PRIMARY KEY,
     nome varchar(32) NOT NULL,
     descricao varchar(100)
 );
@@ -37,7 +37,7 @@ create table if not exists acesso_template (
 
 --Processo(id,nome,autor,descricao,data_inicio,data_fim,prazo,estado,tipo)
 CREATE TABLE IF NOT EXISTS Processo (
-    id serial PRIMARY KEY,
+    id varchar(36) PRIMARY KEY,
     nome varchar(32) NOT NULL,
     autor varchar(32) NOT NULL,
     descricao varchar(100),
@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS Processo (
     prazo date NOT NULL,
     estado varchar(32) NOT NULL,
     template_processo varchar(32) NOT NULL,
+    constraint estado check (estado IN ('PENDING', 'APPROVED', 'DISAPPROVED')),
     foreign key (template_processo) references template_processo (nome) ON DELETE CASCADE ON UPDATE cascade,
     FOREIGN KEY (autor) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -61,14 +62,14 @@ CREATE TABLE IF NOT EXISTS Documento (
 
 --Etapa(id,nome,responsavel,descricao,data_inicio,data_fim,prazo,estado)
 CREATE TABLE IF NOT EXISTS Etapa (
-    id serial PRIMARY KEY,
-    id_processo int NOT NULL,
-    --modo varchar(32) NOT NULL,
+    id varchar(36) PRIMARY KEY,
+    id_processo varchar(36) NOT NULL,
+    indice int not null,
+    modo varchar(32) NOT NULL,
     nome varchar(32) NOT NULL,
     responsavel varchar(32) NOT NULL,
     descricao varchar(100),
     data_inicio date NOT NULL,
-    modo date NOT NULL,
     constraint modo check (modo IN ('Unanimous', 'Majority', 'Unilateral')),
     data_fim date,
     prazo date NOT NULL,
@@ -78,11 +79,11 @@ CREATE TABLE IF NOT EXISTS Etapa (
 );
 --Comentario(id,texto,data)
 CREATE TABLE IF NOT EXISTS Comentario (
-    id serial PRIMARY KEY,
-    id_etapa int NOT NULL,
+    id varchar(36) PRIMARY KEY,
+    id_etapa varchar(36) NOT NULL,
     data date NOT NULL,
     texto varchar(150),
-    remetente varchar(32) NOT NULL,
+    remetente varchar(36) NOT NULL,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (remetente) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS Comentario (
 --Tabela de associação entre Documentos e Processos
 CREATE TABLE IF NOT EXISTS Documento_Processo (
     id_documento varchar(36) NOT NULL,
-    id_processo int NOT NULL,
+    id_processo varchar(36) NOT NULL,
     PRIMARY KEY (id_documento, id_processo),
     FOREIGN KEY (id_documento) REFERENCES Documento (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -98,8 +99,8 @@ CREATE TABLE IF NOT EXISTS Documento_Processo (
 
 --Tabela de associação entre Etapas e Processos
 CREATE TABLE IF NOT EXISTS Etapa_Processo (
-    id_etapa int NOT NULL,
-    id_processo int NOT NULL,
+    id_etapa varchar(36) NOT NULL,
+    id_processo varchar(36) NOT NULL,
     PRIMARY KEY (id_etapa, id_processo),
     FOREIGN KEY (id_etapa) REFERENCES Etapa (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -116,8 +117,8 @@ CREATE TABLE IF NOT EXISTS Etapa_Processo (
 
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel (
-    id_papel int NOT NULL,
-    email_utilizador varchar(32) NOT NULL,
+    id_papel varchar(36) NOT NULL,
+    email_utilizador varchar(36) NOT NULL,
     FOREIGN KEY (id_papel) REFERENCES Papel(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (id_papel, email_utilizador)
@@ -126,7 +127,7 @@ CREATE TABLE IF NOT EXISTS Utilizador_Papel (
 -- Tabela que associa Utilizadores a Processos
 CREATE TABLE IF NOT EXISTS Utilizador_Processo (
     email_utilizador varchar(32) NOT NULL,
-    id_processo int NOT NULL,
+    id_processo varchar(36) NOT NULL,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_processo) REFERENCES Processo(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_processo)
@@ -136,9 +137,10 @@ CREATE TABLE IF NOT EXISTS Utilizador_Processo (
 -- Tabela que associa Utilizadores a Etapas
 CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
     email_utilizador varchar(32) NOT NULL,
-    id_etapa int NOT NULL,
-    assina boolean,
-    data_assina date,
+    id_etapa varchar(36) NOT NULL,
+    assinatura boolean,
+    data_assinatura date,
+    id_notificacao text,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)

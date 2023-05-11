@@ -3,6 +3,7 @@ package isel.ps.dwp.model
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.Duration
 import java.util.*
 
 data class User (
@@ -60,6 +61,11 @@ data class EmailDetails (
     val recipient: String,
     val msgBody: String,
     val subject: String
+)
+
+data class EmailSchedule (
+    val email: EmailDetails,
+    val period: Long
 )
 
 // Representação de um ficheiro template json na base de dados
