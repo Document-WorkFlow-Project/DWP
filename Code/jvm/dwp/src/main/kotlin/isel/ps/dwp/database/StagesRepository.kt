@@ -19,8 +19,48 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .one()
     }
 
+    /**
+     * Atualiza a etapa com data de inicio
+     */
+    fun startStage(stageId: String) {
+        handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
+                .bind("startDate", Date())
+                .bind("stageId", stageId)
+                .execute()
+    }
 
-    override fun signStage(stageId: String, approve: Boolean): List<String> {
+    /**
+     * Retorna a lista de emails dos utilizadores resposáveis por esta etapa
+     */
+    fun stageResponsible(stageId: String): List<String> {
+        return handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId")
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .list()
+    }
+
+    /**
+     * Retorna a lista de ids de todas as notificações agendadas
+     */
+    fun getStageNotifications(stageId: String, email: String?): List<String> {
+        return if (email == null) {
+            // Retornar o id de todas as notificações ativas associadas a esta etapa
+            handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId")
+                    .bind("stageId", stageId)
+                    .mapTo<String>()
+                    .list()
+        } else {
+            // Retornar o id das notificações ativas associadas a esta etapa, de um utilizador em especifico
+            handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId and email_utilizador = :email")
+                    .bind("stageId", stageId)
+                    .bind("email", email)
+                    .mapTo<String>()
+                    .list()
+        }
+    }
+
+
+    override fun signStage(stageId: String, approve: Boolean) {
         val date = Date()
 
         handle.createUpdate(
@@ -47,24 +87,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .bind("endDate", date)
                 .bind("processId", processId)
                 .execute()
-
-            // Retornar o id de todas as notificações ativas associadas a esta etapa
-            return handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId")
-                .bind("stageId", stageId)
-                .mapTo<String>()
-                .list()
-        } else {
-            return handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId and email_utilizador = :email")
-                .bind("stageId", stageId)
-                .bind("email", "") // TODO get email of user who signed
-                .mapTo<String>()
-                .list()
         }
     }
 
 
     // TODO implementar aprovação de etapa de acordo com o modo
-    fun verifySignatures(stageId: String) {
+    fun verifySignatures(stageId: String): Boolean {
         // Todos os responsáveis já assinaram
         if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
                 .bind("stageId", stageId)
@@ -76,9 +104,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .bind("stageId", stageId)
                 .execute()
 
-            //TODO atualizar etapa seguinte com data inicio
-            //TODO notificar utilizadores da próxima etapa e agendar notificações recorrentes
+            return true
         }
+        return false
     }
 
 

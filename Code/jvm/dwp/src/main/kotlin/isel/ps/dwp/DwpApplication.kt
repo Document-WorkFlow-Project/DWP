@@ -1,8 +1,11 @@
 package isel.ps.dwp
 
 import isel.ps.dwp.database.jdbi.configure
+import isel.ps.dwp.interfaces.NotificationsServicesInterface
+import isel.ps.dwp.services.NotificationServices
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -20,6 +23,8 @@ val uploadsFolderPath: Path = Paths.get("filestorage")
 val templatesFolderPath: Path = Paths.get("templates")
 
 @SpringBootApplication
+@Configuration
+@EnableScheduling
 class DwpApplication {
 
     @Bean
@@ -29,15 +34,17 @@ class DwpApplication {
         }
     ).configure()
 
-}
-
-@Configuration
-@EnableScheduling
-class TaskSchedulerConfig {
     @Bean
     fun taskScheduler(): TaskScheduler {
         return ThreadPoolTaskScheduler()
     }
+
+    @Bean
+    @Qualifier("notificationsService")
+    fun notificationsService(): NotificationsServicesInterface {
+        return NotificationServices()
+    }
+
 }
 
 

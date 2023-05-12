@@ -2,14 +2,24 @@ package isel.ps.dwp.services
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
+import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
+import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.Stage
 import isel.ps.dwp.model.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class StageServices(private val transactionManager: TransactionManager): StagesInterface {
+
+    private val NOTIFICATION_FREQUENCY: Long = 2
+
+    @Autowired
+    @Qualifier("notificationsService")
+    lateinit var notificationServices: NotificationsServicesInterface
 
     override fun stageDetails(stageId: String): Stage {
         /*TODO: Averiguar se etapa existe*/
@@ -19,21 +29,51 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-    override fun signStage(stageId: String, approve: Boolean): List<String> {
-        val notificationIds = transactionManager.run {
+    override fun signStage(stageId: String, approve: Boolean) {
+        transactionManager.run {
             it.stagesRepository.signStage(stageId, approve)
         }
 
-        // TODO cancelar notificações
+        var notificationIds = emptyList<String>()
+        // TODO get email of user who signed
+        val userEmail = ""
 
         if (approve) {
+            notificationIds = transactionManager.run {
+                it.stagesRepository.getStageNotifications(stageId, userEmail)
+            }
+
             // Verificar se os restantes responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
-            transactionManager.run {
-                it.stagesRepository.verifySignatures(stageId)
+            if (transactionManager.run { it.stagesRepository.verifySignatures(stageId) })
+                startNextStage(stageId)
+
+        } else {
+            notificationIds = transactionManager.run {
+                it.stagesRepository.getStageNotifications(stageId, null)
             }
         }
 
-        return emptyList()
+        // Cancelar emails agendados, referentes a esta etapa
+        notificationIds.forEach {
+            notificationServices.cancelScheduledEmails(it)
+        }
+    }
+
+    fun startNextStage(stageId: String) {
+        // TODO get id from next pending stage
+        val nextStage = ""
+
+        // Atualizar etapa seguinte com data inicio
+        transactionManager.run {
+            it.stagesRepository.startStage(nextStage)
+        }
+
+        // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acorodo com NOTIFICATION_FREQUENCY
+        transactionManager.run {
+            it.stagesRepository.stageResponsible(nextStage)
+        }.forEach {
+            notificationServices.scheduleEmail(EmailDetails(it, "", ""), NOTIFICATION_FREQUENCY)
+        }
     }
 
     override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){

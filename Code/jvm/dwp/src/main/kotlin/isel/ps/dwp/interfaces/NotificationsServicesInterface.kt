@@ -1,7 +1,6 @@
 package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.EmailDetails
-import java.time.Duration
 
 interface NotificationsServicesInterface {
 
@@ -10,7 +9,7 @@ interface NotificationsServicesInterface {
     /**
      * Schedules an email for the defined frequency in days
      */
-    fun scheduleEmail(details: EmailDetails, period: Duration): String
+    fun scheduleEmail(details: EmailDetails, period: Long): String
 
     /**
      * Cancel the defined emails schedule

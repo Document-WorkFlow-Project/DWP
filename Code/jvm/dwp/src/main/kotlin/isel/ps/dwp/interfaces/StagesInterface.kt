@@ -16,9 +16,8 @@ interface StagesInterface {
 
     /**
      * Os responsáveis pela etapa devem assinar para o workflow avançar (true para aprovação e false para reprovação)
-     * É retornada uma lista de ids de todas as notificações agendadas que devem ser desativadas
      */
-    fun signStage(stageId: String, approve: Boolean): List<String>
+    fun signStage(stageId: String, approve: Boolean)
 
     /**
      * Obter lista de utilizadores associados a uma etapa (função de administrador ou utilizador associado à etapa)

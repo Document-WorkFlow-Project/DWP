@@ -43,12 +43,12 @@ class NotificationServices: NotificationsServicesInterface {
         }
     }
 
-    override fun scheduleEmail(details: EmailDetails, period: Duration): String {
+    override fun scheduleEmail(details: EmailDetails, period: Long): String {
         val notificationId = UUID.randomUUID().toString()
         val scheduledFuture = taskScheduler.scheduleAtFixedRate(
-            { sendSimpleMail(details) },
-            period
-        )
+                { sendSimpleMail(details) },
+                Duration.ofDays(period)
+            )
         scheduledTasks[notificationId] = scheduledFuture
         return notificationId
     }
