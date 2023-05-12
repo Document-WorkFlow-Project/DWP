@@ -59,6 +59,8 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
+    fun pendingTaskEmail(email: String) = "Olá $email, \nTem uma tarefa pendente. \nObrigado"
+
     fun startNextStage(stageId: String) {
         // TODO get id from next pending stage
         val nextStage = ""
@@ -72,7 +74,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         transactionManager.run {
             it.stagesRepository.stageResponsible(nextStage)
         }.forEach {
-            notificationServices.scheduleEmail(EmailDetails(it, "", ""), NOTIFICATION_FREQUENCY)
+            notificationServices.scheduleEmail(EmailDetails(it, pendingTaskEmail(it), "Tarefa pendente"), NOTIFICATION_FREQUENCY)
         }
     }
 
