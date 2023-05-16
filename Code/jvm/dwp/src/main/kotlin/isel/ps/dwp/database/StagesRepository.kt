@@ -1,5 +1,6 @@
 package isel.ps.dwp.database
 
+import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
@@ -195,6 +196,22 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("stageId", stageId)
             .mapTo(Comment::class.java)
             .list()
+    }
+
+    override fun checkStage(stageId: String): Stage {
+        return handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
+            .bind("stageId", stageId)
+            .mapTo(Stage::class.java)
+            .list()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Stage not found. Incorrect Stage ID.")
+    }
+
+    override fun checkComment(commentId: String) : Comment {
+        return handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId")
+            .bind("commentId", commentId)
+            .mapTo(Comment::class.java)
+            .list()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comment not found. Incorrect Comment ID.")
     }
 
 

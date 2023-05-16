@@ -22,7 +22,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     lateinit var notificationServices: NotificationsServicesInterface
 
     override fun stageDetails(stageId: String): Stage {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageDetails(stageId)
@@ -80,7 +80,8 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
 
-        /*TODO: Averiguar se etapa já existe*/
+        /*TODO: Averiguar se processo já existe*/
+
 
         if (nome.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
@@ -90,7 +91,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
 
         /* Verificar se o modo é válido */
-        if (modo != "Unanimos" && modo != "Majority" && modo != "Unilateral") {
+        if (modo != "Unanimous" && modo != "Majority" && modo != "Unilateral") {
             throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
         }
 
@@ -103,8 +104,22 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
+    override fun checkStage(stageId: String): Stage? {
+        return transactionManager.run {
+            val stageRepo = it.stagesRepository
+            stageRepo.checkStage(stageId)
+        }
+    }
+
+    override fun checkComment(commentId: String): Comment {
+        return transactionManager.run {
+            val stageRepo = it.stagesRepository
+            stageRepo.checkComment(commentId)
+        }
+    }
+
     override fun stageUsers(stageId: String): List<User> {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageUsers(stageId)
@@ -112,11 +127,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun deleteStage(stageId: String) {
-        TODO("Not yet implemented")
+        TODO("Necessary?")
     }
 
     override fun editStage(stageId: String, nome: String, modo:String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
         if (nome.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
         if (descricao.length > 100)
@@ -152,9 +167,9 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
 
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-        /*TODO: Averiguar se comentário já existe*/
+        checkComment(id)
 
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         /*TODO: Averiguar se utilizador existe*/
 
@@ -172,7 +187,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun deleteComment(commentId: String) {
-        /*TODO: Averiguar se comentário existe*/
+        checkComment(commentId)
 
         return transactionManager.run {
             it.stagesRepository.deleteComment(commentId)
@@ -180,7 +195,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun stageComments(stageId: String): List<Comment> {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageComments(stageId)
