@@ -44,4 +44,5 @@ interface ProcessesInterface {
     fun cancelProcess(processId: String)
 
 
+    fun checkProcess(id: String): Process?
 }

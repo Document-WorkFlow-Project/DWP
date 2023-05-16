@@ -3,10 +3,18 @@ package isel.ps.dwp.database
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
 
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
+
+    override fun checkProcess(id: String): Process? {
+        return handle.createQuery("SELECT * FROM processo WHERE id = :id")
+            .bind("id", id)
+            .mapTo(Process::class.java)
+            .singleOrNull()
+    }
 
     override fun getProcesses(type: String): List<String> {
         return handle.createQuery("select id from processo where template_processo = :type")

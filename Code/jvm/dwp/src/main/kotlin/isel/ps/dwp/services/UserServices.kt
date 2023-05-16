@@ -4,6 +4,7 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.controllers.UserDetails
 import isel.ps.dwp.interfaces.UsersInterface
+import isel.ps.dwp.model.User
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.math.BigInteger
@@ -75,6 +76,12 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
         return transactionManager.run {
             it.usersRepository.updateProfile(email, hashPassword.md5(), newPass.md5())
         }
+    }
+
+    override fun checkUser(email: String): User? {
+        return transactionManager.run {
+            it.usersRepository.checkUser(email)
+        } ?: throw ExceptionControllerAdvice.UserNotFound("User not found. Incorrect email.")
     }
 }
 

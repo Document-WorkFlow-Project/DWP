@@ -83,4 +83,10 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
+    override fun checkProcess(id: String): Process? {
+        return transactionManager.run {
+            it.processesRepository.checkProcess(id)
+        } ?: throw ExceptionControllerAdvice.ProcessNotFound("Process not found. Incorrect id.")
+    }
+
 }

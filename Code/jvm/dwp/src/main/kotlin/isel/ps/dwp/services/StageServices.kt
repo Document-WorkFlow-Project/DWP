@@ -1,6 +1,8 @@
 package isel.ps.dwp.services
 
+import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
+import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
@@ -20,6 +22,14 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     @Autowired
     @Qualifier("notificationsService")
     lateinit var notificationServices: NotificationsServicesInterface
+
+    private val userServices: UserServices = UserServices(
+        transactionManager)
+
+    private val processServices : ProcessServices = ProcessServices(
+        transactionManager
+    )
+
 
     override fun stageDetails(stageId: String): Stage {
         checkStage(stageId)
@@ -83,7 +93,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
 
-        /*TODO: Averiguar se processo já existe*/
+        processServices.checkProcess(processId.toString())
 
 
         if (nome.isBlank())
@@ -150,7 +160,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun viewStages(processId: String): List<Stage> {
-        /*TODO: Averiguar se processo existe*/
+        processServices.checkProcess(processId)
 
         return transactionManager.run {
             it.stagesRepository.viewStages(processId)
@@ -159,7 +169,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
 
     override fun pendingStages(processId: String): List<Stage> {
-        /*TODO: Averiguar se processo existe*/
+        processServices.checkProcess(processId)
 
         return transactionManager.run {
             it.stagesRepository.pendingStages(processId)
@@ -174,7 +184,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
         checkStage(stageId)
 
-        /*TODO: Averiguar se utilizador existe*/
+        userServices.checkUser(authorEmail)
 
         if (date.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("date can't be blank.")
