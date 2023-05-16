@@ -198,20 +198,20 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun checkStage(stageId: String): Stage {
+    override fun checkStage(stageId: String): Stage? {
         return handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
             .bind("stageId", stageId)
             .mapTo(Stage::class.java)
             .list()
-            .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Stage not found. Incorrect Stage ID.")
+            .singleOrNull()
     }
 
-    override fun checkComment(commentId: String) : Comment {
+    override fun checkComment(commentId: String) : Comment? {
         return handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
             .mapTo(Comment::class.java)
             .list()
-            .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comment not found. Incorrect Comment ID.")
+            .singleOrNull()
     }
 
 

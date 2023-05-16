@@ -30,6 +30,9 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun signStage(stageId: String, approve: Boolean) {
+
+        checkStage(stageId)
+
         transactionManager.run {
             it.stagesRepository.signStage(stageId, approve)
         }
@@ -104,18 +107,18 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
-    override fun checkStage(stageId: String): Stage? {
-        return transactionManager.run {
+    override fun checkStage(stageId: String) {
+        transactionManager.run {
             val stageRepo = it.stagesRepository
             stageRepo.checkStage(stageId)
-        }
+        } ?: throw ExceptionControllerAdvice.StageNotFound("Stage not found. Incorrect Stage ID.")
     }
 
-    override fun checkComment(commentId: String): Comment {
-        return transactionManager.run {
+    override fun checkComment(commentId: String){
+        transactionManager.run {
             val stageRepo = it.stagesRepository
             stageRepo.checkComment(commentId)
-        }
+        } ?: throw ExceptionControllerAdvice.CommentNotFound("Comment not found. Incorrect Comment ID.")
     }
 
     override fun stageUsers(stageId: String): List<User> {
