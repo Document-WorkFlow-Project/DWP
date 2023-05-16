@@ -17,6 +17,7 @@ class UsersController (
     )
 ) {
 
+
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {
         val newPlayer: String = userServices.register(register.email, register.name, register.password)
