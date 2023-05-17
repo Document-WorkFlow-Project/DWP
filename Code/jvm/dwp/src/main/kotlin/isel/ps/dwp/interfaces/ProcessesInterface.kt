@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
 
-    fun getProcesses(type: String): List<String>
+    fun getProcesses(type: String?): List<String>
 
     /**
      * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)

@@ -13,6 +13,13 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 class TemplatesServices(private val transactionManager: TransactionManager): TemplatesInterface {
+
+    override fun availableTemplates(): List<String> {
+        return transactionManager.run {
+            it.templatesRepository.availableTemplates()
+        }
+    }
+
     override fun addTemplate(templateFile: MultipartFile): String {
         if (templateFile.contentType != "application/json")
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
@@ -89,33 +96,32 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
 
         template.etapas.forEach {
 
-                if (it.nome.isBlank())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage name.")
+            if (it.nome.isBlank())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage name.")
 
-                if (it.modo.isEmpty())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
+            if (it.modo.isEmpty())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
 
-                if (it.responsavel.isEmpty())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
+            if (it.responsavel.isEmpty())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage responsible.")
 
-                if (it.descricao.isBlank())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template description.")
+            if (it.descricao.isBlank())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template description.")
 
-                if (it.data_inicio.isBlank())
-                        throw ExceptionControllerAdvice.ParameterIsBlank("Missing template beginning date.")
+            if (it.data_inicio.isBlank())
+                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template beginning date.")
 
-                if (it.prazo.isBlank())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage deadline.")
+            if (it.prazo.isBlank())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage deadline.")
 
-                if (it.estado.isBlank())
-                    throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage status.")
-            }
-
-
+            if (it.estado.isBlank())
+                throw ExceptionControllerAdvice.ParameterIsBlank("Missing template stage status.")
+        }
 
 
         transactionManager.run {
-             processId = it.processesRepository.createProcess(
+
+            processId = it.processesRepository.createProcess(
                 template.nome,
                 template.autor,
                 template.descricao,
@@ -125,9 +131,12 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
                 template.estado,
                 template.template_processo
             )
+
             if (processId==null)
                 throw ExceptionControllerAdvice.ParameterIsBlank("Failed to create Process.")
+
             var idx = 0
+
             template.etapas.forEach { stage ->
                 idx++
                 it.stagesRepository.createStage(
@@ -139,8 +148,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
                     stage.data_inicio,
                     null,
                     stage.prazo,
-                    stage
-                        .estado
+                    stage.estado
                 )
             }
         }

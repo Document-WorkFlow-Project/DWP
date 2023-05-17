@@ -47,7 +47,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             it.stagesRepository.signStage(stageId, approve)
         }
 
-        var notificationIds = emptyList<String>()
+        val notificationIds: List<String>
         // TODO get email of user who signed
         val userEmail = ""
 
@@ -56,7 +56,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
                 it.stagesRepository.getStageNotifications(stageId, userEmail)
             }
 
-            // Verificar se os restantes responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
+            // Verificar se todos os responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
             if (transactionManager.run { it.stagesRepository.verifySignatures(stageId) })
                 startNextStage(stageId)
 
@@ -72,7 +72,6 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-    fun pendingTaskEmail(email: String) = "Olá $email, \nTem uma tarefa pendente. \nObrigado"
 
     fun startNextStage(stageId: String) {
         // TODO get id from next pending stage
@@ -87,7 +86,8 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         transactionManager.run {
             it.stagesRepository.stageResponsible(nextStage)
         }.forEach {
-            notificationServices.scheduleEmail(EmailDetails(it, pendingTaskEmail(it), "Tarefa pendente"), NOTIFICATION_FREQUENCY)
+            val msgBody = "Olá $it, \nTem uma tarefa pendente. \nObrigado"
+            notificationServices.scheduleEmail(EmailDetails(it, msgBody, "Tarefa pendente"), NOTIFICATION_FREQUENCY)
         }
     }
 

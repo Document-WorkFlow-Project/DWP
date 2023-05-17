@@ -14,10 +14,7 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
 
 
 
-    override fun getProcesses(type: String): List<String> {
-        if (type.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template type.")
-
+    override fun getProcesses(type: String?): List<String> {
         return transactionManager.run {
             it.processesRepository.getProcesses(type)
         }
