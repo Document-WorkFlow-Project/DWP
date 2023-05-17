@@ -4,7 +4,6 @@ import isel.ps.dwp.interfaces.DocumentsInterface
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.uploadsFolderPath
 import org.jdbi.v3.core.Handle
-import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 
 class DocumentsRepository(private val handle: Handle) : DocumentsInterface {

@@ -3,7 +3,6 @@ package isel.ps.dwp.database
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
 
 

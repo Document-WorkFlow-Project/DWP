@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { createPortal } from 'react-dom'
+import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
+import processServices from "../../Services/process.service"
 
 function ModalContent({ 
   onClose, 
@@ -97,18 +99,6 @@ function ModalContent({
 export default function Templates() {
 
   const responsiblesSample = ["CP", "CTC", "user1@gmail.com", "user2@gmail.com", "user3@gmail.com"]
-/*
-  const sample = {
-    name: "stageName",
-    description: "stageDescription",
-    responsibles: responsiblesSample,
-  }
-
-  const sample2 = {
-    name: "stageName2",
-    description: "stageDescription2",
-    responsibles: responsiblesSample,
-  }*/
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
@@ -182,6 +172,13 @@ export default function Templates() {
 
     const templateJson = JSON.stringify(template)
     console.log(templateJson)
+    
+    const formData = new FormData()
+    const jsonBlob = new Blob([templateJson], { type: 'application/json' })
+
+    formData.append('file', jsonBlob, template.name + ".json")
+
+    processServices.saveTemplate(formData)
   }
 
   function handleOnDragEnd(result) {

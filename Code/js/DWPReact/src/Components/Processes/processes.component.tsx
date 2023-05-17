@@ -3,45 +3,8 @@ import './processes.css'
 import processServices from "../../Services/process.service"
 
 export default function Processes() {
-    
-    const templatesSampleNames = ["FUC", "ATA"]
 
-    const sampleTemplates = {
-        "FUC" : {
-            "name":"FUC",
-            "description":"ficha unidade corricular",
-            "stages":[
-                {
-                    "name":"tarefa1",
-                    "description":"fweaf",
-                    "responsibles":["RUC","CCD"]
-                },
-                {
-                    "name":"task2",
-                    "description":"cwe",
-                    "responsibles":["CCC","CTC"]
-                }
-            ]
-        },
-        "ATA" : {
-            "name":"ATA",
-            "description":"exemplo",
-            "stages":[
-                {
-                    "name":"tarefa1",
-                    "description":"fweaf",
-                    "responsibles":["RUC","CCD"]
-                },
-                {
-                    "name":"task2",
-                    "description":"cwe",
-                    "responsibles":["CCC","CTC"]
-                }
-            ]
-        }
-    }
-
-    const [availableTemplates, setAvailableTemplates] = useState(templatesSampleNames)
+    const [availableTemplates, setAvailableTemplates] = useState([])
 
     const [processName, setProcessName] = useState("")
     const [processDescription, setProcessDescription] = useState("")
@@ -50,7 +13,7 @@ export default function Processes() {
     const [error, setError] = useState("")
 
     useEffect(() => {
-        async () => await processServices.getTemplates(setAvailableTemplates)
+        processServices.getTemplates(setAvailableTemplates)
     }, [])
 
     function templateOptions() {
@@ -63,18 +26,30 @@ export default function Processes() {
         return options;
     }  
 
+    function fillProcessParams() {
+        processServices.getTemplates(setAvailableTemplates)
+    }
+
     return (
         <div>
-           <h2>Novo processo</h2>
+            <p><button onClick={() => window.location.href = "/templates"}>Criar template</button></p>
+            <h2>Novo processo</h2>
 
-           <div>  
-                <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                    {templateOptions()}
-                </select>
+        { availableTemplates.length === 0 ?
+            <p className="error">Não existem templates dísponiveis.</p>
+        : 
+            <div>  
+                    <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                        {templateOptions()}
+                    </select>
+                
+                    <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
+                    <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
+                    <p className="error">{error}</p>
+                    <button onClick={fillProcessParams}>Avançar</button>
             </div>
-            <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
-            <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
-            <p className="error">{error}</p>
+        }
+           
         </div>
     )
 }

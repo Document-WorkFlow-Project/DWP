@@ -1,16 +1,5 @@
 package isel.ps.dwp.http.pipeline
 
-import isel.daw.battleships.http.pipeline.AuthorizationHeaderProcessor
-import isel.daw.battleships.http.pipeline.UserArgumentResolver
-import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.model.User
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import org.springframework.web.method.HandlerMethod
-import org.springframework.web.servlet.HandlerInterceptor
-import javax.sql.DataSource
 /*
 @Component
 class AuthenticationInterceptor(

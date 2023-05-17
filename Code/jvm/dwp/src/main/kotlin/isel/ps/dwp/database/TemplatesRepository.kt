@@ -18,21 +18,19 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
     }
 
     override fun availableTemplates(): List<String> {
-        val email = "" //TODO get email from accessing user
+        //TODO get email from accessing user, and return available templates to this user
 
         return handle.createQuery(
-                "select nome_template from acesso_template where utilizador = :email"
+                "select nome from template_processo"
         )
-                .bind("email", email)
                 .mapTo(String::class.java)
-                .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis para $email.")
+                .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
     }
 
     override fun addTemplate(templateFile: MultipartFile): String {
         val fileNameWithType = templateFile.originalFilename
         val fileName = fileNameWithType!!.substringBeforeLast(".json")
-        //TODO add description
-        val description = "sample description"
+        val description = "sample description" //TODO get description from json
         val filePath = "$templatesFolderPath/$fileNameWithType"
 
         if (handle.createQuery("select * from template_processo where nome = :nome")
@@ -48,6 +46,7 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .bind("description", description)
             .bind("path", filePath)
             .execute()
+        
         return fileName
     }
 

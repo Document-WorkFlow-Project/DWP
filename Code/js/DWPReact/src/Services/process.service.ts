@@ -1,14 +1,13 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/processes/templates/'
+const API_URL = 'http://localhost:3000/api'
 
 class TemplatesService {
 
-    async getTemplates(setTemplates){
+    async getTemplates(setTemplates) {
         try {
-            const response = await axios.get(API_URL, {withCredentials: true})
-            console.log(response)
-            setTemplates(response.data.properties)
+            const response = await axios.get(API_URL + "/templates", {withCredentials: true})
+            setTemplates(response.data)
         }
         catch (error) {
             setTemplates([])
@@ -16,9 +15,14 @@ class TemplatesService {
         }
     }
     
-    async createTemplate(jsonTemplate: string){
+    async saveTemplate(formData) {
         try {
-            await axios.post(API_URL, jsonTemplate, {withCredentials: true})
+            const response = await axios.post(API_URL + "/templates", formData, {
+                withCredentials: true, 
+                headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` }
+            })
+            console.log(response)
+            window.location.href = "/process"
         }
         catch (error) {
             console.log(error)

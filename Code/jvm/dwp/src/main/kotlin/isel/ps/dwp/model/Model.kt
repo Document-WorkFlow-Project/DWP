@@ -1,9 +1,7 @@
 package isel.ps.dwp.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.Duration
 import java.util.*
 
 data class User (

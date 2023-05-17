@@ -8,7 +8,6 @@ import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.uploadsFolderPath
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path

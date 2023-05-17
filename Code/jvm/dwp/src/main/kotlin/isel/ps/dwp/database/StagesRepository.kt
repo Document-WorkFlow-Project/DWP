@@ -1,6 +1,5 @@
 package isel.ps.dwp.database
 
-import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage

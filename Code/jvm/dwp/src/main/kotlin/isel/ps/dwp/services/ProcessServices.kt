@@ -3,11 +3,8 @@ package isel.ps.dwp.services
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
-import isel.ps.dwp.model.*
-import isel.ps.dwp.templatesFolderPath
-import org.springframework.stereotype.Component
+import isel.ps.dwp.model.Process
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {

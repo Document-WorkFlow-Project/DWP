@@ -1,8 +1,6 @@
 package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.ProcessTemplate
-import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
 

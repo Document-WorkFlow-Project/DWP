@@ -1,8 +1,6 @@
 package isel.ps.dwp.services
 
-import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface

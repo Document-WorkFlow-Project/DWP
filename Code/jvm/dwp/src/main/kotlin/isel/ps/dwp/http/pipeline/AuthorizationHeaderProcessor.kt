@@ -4,7 +4,6 @@ import isel.ps.dwp.model.User
 import isel.ps.dwp.services.UserServices
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import kotlin.collections.HashMap
 
 @Component
 class AuthorizationHeaderProcessor(

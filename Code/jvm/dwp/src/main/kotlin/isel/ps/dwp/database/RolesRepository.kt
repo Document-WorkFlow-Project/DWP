@@ -4,8 +4,6 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.RolesInterface
 import isel.ps.dwp.model.Role
 import org.jdbi.v3.core.Handle
-import org.springframework.stereotype.Repository
-import java.util.UUID
 
 class RolesRepository(private val handle: Handle) : RolesInterface {
 

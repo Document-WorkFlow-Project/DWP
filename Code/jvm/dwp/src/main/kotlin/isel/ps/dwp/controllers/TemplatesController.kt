@@ -2,8 +2,6 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
-import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.services.StageServices
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
