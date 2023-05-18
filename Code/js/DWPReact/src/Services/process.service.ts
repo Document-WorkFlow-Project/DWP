@@ -19,6 +19,17 @@ class TemplatesService {
         try {
             const response = await axios.get(API_URL + "/templates/" + templateName, {withCredentials: true})
             console.log(response.data)
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    async deleteTemplate(templateName) {
+        try {
+            const response = await axios.delete(API_URL + "/templates/" + templateName, {withCredentials: true})
+            console.log(response.data)
         }
         catch (error) {
             console.log(error)

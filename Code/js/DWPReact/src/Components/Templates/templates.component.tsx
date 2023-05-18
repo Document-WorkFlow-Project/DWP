@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createPortal } from 'react-dom'
 import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
@@ -98,6 +98,9 @@ function ModalContent({
 
 export default function Templates() {
 
+  const [availableTemplates, setAvailableTemplates] = useState([])
+  const [selectedTemplate, setSelectedTemplate] = useState("")
+
   const responsiblesSample = ["CP", "CTC", "user1@gmail.com", "user2@gmail.com", "user3@gmail.com"]
   
   // template name, description, and stages
@@ -121,6 +124,21 @@ export default function Templates() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState("")
   const [stageError, setStageError] = useState(null)
+
+  useEffect(() => {
+      processServices.getAvailableTemplates(setAvailableTemplates)
+      setSelectedTemplate(availableTemplates[0])
+  }, [availableTemplates])
+
+  function templateOptions() {
+    let options = []
+
+    availableTemplates.forEach ((template, index) =>  {
+        options.push(<option key={index} value={template}>{template}</option>)
+    })
+
+    return options;
+  } 
 
   function resetStageParams() {
     // Reset the stage name, description, and responsibles to empty strings and arrays
@@ -194,6 +212,17 @@ export default function Templates() {
   return (
     <div>
       <div className="templateParams">
+        <h2>Templates disponíveis</h2>
+        { availableTemplates.length === 0 ?
+              <p className="error">Não existem templates disponíveis.</p>
+          : 
+            <div>  
+              <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                  {templateOptions()}
+              </select>
+              <button onClick={() => processServices.deleteTemplate(selectedTemplate)}>Apagar template</button>
+            </div>
+        }
         <h2>Novo template de processo</h2>
         <p><label><b>Nome: </b><input type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/></label></p>
         <p><label><b>Descrição: </b><textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/></label></p>

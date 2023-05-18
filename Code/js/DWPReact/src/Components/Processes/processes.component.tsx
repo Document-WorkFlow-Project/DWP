@@ -41,7 +41,7 @@ export default function Processes() {
             <h2>Novo processo</h2>
 
         { availableTemplates.length === 0 ?
-            <p className="error">Não existem templates dísponiveis.</p>
+            <p className="error">Não existem templates disponíveis.</p>
         : 
             <div>  
                     <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
