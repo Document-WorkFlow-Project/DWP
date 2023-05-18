@@ -50,7 +50,7 @@ export const NewProcess = () => {
     }
 
     function createProcess() {
-        
+        console.log(uploadedDocs)
     }
 
     function ModalContent({ 
@@ -129,14 +129,17 @@ export const NewProcess = () => {
         const inputRef = useRef(null);
         
         const handleDrag = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault()
+            e.stopPropagation()
             
-            if (e.type === "dragenter" || e.type === "dragover") {
-                setDragActive(true);
-            } else if (e.type === "dragleave") {
-                setDragActive(false);
-            }
+            if (e.type === "dragenter" || e.type === "dragover")
+                setDragActive(true)
+            else if (e.type === "dragleave")
+                setDragActive(false)
+        }
+
+        const handleFile = function(files) {
+            setUploadedDocs(Array.from(files))
         }
         
         const handleDrop = function(e) {
@@ -145,13 +148,13 @@ export const NewProcess = () => {
             setDragActive(false)
             
             if (e.dataTransfer.files && e.dataTransfer.files[0])
-                setUploadedDocs(e.dataTransfer.files);
+                handleFile(e.dataTransfer.files);
         }
         
         const handleChange = function(e) {
             e.preventDefault()
             if (e.target.files && e.target.files[0])
-                setUploadedDocs(e.target.files)
+                handleFile(e.target.files)
         }
         
         return (
@@ -160,7 +163,7 @@ export const NewProcess = () => {
                 <label id="label-file-upload" htmlFor="input-file-upload" className={dragActive ? "drag-active" : "" }>
                 <div>
                     <p>Arrasta documentos para aqui ou</p>
-                    <button className="upload-button" onClick={() => inputRef.current.click()}>Escolhe documentos</button>
+                    <button className="upload-button" onClick={() => inputRef.current.click()}>Procura documentos</button>
                     {uploadedDocs.length > 0 ? (
                         <div>
                         <pre className="output">Selected files:</pre>
@@ -169,7 +172,7 @@ export const NewProcess = () => {
                             ))}
                         </div>
                     ) : (
-                        <p>No files selected</p>
+                        <p>Nenhum ficheiro selecionado</p>
                     )}
                 </div> 
                 </label>
@@ -196,15 +199,6 @@ export const NewProcess = () => {
                         <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
                         <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
                         <p className="error">{error}</p>
-                        {uploadedDocs.length > 0 ? 
-                            <p><label><b>Documentos: </b></label>{uploadedDocs.map((value, index) => {
-                                return (
-                                    <p>{value.name}</p>
-                                )
-                            })}</p>
-                        : 
-                            <p><b>Carregar documentos</b></p>
-                        }
                         <DragDropFile/>
                         <button onClick={fillProcessParams}>Preencher campos</button>
 
