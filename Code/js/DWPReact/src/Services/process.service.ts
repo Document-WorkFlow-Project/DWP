@@ -15,11 +15,10 @@ class TemplatesService {
         }
     }
 
-    async getTemplate(templateName) {
+    async getTemplate(templateName, setTemplateJson) {
         try {
             const response = await axios.get(API_URL + "/templates/" + templateName, {withCredentials: true})
-            console.log(response.data)
-            return response.data
+            setTemplateJson(response.data.stages)
         }
         catch (error) {
             console.log(error)
@@ -43,7 +42,7 @@ class TemplatesService {
                 headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` }
             })
             console.log(response)
-            window.location.href = "/process"
+            window.location.href = "/newprocess"
         }
         catch (error) {
             console.log(error)

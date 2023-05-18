@@ -155,6 +155,7 @@ export default function Templates() {
       name: stageName,
       description: stageDescription,
       responsibles: stageResponsibles,
+      prazo: null
     }
     
     setStages((prevStages) => [...prevStages, newStage])
