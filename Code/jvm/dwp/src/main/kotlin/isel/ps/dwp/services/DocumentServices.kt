@@ -4,7 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.DocumentServicesInterface
 import isel.ps.dwp.model.Document
-import isel.ps.dwp.model.saveInFilesystem
+import isel.ps.dwp.utils.saveInFilesystem
 import isel.ps.dwp.uploadsFolderPath
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
@@ -34,16 +34,16 @@ class DocumentServices(private val transactionManager: TransactionManager): Docu
             val filePath =
                 transactionManager.run {
                     it.documentsRepository.findPathById(fileId)
-                } ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Document $fileId not found.")
+                } ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Documento $fileId não encontrado.")
 
             val file: Path = uploadsFolderPath.resolve(filePath)
 
             val resource: Resource = UrlResource(file.toUri())
             if (resource.exists() || resource.isReadable)
                 resource
-            else throw ExceptionControllerAdvice.DocumentNotFoundException("The file does not exist or is not readable.")
+            else throw ExceptionControllerAdvice.DocumentNotFoundException("O documento não existe ou não é permitida leitura.")
         }.onFailure {
-            throw ExceptionControllerAdvice.DataTransferError("Error downloading file, reason: ${it.javaClass}")
+            throw ExceptionControllerAdvice.DataTransferError("Erro a transferir documento, ${it.javaClass}")
         }
 
     override fun documentDetails(fileId: String): Document? {

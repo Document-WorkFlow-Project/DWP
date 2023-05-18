@@ -4,11 +4,14 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.TemplatesInterface
 import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.model.deleteFromFilesystem
-import isel.ps.dwp.model.saveInFilesystem
 import isel.ps.dwp.templatesFolderPath
+import isel.ps.dwp.utils.deleteFromFilesystem
+import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Service
 class TemplatesServices(private val transactionManager: TransactionManager): TemplatesInterface {
@@ -52,6 +55,16 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         transactionManager.run {
             it.templatesRepository.removeUserFromTemplate(templateName, email)
         }
+    }
+
+    fun getTemplate(templateName: String): ByteArray {
+        val templateDetails = transactionManager.run {
+            it.templatesRepository.templateDetails(templateName)
+        }
+
+        val file: Path = Paths.get(templateDetails.path)
+
+        return Files.readAllBytes(file)
     }
 
     override fun deleteTemplate(templateName: String) {

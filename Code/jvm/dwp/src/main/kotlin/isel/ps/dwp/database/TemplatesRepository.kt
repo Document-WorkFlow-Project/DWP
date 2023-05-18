@@ -2,6 +2,8 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.TemplatesInterface
+import isel.ps.dwp.model.Document
+import isel.ps.dwp.model.Template
 import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
@@ -46,8 +48,15 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .bind("description", description)
             .bind("path", filePath)
             .execute()
-        
+
         return fileName
+    }
+
+    fun templateDetails(templateName: String): Template {
+        return handle.createQuery("select * from template_processo where nome = :name")
+                .bind("name", templateName)
+                .mapTo(Template::class.java)
+                .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template não encontrado.")
     }
 
     override fun deleteTemplate(templateName: String) {

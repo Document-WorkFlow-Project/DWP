@@ -55,6 +55,13 @@ data class Document (
     val localizacao: String
 )
 
+// Representação de um template guardado na base de dados
+data class Template (
+    val nome: String,
+    val descricao: String,
+    val path: String
+)
+
 data class EmailDetails (
     val recipient: String,
     val msgBody: String,

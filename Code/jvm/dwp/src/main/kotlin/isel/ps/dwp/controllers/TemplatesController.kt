@@ -51,6 +51,14 @@ class TemplatesController (
             .body("$email removed from $templateName template.")
     }
 
+    @GetMapping("/{templateName}")
+    fun getTemplate(@PathVariable templateName: String): ResponseEntity<*> {
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(templatesServices.getTemplate(templateName))
+    }
+
     @DeleteMapping("/{templateName}")
     fun deleteTemplate(@PathVariable templateName: String): ResponseEntity<*> {
         templatesServices.deleteTemplate(templateName)

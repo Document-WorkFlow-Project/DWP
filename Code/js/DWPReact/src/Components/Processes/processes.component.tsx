@@ -8,13 +8,17 @@ export default function Processes() {
 
     const [processName, setProcessName] = useState("")
     const [processDescription, setProcessDescription] = useState("")
-    const [selectedTemplate, setSelectedTemplate] = useState("FUC")
+    const [selectedTemplate, setSelectedTemplate] = useState("")
 
     const [error, setError] = useState("")
 
     useEffect(() => {
-        processServices.getTemplates(setAvailableTemplates)
+        processServices.getAvailableTemplates(setAvailableTemplates)
     }, [])
+
+    useEffect(() => {
+        setSelectedTemplate(availableTemplates[0])
+    }, [availableTemplates])
 
     function templateOptions() {
         let options = []
@@ -27,7 +31,8 @@ export default function Processes() {
     }  
 
     function fillProcessParams() {
-        processServices.getTemplates(setAvailableTemplates)
+        console.log(selectedTemplate)
+        processServices.getTemplate(selectedTemplate)
     }
 
     return (
