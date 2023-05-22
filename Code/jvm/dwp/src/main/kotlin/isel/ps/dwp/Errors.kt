@@ -20,11 +20,19 @@ class ExceptionControllerAdvice {
     class DatabaseIsNotAvailable(message: String) : RuntimeException(message)
     class UserNotAuthorizedException(message: String) : RuntimeException(message)
     class NativeRequestDoesntExistException(message: String) : RuntimeException(message) {}
+    class StageNotFound(message: String) : RuntimeException(message){}
+
+    class UserNotFound(message: String) : RuntimeException(message){}
+
+    class CommentNotFound(message: String) : RuntimeException(message) {}
 
 
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntimeException(ex: RuntimeException): ResponseEntity<String> {
         val status = when (ex) {
+            is CommentNotFound,
+            is StageNotFound,
+            is UserNotFound,
             is ProcessNotFound,
             is UserNotFoundException,
             is DocumentNotFoundException,

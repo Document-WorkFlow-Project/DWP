@@ -8,11 +8,25 @@ import org.jdbi.v3.core.Handle
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun getProcesses(type: String): List<String> {
-        return handle.createQuery("select id from processo where template_processo = :type")
+    override fun checkProcess(id: String): Process? {
+        return handle.createQuery("SELECT * FROM processo WHERE id = :id")
+            .bind("id", id)
+            .mapTo(Process::class.java)
+            .singleOrNull()
+    }
+
+    override fun getProcesses(type: String?): List<String> {
+        //TODO email must be provided, to know the processes the user created, unless user is admin
+        return if (type != null)
+            handle.createQuery("select id from processo where template_processo = :type")
             .bind("type", type)
             .mapTo(String::class.java)
             .list()
+        else
+            handle.createQuery("select id from processo where autor = :email")
+                .bind("email", "") //TODO email must be provided
+                .mapTo(String::class.java)
+                .list()
     }
 
     override fun pendingProcesses(userEmail: String?): List<String> {

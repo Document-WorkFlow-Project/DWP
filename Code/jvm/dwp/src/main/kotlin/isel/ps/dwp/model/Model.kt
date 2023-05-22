@@ -1,9 +1,7 @@
 package isel.ps.dwp.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.Duration
 import java.util.*
 
 data class User (
@@ -55,6 +53,13 @@ data class Document (
     val tipo: String,
     val tamanho: Long,
     val localizacao: String
+)
+
+// Representação de um template guardado na base de dados
+data class Template (
+    val nome: String,
+    val descricao: String,
+    val path: String
 )
 
 data class EmailDetails (

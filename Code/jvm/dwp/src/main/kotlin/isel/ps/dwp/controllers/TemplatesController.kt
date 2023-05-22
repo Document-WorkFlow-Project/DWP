@@ -2,8 +2,6 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
-import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.services.StageServices
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -17,7 +15,16 @@ class TemplatesController (
         JdbiTransactionManager(jdbi = DwpApplication().jdbi())
     )
 ) {
-    @PostMapping("/new")
+
+    @GetMapping
+    fun availableTemplates(): ResponseEntity<*> {
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(templatesServices.availableTemplates())
+    }
+
+    @PostMapping
     fun newTemplate(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
         val templateName = templatesServices.addTemplate(file)
         return ResponseEntity
@@ -26,8 +33,8 @@ class TemplatesController (
             .body(templateName)
     }
 
-    @PutMapping("{templateName}")
-    fun addUserToTemplate(@PathVariable templateName: String, @RequestBody email: String): ResponseEntity<*> {
+    @PutMapping("/{templateName}/{email}")
+    fun addUserToTemplate(@PathVariable templateName: String, @PathVariable email: String): ResponseEntity<*> {
         templatesServices.addUsersToTemplate(templateName, email)
         return ResponseEntity
             .status(201)
@@ -35,8 +42,8 @@ class TemplatesController (
             .body("Emails added to $templateName template.")
     }
 
-    @DeleteMapping("{templateName}")
-    fun removeUserFromTemplate(@PathVariable templateName: String, @RequestBody email: String): ResponseEntity<*> {
+    @DeleteMapping("/{templateName}/{email}")
+    fun removeUserFromTemplate(@PathVariable templateName: String, @PathVariable email: String): ResponseEntity<*> {
         templatesServices.removeUserFromTemplate(templateName, email)
         return ResponseEntity
             .status(201)
@@ -44,18 +51,28 @@ class TemplatesController (
             .body("$email removed from $templateName template.")
     }
 
-    @DeleteMapping("{name}")
-    fun deleteTemplate(@PathVariable name: String): ResponseEntity<*> {
-        templatesServices.deleteTemplate(name)
+    @GetMapping("/{templateName}")
+    fun getTemplate(@PathVariable templateName: String): ResponseEntity<*> {
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(templatesServices.getTemplate(templateName))
+    }
+
+    @DeleteMapping("/{templateName}")
+    fun deleteTemplate(@PathVariable templateName: String): ResponseEntity<*> {
+        templatesServices.deleteTemplate(templateName)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
-            .body("Template $name deleted")
+            .body("Template $templateName deleted")
     }
 
+    /* TODO create process should do this
     @PostMapping("/{json}")
     fun insertDataFromTemplate(@RequestBody template: ProcessTemplate){
         val result = templatesServices.insertDataFromTemplate(template)
     }
+     */
 
 }

@@ -21,8 +21,16 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     @Qualifier("notificationsService")
     lateinit var notificationServices: NotificationsServicesInterface
 
+    private val userServices: UserServices = UserServices(
+        transactionManager)
+
+    private val processServices : ProcessServices = ProcessServices(
+        transactionManager
+    )
+
+
     override fun stageDetails(stageId: String): Stage {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageDetails(stageId)
@@ -30,11 +38,14 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun signStage(stageId: String, approve: Boolean) {
+
+        checkStage(stageId)
+
         transactionManager.run {
             it.stagesRepository.signStage(stageId, approve)
         }
 
-        var notificationIds = emptyList<String>()
+        val notificationIds: List<String>
         // TODO get email of user who signed
         val userEmail = ""
 
@@ -43,7 +54,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
                 it.stagesRepository.getStageNotifications(stageId, userEmail)
             }
 
-            // Verificar se os restantes responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
+            // Verificar se todos os responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
             if (transactionManager.run { it.stagesRepository.verifySignatures(stageId) })
                 startNextStage(stageId)
 
@@ -59,7 +70,6 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-    fun pendingTaskEmail(email: String) = "Olá $email, \nTem uma tarefa pendente. \nObrigado"
 
     fun startNextStage(stageId: String) {
         // TODO get id from next pending stage
@@ -74,13 +84,15 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         transactionManager.run {
             it.stagesRepository.stageResponsible(nextStage)
         }.forEach {
-            notificationServices.scheduleEmail(EmailDetails(it, pendingTaskEmail(it), "Tarefa pendente"), NOTIFICATION_FREQUENCY)
+            val msgBody = "Olá $it, \nTem uma tarefa pendente. \nObrigado"
+            notificationServices.scheduleEmail(EmailDetails(it, msgBody, "Tarefa pendente"), NOTIFICATION_FREQUENCY)
         }
     }
 
     override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
 
-        /*TODO: Averiguar se etapa já existe*/
+        processServices.checkProcess(processId.toString())
+
 
         if (nome.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
@@ -90,7 +102,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
 
         /* Verificar se o modo é válido */
-        if (modo != "Unanimos" && modo != "Majority" && modo != "Unilateral") {
+        if (modo != "Unanimous" && modo != "Majority" && modo != "Unilateral") {
             throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
         }
 
@@ -103,8 +115,22 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
+    override fun checkStage(stageId: String): Stage? {
+        return transactionManager.run {
+            val stageRepo = it.stagesRepository
+            stageRepo.checkStage(stageId)
+        } ?: throw ExceptionControllerAdvice.StageNotFound("Stage not found. Incorrect Stage ID.")
+    }
+
+    override fun checkComment(commentId: String): Comment?{
+        return transactionManager.run {
+            val stageRepo = it.stagesRepository
+            stageRepo.checkComment(commentId)
+        } ?: throw ExceptionControllerAdvice.CommentNotFound("Comment not found. Incorrect Comment ID.")
+    }
+
     override fun stageUsers(stageId: String): List<User> {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageUsers(stageId)
@@ -112,11 +138,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun deleteStage(stageId: String) {
-        TODO("Not yet implemented")
+        TODO("Necessary?")
     }
 
     override fun editStage(stageId: String, nome: String, modo:String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
         if (nome.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
         if (descricao.length > 100)
@@ -132,7 +158,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun viewStages(processId: String): List<Stage> {
-        /*TODO: Averiguar se processo existe*/
+        processServices.checkProcess(processId)
 
         return transactionManager.run {
             it.stagesRepository.viewStages(processId)
@@ -141,7 +167,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
 
     override fun pendingStages(processId: String): List<Stage> {
-        /*TODO: Averiguar se processo existe*/
+        processServices.checkProcess(processId)
 
         return transactionManager.run {
             it.stagesRepository.pendingStages(processId)
@@ -152,11 +178,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
 
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-        /*TODO: Averiguar se comentário já existe*/
+        checkComment(id)
 
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
-        /*TODO: Averiguar se utilizador existe*/
+        userServices.checkUser(authorEmail)
 
         if (date.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("date can't be blank.")
@@ -172,7 +198,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun deleteComment(commentId: String) {
-        /*TODO: Averiguar se comentário existe*/
+        checkComment(commentId)
 
         return transactionManager.run {
             it.stagesRepository.deleteComment(commentId)
@@ -180,7 +206,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
     override fun stageComments(stageId: String): List<Comment> {
-        /*TODO: Averiguar se etapa existe*/
+        checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageComments(stageId)

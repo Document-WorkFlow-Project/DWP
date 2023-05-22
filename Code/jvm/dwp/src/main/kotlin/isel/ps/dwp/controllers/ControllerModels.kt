@@ -1,7 +1,5 @@
 package isel.ps.dwp.controllers
 
-import java.sql.Date
-
 data class SignInModel(val email: String, val password: String)
 
 data class RegisterModel(val email: String, val name: String, val password: String)

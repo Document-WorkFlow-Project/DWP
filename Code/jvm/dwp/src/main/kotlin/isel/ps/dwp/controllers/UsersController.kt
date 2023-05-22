@@ -1,13 +1,13 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.DwpApplication
+import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.http.MediaType
 
 @RestController
 @RequestMapping("/users")
@@ -16,6 +16,7 @@ class UsersController (
         JdbiTransactionManager(jdbi = DwpApplication().jdbi())
     )
 ) {
+
 
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {

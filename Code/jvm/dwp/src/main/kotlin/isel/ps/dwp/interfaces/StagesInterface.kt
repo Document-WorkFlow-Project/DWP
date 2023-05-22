@@ -58,4 +58,6 @@ interface StagesInterface {
      * Aprovar/reprovar etapa (função dos responsáveis da etapa) (implementar aprovação por maioria ou totalidade dos participantes)
      */
 
+    fun checkStage(stageId: String): Stage?
+    fun checkComment(commentId: String): Comment?
 }

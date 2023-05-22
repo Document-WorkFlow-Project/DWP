@@ -4,7 +4,6 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.RolesInterface
 import isel.ps.dwp.model.Role
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
 @Service

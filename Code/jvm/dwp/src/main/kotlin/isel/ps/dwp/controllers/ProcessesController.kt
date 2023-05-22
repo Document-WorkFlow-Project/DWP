@@ -6,7 +6,6 @@ import isel.ps.dwp.services.ProcessServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/processes")
@@ -16,9 +15,8 @@ class ProcessesController (
     )
 ) {
 
-
-    @GetMapping("/{type}")
-    fun userProcesses(@PathVariable type: String): ResponseEntity<*> {
+    @GetMapping
+    fun userProcesses(@RequestParam type: String?): ResponseEntity<*> {
         val processes = processesServices.getProcesses(type)
         return ResponseEntity
             .status(200)
@@ -44,7 +42,7 @@ class ProcessesController (
             .body(finished)
     }
 
-    @GetMapping("{processId}/stages")
+    @GetMapping("/{processId}/stages")
     fun processStages(@PathVariable processId: String): ResponseEntity<*> {
         val stages = processesServices.processStages(processId)
         return ResponseEntity
@@ -53,7 +51,7 @@ class ProcessesController (
             .body(stages)
     }
 
-    @GetMapping("{processId}")
+    @GetMapping("/{processId}")
     fun processDetails(@PathVariable processId: String): ResponseEntity<*> {
         val details = processesServices.processDetails(processId)
         return ResponseEntity
@@ -62,7 +60,7 @@ class ProcessesController (
                 .body(details)
     }
 
-    @PostMapping("{templateName}")
+    @PostMapping("/{templateName}")
     fun newProcess(@PathVariable templateName: String): ResponseEntity<*> {
         val processId = processesServices.newProcessFromTemplate(templateName)
         return ResponseEntity
@@ -71,7 +69,7 @@ class ProcessesController (
                 .body(processId)
     }
 
-    @DeleteMapping("{processId}")
+    @DeleteMapping("/{processId}")
     fun deleteProcess(@PathVariable processId: String): ResponseEntity<*> {
         processesServices.deleteProcess(processId)
         return ResponseEntity
@@ -80,7 +78,7 @@ class ProcessesController (
                 .body("Process $processId deleted")
     }
 
-    @PutMapping("{processId}")
+    @PutMapping("/{processId}")
     fun cancelProcess(@PathVariable processId: String): ResponseEntity<*> {
         processesServices.cancelProcess(processId)
         return ResponseEntity

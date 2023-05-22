@@ -1,12 +1,11 @@
 package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.interfaces.TemplatesInterface
-import isel.ps.dwp.model.ProcessTemplate
+import isel.ps.dwp.model.Document
+import isel.ps.dwp.model.Template
 import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
-import org.springframework.stereotype.Repository
 import org.springframework.web.multipart.MultipartFile
 
 class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
@@ -20,11 +19,20 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template $templateName not found.")
     }
 
+    override fun availableTemplates(): List<String> {
+        //TODO get email from accessing user, and return available templates to this user
+
+        return handle.createQuery(
+                "select nome from template_processo"
+        )
+                .mapTo(String::class.java)
+                .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
+    }
+
     override fun addTemplate(templateFile: MultipartFile): String {
         val fileNameWithType = templateFile.originalFilename
         val fileName = fileNameWithType!!.substringBeforeLast(".json")
-        //TODO add description
-        val description = "sample description"
+        val description = "sample description" //TODO get description from json
         val filePath = "$templatesFolderPath/$fileNameWithType"
 
         if (handle.createQuery("select * from template_processo where nome = :nome")
@@ -40,7 +48,15 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .bind("description", description)
             .bind("path", filePath)
             .execute()
+
         return fileName
+    }
+
+    fun templateDetails(templateName: String): Template {
+        return handle.createQuery("select * from template_processo where nome = :name")
+                .bind("name", templateName)
+                .mapTo(Template::class.java)
+                .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template não encontrado.")
     }
 
     override fun deleteTemplate(templateName: String) {

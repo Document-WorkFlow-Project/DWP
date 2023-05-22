@@ -3,21 +3,15 @@ package isel.ps.dwp.services
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
-import isel.ps.dwp.model.*
-import isel.ps.dwp.templatesFolderPath
-import org.springframework.stereotype.Component
+import isel.ps.dwp.model.Process
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
 
 
 
-    override fun getProcesses(type: String): List<String> {
-        if (type.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template type.")
-
+    override fun getProcesses(type: String?): List<String> {
         return transactionManager.run {
             it.processesRepository.getProcesses(type)
         }
@@ -81,6 +75,12 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         transactionManager.run {
             it.processesRepository.cancelProcess(processId)
         }
+    }
+
+    override fun checkProcess(id: String): Process? {
+        return transactionManager.run {
+            it.processesRepository.checkProcess(id)
+        } ?: throw ExceptionControllerAdvice.ProcessNotFound("Process not found. Incorrect id.")
     }
 
 }

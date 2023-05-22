@@ -1,10 +1,16 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.ProcessTemplate
 import org.springframework.web.multipart.MultipartFile
 
 interface TemplatesInterface {
-    /** Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
+
+    /**
+     * Obter lista de templates disponiveis para um utilizador
+     */
+    fun availableTemplates(): List<String>
+
+    /**
+     * Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
      */
     fun addTemplate(templateFile: MultipartFile): String
 
