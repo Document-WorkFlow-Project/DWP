@@ -4,21 +4,20 @@ const API_URL = 'http://localhost:3000/api'
 
 class TemplatesService {
 
-    async getAvailableTemplates(setTemplates) {
+    async getAvailableTemplates() {
         try {
             const response = await axios.get(API_URL + "/templates", {withCredentials: true})
-            setTemplates(response.data)
+            return response.data
         }
         catch (error) {
-            setTemplates([])
             console.log(error)
         }
     }
 
-    async getTemplate(templateName, setTemplateJson) {
+    async getTemplate(templateName) {
         try {
             const response = await axios.get(API_URL + "/templates/" + templateName, {withCredentials: true})
-            setTemplateJson(response.data.stages)
+            return response.data
         }
         catch (error) {
             console.log(error)

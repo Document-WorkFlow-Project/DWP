@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
 import processServices from "../../Services/process.service"
 
-function ModalContent({ 
+function NewStageModal({ 
   onClose, 
   onSave, 
   stageName, 
@@ -63,15 +63,15 @@ function ModalContent({
   return (
     <div className="bg">
       <div className="modal">
-        <div>Nova etapa
-          <p><label>Nome: <input type="text" value={stageName} onChange={e => setStageName(e.target.value)}/></label></p>
-          <p><label>Descrição: <textarea value={stageDescription} onChange={e => setStageDescription(e.target.value)}/></label></p>
+        <div><h2>Nova etapa</h2>
+          <p><label><b>Nome: </b><input type="text" value={stageName} onChange={e => setStageName(e.target.value)}/></label></p>
+          <p><label><b>Descrição: </b><textarea value={stageDescription} onChange={e => setStageDescription(e.target.value)}/></label></p>
           <div>
-            <label>Responsáveis: </label>
+            <label><b>Responsáveis: </b></label>
             <div>
               {stageResponsibles.map((resp, index) => {
                 return (
-                  <b>{resp}<button key={index} onClick={() => removeResp(resp)}>x</button></b>
+                  <a key={index}> {resp} <button onClick={() => removeResp(resp)}>x</button></a>
                 )
               })}
             </div>
@@ -91,6 +91,57 @@ function ModalContent({
         </div>
         <button onClick={handleSave}>Guardar etapa</button>
         <button onClick={onClose}>Cancelar</button>
+      </div>
+    </div>
+  )
+}
+
+function TemplateDetailsModal({onClose, selectedTemplate}) {
+  
+  const [templateDetails, setTemplateDetails] = useState({
+    name:"",
+    description:"",
+    stages:[
+      {
+        name:"",
+        description:"",
+        responsibles:[""],
+        prazo: null
+      }
+    ]
+  })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const template = await processServices.getTemplate(selectedTemplate);
+      setTemplateDetails(template)
+    }
+    fetchData()
+  }, [])
+
+  return (
+    <div className="bg">
+      <div className="modal">
+        <h3>{selectedTemplate}</h3>
+        <p><b>Descrição: </b>{templateDetails.description}</p>
+        <div className="scroll">
+          {templateDetails.stages.map((stage, index) => {
+            return (
+              <div className="clipping-container">
+                <p><b>{stage.name}</b></p>
+                <p><b>Descrição: </b>{stage.description}</p>
+                <p><b>Responsáveis: </b>
+                  {stage.responsibles.map((resp, index) => {
+                    return (
+                      <a> {resp}; </a>
+                    )
+                  })}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+        <button onClick={onClose}>Fechar</button>
       </div>
     </div>
   )
@@ -121,12 +172,22 @@ export default function Templates() {
   const [stageResponsibles, setStageResponsibles] = useState([])
 
   // modal for new stage parameter fill
-  const [showModal, setShowModal] = useState(false);
+  const [showNewStageModal, setShowModal] = useState(false)
   const [error, setError] = useState("")
   const [stageError, setStageError] = useState(null)
 
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+
   useEffect(() => {
-      processServices.getAvailableTemplates(setAvailableTemplates)
+    const fetchData = async () => {
+      const templates = await processServices.getAvailableTemplates()
+      setAvailableTemplates(templates);
+    }
+    fetchData()
+  }, [])
+  
+  useEffect(() => {
+    if (availableTemplates.length > 0)
       setSelectedTemplate(availableTemplates[0])
   }, [availableTemplates])
 
@@ -221,7 +282,11 @@ export default function Templates() {
               <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                   {templateOptions()}
               </select>
-              <button onClick={() => processServices.deleteTemplate(selectedTemplate)}>Apagar template</button>
+              <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
+              <button onClick={() => {
+                  processServices.deleteTemplate(selectedTemplate)
+                  setAvailableTemplates(available => available.filter(name => name !== selectedTemplate))
+                }}>Apagar template</button>
             </div>
         }
         <h2>Novo template de processo</h2>
@@ -244,8 +309,13 @@ export default function Templates() {
                       <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="clipping-container" key={index}>
                         <b>Nome: </b>{stage.name}
                         <p><b>Descrição: </b>{stage.description}</p>
-                        <p><b>Responsáveis: </b></p>
-                        <p>{stage.responsibles}</p>
+                        <p><b>Responsáveis: </b>
+                          {stage.responsibles.map((resp, index) => {
+                            return (
+                              <a> {resp}; </a>
+                            )
+                          })}
+                        </p>
                         <button onClick={() => deleteStage(index)}>Apagar etapa</button>
                       </div>
                     )}
@@ -259,8 +329,17 @@ export default function Templates() {
       </DragDropContext>
       
       <div>
-        {showModal && createPortal(
-          <ModalContent 
+        {showDetailsModal && createPortal(
+          <TemplateDetailsModal 
+            onClose={() => setShowDetailsModal(false)}
+            selectedTemplate={selectedTemplate}
+          />,
+          document.body
+        )}
+      </div>
+      <div>
+        {showNewStageModal && createPortal(
+          <NewStageModal 
             onClose={() => {
               setShowModal(false)
               resetStageParams()

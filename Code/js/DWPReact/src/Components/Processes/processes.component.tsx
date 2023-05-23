@@ -2,12 +2,12 @@ import { useEffect, useState, useRef } from "react"
 import './processes.css'
 import processServices from "../../Services/process.service"
 import { createPortal } from 'react-dom'
+import { Form } from "../Form"
 
 export const NewProcess = () => {
 
     const [availableTemplates, setAvailableTemplates] = useState([])
     const [uploadedDocs, setUploadedDocs] = useState([])
-    const [docNames, setDocNames] = useState([])
 
     const [processName, setProcessName] = useState("")
     const [processDescription, setProcessDescription] = useState("")
@@ -18,7 +18,11 @@ export const NewProcess = () => {
     const [error, setError] = useState("")
 
     useEffect(() => {
-        processServices.getAvailableTemplates(setAvailableTemplates)
+        const fetchData = async () => {
+            const templates = await processServices.getAvailableTemplates()
+            setAvailableTemplates(templates);
+        }
+        fetchData()
     }, [])
 
     useEffect(() => {
@@ -36,6 +40,7 @@ export const NewProcess = () => {
     }  
 
     function fillProcessParams() {
+        /*
         if (processName === "" || processDescription === "") {
             setError("Nome e/ou descrição do processo em falta.")
             return
@@ -44,7 +49,7 @@ export const NewProcess = () => {
         if (uploadedDocs.length === 0){
             setError("Nenhum documento carregado.")
             return
-        }
+        }*/
 
         setShowModal(true)
     }
@@ -59,64 +64,63 @@ export const NewProcess = () => {
         modalError
     }) {
 
-        const [templateJson, setTemplateJson] = useState({})
+        const [templateJson, setTemplateJson] = useState({
+            name:"",
+            description:"",
+            stages:[
+              {
+                name:"",
+                description:"",
+                responsibles:[""],
+                prazo: null
+              }
+            ]
+        })
+
+        const [stageDurations, setStageDurations] = useState(() => {
+            return Array(templateJson.stages.length).fill(0)
+        })
 
         useEffect(() => {
-            processServices.getTemplate(selectedTemplate, setTemplateJson)
-        }, [])
+            const fetchData = async () => {
+                const template = await processServices.getTemplate(selectedTemplate)
+                setTemplateJson(template)
+                setStageDurations(Array(templateJson.stages.length).fill(0))
+            }
+            fetchData()
+        }, [selectedTemplate, templateJson])
       
         const handleSave = () => {
             onSave()
             onClose()
         }
 
-        const Form = ({ jsonData, onSubmit }) => {
-            const [formValues, setFormValues] = useState({})
-          
-            const handleChange = (e) => {
-                const { name, value } = e.target
-                setFormValues((prevValues) => ({...prevValues, [name]: value,}))
-            }
-            
-            const handleSubmit = (e) => {
-                e.preventDefault()
-                onSubmit(formValues)
-            }
-        
-            return (
-                <form onSubmit={handleSubmit}>
-                    {Object.entries(jsonData).map(([key, value]) => {
-                        //console.log(value)
-                        if (value === null) {
-                            //console.log("null")
-                            return (
-                                <div key={key}>
-                                    <label htmlFor={key}>{key}</label>
-                                    <input
-                                        type="text"
-                                        id={key}
-                                        name={key}
-                                        value={formValues[key] || ''}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            )
-                        }
-                        return null
-                    })}
-                    <button onClick={handleSave} type="submit">Criar processo</button>
-                </form>
-            )
-        }
-
         return (
             <div className="bg">
                 <div className="modal">Preencher campos do processo
+                    <div className="scroll">
+                        {templateJson.stages.map((stage, index) => {                           
+                            return (
+                                <div key={index} className="clipping-container">
+                                    <p><b>{stage.name}</b></p>
+                                    <p><b>Descrição: </b>{stage.description}</p>
+                                    <p><b>Responsáveis: </b>
+                                    {stage.responsibles.map((resp, index) => {
+                                        return (
+                                            <a key={index}> {resp}; </a>
+                                        )
+                                    })}</p>
+                                    <p><b>Prazo: </b><input type="number" value={stageDurations[index]} onChange={e => {
+                                        const updatedDurations = [...stageDurations]
+                                        updatedDurations[index] = parseInt(e.target.value) || 0
+                                        setStageDurations(updatedDurations)
+                                    }} /></p>
+                                </div>
+                            )
+                        })}
+                    </div>
                     <p className="error">{modalError}</p>
-                    <Form
-                        jsonData={templateJson}
-                        onSubmit={handleSave}
-                    />
+                    <button onClick={handleSave}>Criar processo</button>
                     <button onClick={onClose}>Cancelar</button>
                 </div>
             </div>
@@ -172,7 +176,7 @@ export const NewProcess = () => {
                             ))}
                         </div>
                     ) : (
-                        <p>Nenhum ficheiro selecionado</p>
+                        <p>Nenhum documento carregado</p>
                     )}
                 </div> 
                 </label>
@@ -190,7 +194,7 @@ export const NewProcess = () => {
                 <p className="error">Não existem templates disponíveis.</p>
             : 
                 <div>  
-                        <label><b>Template:</b>
+                        <label><b>Template: </b>
                             <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                             {templateOptions()}
                             </select>

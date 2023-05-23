@@ -1,6 +1,26 @@
 body {
-    margin: 0px;
+    margin: 20px;
     font-family: 'Oswald', sans-serif;
+}
+
+div.scroll {
+    background-color: #eae9e9;
+    width: 430px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.stageContainer {
+    position: relative;
+    border: 1px solid #aaa;
+    margin-bottom: 5px;
+    width: 400px;
+    overflow: hidden;
+    background-color: white;
+    border-radius: 12px;
 }
   
 .page {
