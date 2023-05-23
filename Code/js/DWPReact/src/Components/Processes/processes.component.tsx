@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react"
 import './processes.css'
 import processServices from "../../Services/process.service"
 import { createPortal } from 'react-dom'
-import { Form } from "../Form"
+import { TemplateDetailsModal } from "../Templates/templateModals"
 
 export const NewProcess = () => {
 
@@ -13,9 +13,9 @@ export const NewProcess = () => {
     const [processDescription, setProcessDescription] = useState("")
     const [selectedTemplate, setSelectedTemplate] = useState("")
 
-    const [showModal, setShowModal] = useState(false);
-    const [modalError, setModalError] = useState("")
     const [error, setError] = useState("")
+
+    const [showDetailsModal, setShowDetailsModal] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,8 +39,7 @@ export const NewProcess = () => {
         return options;
     }  
 
-    function fillProcessParams() {
-        /*
+    function createProcess() {
         if (processName === "" || processDescription === "") {
             setError("Nome e/ou descrição do processo em falta.")
             return
@@ -49,82 +48,9 @@ export const NewProcess = () => {
         if (uploadedDocs.length === 0){
             setError("Nenhum documento carregado.")
             return
-        }*/
-
-        setShowModal(true)
-    }
-
-    function createProcess() {
-        console.log(uploadedDocs)
-    }
-
-    function ModalContent({ 
-        onClose, 
-        onSave,
-        modalError
-    }) {
-
-        const [templateJson, setTemplateJson] = useState({
-            name:"",
-            description:"",
-            stages:[
-              {
-                name:"",
-                description:"",
-                responsibles:[""],
-                prazo: null
-              }
-            ]
-        })
-
-        const [stageDurations, setStageDurations] = useState(() => {
-            return Array(templateJson.stages.length).fill(0)
-        })
-
-        useEffect(() => {
-            const fetchData = async () => {
-                const template = await processServices.getTemplate(selectedTemplate)
-                setTemplateJson(template)
-                setStageDurations(Array(templateJson.stages.length).fill(0))
-            }
-            fetchData()
-        }, [selectedTemplate, templateJson])
-      
-        const handleSave = () => {
-            onSave()
-            onClose()
         }
 
-        return (
-            <div className="bg">
-                <div className="modal">Preencher campos do processo
-                    <div className="scroll">
-                        {templateJson.stages.map((stage, index) => {                           
-                            return (
-                                <div key={index} className="clipping-container">
-                                    <p><b>{stage.name}</b></p>
-                                    <p><b>Descrição: </b>{stage.description}</p>
-                                    <p><b>Responsáveis: </b>
-                                    {stage.responsibles.map((resp, index) => {
-                                        return (
-                                            <a key={index}> {resp}; </a>
-                                        )
-                                    })}</p>
-                                    <p><b>Prazo: </b><input type="number" value={stageDurations[index]} onChange={e => {
-                                        const updatedDurations = [...stageDurations]
-                                        updatedDurations[index] = parseInt(e.target.value) || 0
-                                        setStageDurations(updatedDurations)
-                                    }} /></p>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <p className="error">{modalError}</p>
-                    <button onClick={handleSave}>Criar processo</button>
-                    <button onClick={onClose}>Cancelar</button>
-                </div>
-            </div>
-        )
+        console.log(uploadedDocs)
     }
 
     function DragDropFile() {
@@ -169,8 +95,7 @@ export const NewProcess = () => {
                     <p>Arrasta documentos para aqui ou</p>
                     <button className="upload-button" onClick={() => inputRef.current.click()}>Procura documentos</button>
                     {uploadedDocs.length > 0 ? (
-                        <div>
-                        <pre className="output">Selected files:</pre>
+                        <div className="files-scroll">
                             {uploadedDocs.map((file) => (
                                 <p key={file.name}>{file.name}</p>
                             ))}
@@ -187,7 +112,6 @@ export const NewProcess = () => {
 
     return (
         <div>
-            <p><button onClick={() => window.location.href = "/templates"}>Criar template</button></p>
             <h2>Novo processo</h2>
 
             { availableTemplates.length === 0 ?
@@ -196,24 +120,27 @@ export const NewProcess = () => {
                 <div>  
                         <label><b>Template: </b>
                             <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                            {templateOptions()}
+                                {templateOptions()}
                             </select>
+                            <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
                         </label>
                     
                         <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
                         <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
                         <p className="error">{error}</p>
                         <DragDropFile/>
-                        <button onClick={fillProcessParams}>Preencher campos</button>
+                        <p></p>
+                        <button onClick={createProcess}>Criar processo</button>
 
-                        {showModal && createPortal(
-                            <ModalContent 
-                                onClose={() => setShowModal(false)}
-                                onSave={createProcess}
-                                modalError={modalError}
-                            />,
-                            document.body
-                        )}
+                        <div>
+                            {showDetailsModal && createPortal(
+                                <TemplateDetailsModal 
+                                    onClose={() => setShowDetailsModal(false)}
+                                    selectedTemplate={selectedTemplate}
+                                />,
+                                document.body
+                            )}
+                        </div>
                 </div>
             }
         </div>

@@ -1,3 +1,12 @@
+div.scroll-resp {
+    background-color: #eae9e9;
+    width: 230px;
+    height: 50px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
+}
 
 .clipping-container {
     position: relative;
@@ -31,7 +40,7 @@
     position: absolute;
     width: 500px;
     height: 400px;
-    top: 200px;
+    top: 130px;
     left: calc(50% - 250px);
     justify-content: space-evenly;
     flex-direction: column;
