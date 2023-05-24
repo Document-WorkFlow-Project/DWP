@@ -61,6 +61,26 @@ class TemplatesService {
             console.log(error)
         }
     }
+
+    async pendingStages() {
+        try {
+            const response = await axios.get(API_URL + "/stages/pending", {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    } 
+
+    async getProcesses() {
+        try {
+            const response = await axios.get(API_URL + "/pending", {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 export default new TemplatesService();

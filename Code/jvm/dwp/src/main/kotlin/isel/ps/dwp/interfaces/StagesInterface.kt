@@ -2,6 +2,7 @@ package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.StageInfo
 import isel.ps.dwp.model.User
 
 interface StagesInterface {
@@ -25,14 +26,9 @@ interface StagesInterface {
     fun stageUsers(stageId: String): List<User>
 
     /**
-     * Obter lista de etapas pendentes (função de administrador ou utilizador associado à etapa)
+     * Obter lista de etapas pendentes que o utilizador necessita de assinar (função de administrador ou utilizador associado à etapa)
      */
-    fun pendingStages(processId: String): List<Stage>
-
-
-    /**
-     * Editar detalhes da etapa (função de administrador)
-     */
+    fun pendingStages(userEmail: String?): List<StageInfo>
 
     /**
      * Detalhes de uma etapa (função de utilizador associado ao processo)
@@ -54,10 +50,5 @@ interface StagesInterface {
      */
     fun stageComments(stageId: String): List<Comment>
 
-    /**
-     * Aprovar/reprovar etapa (função dos responsáveis da etapa) (implementar aprovação por maioria ou totalidade dos participantes)
-     */
-
-    fun checkStage(stageId: String): Stage?
     fun checkComment(commentId: String): Comment?
 }

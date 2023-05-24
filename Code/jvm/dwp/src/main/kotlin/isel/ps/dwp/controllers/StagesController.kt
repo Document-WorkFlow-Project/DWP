@@ -16,7 +16,7 @@ class StagesController (
 ) {
     /** --------------------------- Stages -------------------------------**/
     @GetMapping("/{stageId}")
-    fun getStageDetails(@PathVariable stageId: String): ResponseEntity<*> {
+    fun stageDetails(@PathVariable stageId: String): ResponseEntity<*> {
         val stage = stageServices.stageDetails(stageId)
         return ResponseEntity.ok(stage)
     }
@@ -27,6 +27,7 @@ class StagesController (
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
+    /*
     @PostMapping
     fun createStage(
         @RequestParam processId: Int,
@@ -42,6 +43,8 @@ class StagesController (
         stageServices.createStage(processId, nome, modo, responsavel, descricao, data_inicio, data_fim, prazo, estado)
         return ResponseEntity(HttpStatus.CREATED)
     }
+
+
 
     @DeleteMapping("/{stageId}")
     fun deleteStage(@PathVariable stageId: String): ResponseEntity<Void> {
@@ -63,16 +66,16 @@ class StagesController (
         stageServices.editStage(stageId, nome, modo, descricao, data_inicio, data_fim, prazo, estado)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
-
-    @GetMapping("/process/{processId}")
+    */
+    @GetMapping("/{processId}")
     fun viewStages(@PathVariable processId: String): ResponseEntity<List<*>> {
         val stages = stageServices.viewStages(processId)
         return ResponseEntity.ok(stages)
     }
 
-    @GetMapping("/process/{processId}/pending")
-    fun pendingStages(@PathVariable processId: String): ResponseEntity<List<*>> {
-        val stages = stageServices.pendingStages(processId)
+    @GetMapping("/pending")
+    fun pendingStages(userEmail: String?): ResponseEntity<List<*>> {
+        val stages = stageServices.pendingStages(userEmail)
         return ResponseEntity.ok(stages)
     }
 

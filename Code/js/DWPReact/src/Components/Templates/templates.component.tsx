@@ -30,6 +30,7 @@ export default function Templates() {
   const [stageDescription, setStageDescription] = useState("")
   const [stageResponsibles, setStageResponsibles] = useState([])
   const [stageDuration, setStageDuration] = useState(1)
+  const [selectedMode, setSelectedMode] = useState("Unanimous")
 
   // modal for new stage parameter fill
   const [showNewStageModal, setShowModal] = useState(false)
@@ -76,7 +77,8 @@ export default function Templates() {
       name: stageName,
       description: stageDescription,
       responsibles: stageResponsibles,
-      duration: stageDuration
+      duration: stageDuration,
+      mode: selectedMode
     }
     
     setStages((prevStages) => [...prevStages, newStage])
@@ -93,7 +95,11 @@ export default function Templates() {
   }
 
   const saveTemplate = () => {
-    // TODO check if template name was already used
+    if (availableTemplates.find(name => name === templateName)) {
+      setError("Nome do template já existe.")
+      return
+    }
+
     if (templateName === "" || templateDescription === "") {
       setError("Nome e/ou descrição do template em falta.")
       return
@@ -107,7 +113,7 @@ export default function Templates() {
     const template = {
       name: templateName,
       description: templateDescription,
-      stages: stages,
+      stages: stages
     }
 
     const templateJson = JSON.stringify(template)
@@ -170,6 +176,7 @@ export default function Templates() {
                         <b>Nome: </b>{stage.name}
                         <p><b>Descrição: </b>{stage.description}</p>
                         <p><b>Prazo: </b>{stage.duration} dias</p>
+                        <p><b>Modo de assinatura: </b>{stage.mode}</p>
                         <p><b>Responsáveis: </b>
                           {stage.responsibles.map((resp, index) => {
                             return (
@@ -219,6 +226,8 @@ export default function Templates() {
             stages={stages}
             userGroups={userGroups}
             users={users}
+            selectedMode={selectedMode}
+            setSelectedMode={setSelectedMode}
           />,
           document.body
         )}

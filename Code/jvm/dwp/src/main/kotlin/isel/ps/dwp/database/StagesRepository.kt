@@ -3,6 +3,7 @@ package isel.ps.dwp.database
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.StageInfo
 import isel.ps.dwp.model.User
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
@@ -153,10 +154,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun pendingStages(processId: String): List<Stage> {
-        return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId AND estado = 'Pending'")
-            .bind("processId", processId)
-            .mapTo(Stage::class.java)
+    override fun pendingStages(userEmail: String?): List<StageInfo> {
+        return handle.createQuery(
+            "SELECT id_etapa, nome FROM utilizador_etapa join etapa on id_etapa = id WHERE assinatura is null AND id_notificacao is not null AND email_utilizador = :email"
+        )
+            .bind("email", userEmail)
+            .mapTo(StageInfo::class.java)
             .list()
     }
 
@@ -171,7 +174,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Comments -------------------------------**/
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-
         handle.createUpdate("INSERT INTO Comentario (id, id_etapa, data, texto, remetente) VALUES (:id, :stageId, :date, :text, :authorEmail)")
             .bind("id", id)
             .bind("stageId", stageId)
@@ -197,7 +199,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun checkStage(stageId: String): Stage? {
+    fun checkStage(stageId: String): Stage? {
         return handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
             .bind("stageId", stageId)
             .mapTo(Stage::class.java)

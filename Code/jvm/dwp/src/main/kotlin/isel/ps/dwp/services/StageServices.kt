@@ -4,10 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.EmailDetails
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.User
+import isel.ps.dwp.model.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -115,7 +112,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
     }
 
-    override fun checkStage(stageId: String): Stage? {
+    fun checkStage(stageId: String): Stage? {
         return transactionManager.run {
             val stageRepo = it.stagesRepository
             stageRepo.checkStage(stageId)
@@ -149,7 +146,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
 
         /* Verificar se o modo é válido */
-        if (modo != "Unanimos" && modo != "Majority" && modo != "Unilateral") {
+        if (modo != "Unanimous" && modo != "Majority" && modo != "Unilateral") {
             throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
         }
         return transactionManager.run {
@@ -166,15 +163,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     }
 
 
-    override fun pendingStages(processId: String): List<Stage> {
-        processServices.checkProcess(processId)
-
+    override fun pendingStages(userEmail: String?): List<StageInfo> {
         return transactionManager.run {
-            it.stagesRepository.pendingStages(processId)
+            it.stagesRepository.pendingStages(userEmail)
         }
     }
-
-
 
 
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {

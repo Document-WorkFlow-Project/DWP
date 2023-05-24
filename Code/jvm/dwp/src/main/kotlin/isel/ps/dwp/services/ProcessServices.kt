@@ -49,11 +49,10 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
-
-        //TODO fill new process params
-
+        // Guardar documentos anexados ao processo
         files.forEach{ saveInFilesystem(it, "$uploadsFolderPath/${it.originalFilename}") }
 
+        // Criar processo e respetivas etapas na bd
         return transactionManager.run {
             it.processesRepository.newProcess(templateName, name, description, files)
         }

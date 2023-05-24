@@ -73,11 +73,9 @@ data class EmailSchedule (
     val period: Long
 )
 
-// Representação de um ficheiro template json na base de dados
-data class ProcessTemplateFile (
-    val nome: String,
-    val descricao: String,
-    val path: String
+data class StageInfo (
+    val id: String,
+    val name: String
 )
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

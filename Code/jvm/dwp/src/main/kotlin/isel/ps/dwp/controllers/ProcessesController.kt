@@ -63,7 +63,7 @@ class ProcessesController (
 
     @PostMapping
     fun newProcess(@RequestParam templateName: String, @RequestParam name: String, @RequestParam description: String, @RequestParam("file") files: List<MultipartFile>): ResponseEntity<*> {
-        val processId = processesServices.newProcess(files)
+        val processId = processesServices.newProcess(templateName, name, description, files)
         return ResponseEntity
                 .status(201)
                 .contentType(MediaType.APPLICATION_JSON)
