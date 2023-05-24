@@ -5,6 +5,7 @@ import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
+import java.util.*
 
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
@@ -58,24 +59,40 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .list()
     }
 
-    // TODO obter por ordem
     override fun processStages(processId: String): List<String> {
-        val stages = handle.createQuery("select id_etapa from etapa_processo where id_processo = :processId")
+        val stages = handle.createQuery(
+                "select id from etapa where id_processo = :processId order by indice"
+        )
             .bind("processId", processId)
             .mapTo(String::class.java)
             .list()
-        return stages.ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.") }
+        return stages.ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.") }
     }
 
     override fun processDetails(processId: String): Process {
         return handle.createQuery("select * from processo where id = :processId")
             .bind("processId", processId)
             .mapTo(Process::class.java)
-            .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.")
+            .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.")
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
-        return "example"
+        val uuid = UUID.randomUUID().toString()
+        //TODO get email from requesting user
+        val userEmail = "example@gmail.com"
+
+        handle.createUpdate(
+                "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"
+        )
+                .bind("uuid", uuid)
+                .bind("name", name)
+                .bind("author", userEmail)
+                .bind("description", description)
+                .bind("startDate", Date())
+                .bind("template", templateName)
+                .execute()
+
+        return uuid
     }
 
     override fun deleteProcess(processId: String) {
@@ -92,19 +109,5 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         )
             .bind("processId", processId)
             .execute()
-    }
-
-    fun createProcess(nome: String, autor: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String, template_processo:String): Int? {
-        val result = handle.createUpdate("INSERT INTO Processo (nome, autor, descricao, data_inicio, data_fim, prazo, estado, template_processo) VALUES (:nome, :autor, :responsavel, :descricao, :data_inicio, :data_fim, :prazo, :estado, :template_processo)")
-            .bind("nome", nome)
-            .bind("autor", autor)
-            .bind("descricao", descricao)
-            .bind("data_inicio", data_inicio)
-            .bind("data_fim", data_fim)
-            .bind("prazo", prazo)
-            .bind("estado", estado)
-            .bind("template_processo", template_processo)
-            .executeAndReturnGeneratedKeys()
-        return result.mapTo(Int::class.java).one()
     }
 }

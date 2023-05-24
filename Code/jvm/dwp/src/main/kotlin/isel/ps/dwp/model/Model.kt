@@ -80,26 +80,17 @@ data class StageInfo (
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class ProcessTemplate(
-    @JsonProperty("nome") val nome: String,
-    @JsonProperty("autor") val autor: String,
-    @JsonProperty("descricao") val descricao: String,
-    @JsonProperty("data_inicio") val data_inicio: String,
-    @JsonProperty("data_fim") val data_fim: String?,
-    @JsonProperty("prazo") val prazo: String,
-    @JsonProperty("estado") val estado: String,
-    @JsonProperty("template_processo") val template_processo: String,
-    @JsonProperty("etapas") val etapas: List<StageTemplate> = listOf()
+    @JsonProperty("name") val name: String,
+    @JsonProperty("description") val description: String,
+    @JsonProperty("stages") val stages: List<StageTemplate>
 )
 
 data class StageTemplate(
-    @JsonProperty("nome") val nome: String ,
-    @JsonProperty("modo") val modo: String,
-    @JsonProperty("responsavel") val responsavel: List<String> = listOf(),
-    @JsonProperty("descricao") val descricao: String ,
-    @JsonProperty("data_inicio") val data_inicio: String ,
-    @JsonProperty("data_fim") val data_fim: String? ,
-    @JsonProperty("prazo") val prazo: String,
-    @JsonProperty("estado") val estado: String
+    @JsonProperty("name") val name: String,
+    @JsonProperty("description") val description: String,
+    @JsonProperty("responsibles") val responsible: List<String>,
+    @JsonProperty("duration") val duration: Int,
+    @JsonProperty("mode") val mode: String
 )
 
 

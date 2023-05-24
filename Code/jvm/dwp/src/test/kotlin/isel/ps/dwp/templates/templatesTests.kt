@@ -1,6 +1,5 @@
 package isel.ps.dwp.templates
 
-import isel.ps.dwp.utils.templatesUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -8,7 +7,7 @@ class templatesTests {
 
     @Test
     fun testReadTemplateToObject() {
-            val utils = templatesUtils()
+            val utils = TemplatesUtils()
             val json = """{
              "nome": "user",
                     "autor": "user@mail.com",
@@ -42,7 +41,7 @@ class templatesTests {
         """
 
         // Act
-        val result = utils.readTemplateToObject(json)
+        val result = utils.parseTemplateToObject(json)
 
         // Assert
         assertEquals("user", result.nome)

@@ -1,5 +1,6 @@
 package isel.ps.dwp.database
 
+import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.Stage
@@ -60,7 +61,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
-
     override fun signStage(stageId: String, approve: Boolean) {
         val date = Date()
 
@@ -91,61 +91,69 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
-
-    // TODO implementar aprovação de etapa de acordo com o modo
     fun verifySignatures(stageId: String): Boolean {
-        // Todos os responsáveis já assinaram
-        if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
+        val mode = handle.createQuery("select modo from etapa where id = :stageId")
                 .bind("stageId", stageId)
                 .mapTo<String>()
-                .one() == null
-        ) {
-            handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
-                .bind("endDate", Date())
-                .bind("stageId", stageId)
-                .execute()
+                .one()
 
-            return true
-        }
+        if (mode == "Unanimous") {
+            // Se nenhuma assinatura estiver por preencher, todos os responsáveis já assinaram
+            if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
+                            .bind("stageId", stageId)
+                            .mapTo<String>()
+                            .one() == null
+            ) {
+                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
+                        .bind("endDate", Date())
+                        .bind("stageId", stageId)
+                        .execute()
+
+                return true
+            }
+        } else if (mode == "Majority") {
+            // Se mais de metade das assinaturas já estiverem preenchidas, o workflow pode prosseguir
+            if (handle.createQuery(
+                "with counted_values as (select assinatura, count(*) as total_count, count(*) filter (where assinatura is not null) as non_null_count from utilizador_etapa where id = :stageId)" +
+                        "select non_null_count > total_count / 2 from counted_values"
+                )
+                    .bind("stageId", stageId)
+                    .mapTo<Boolean>()
+                    .one()
+            ) {
+                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
+                        .bind("endDate", Date())
+                        .bind("stageId", stageId)
+                        .execute()
+
+                return true
+            }
+        } else
+            throw ExceptionControllerAdvice.InvalidParameterException("Modo de assinatura inválido.")
+
         return false
     }
 
+    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int) {
+        val stageId = UUID.randomUUID().toString()
 
-    override fun createStage(processId: Int, nome: String, modo:String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String) {
-        handle.createUpdate("INSERT INTO Etapa (id_processo, nome, responsavel, descricao, data_inicio,modo, data_fim, prazo, estado) VALUES (:id_processo, :nome, :responsavel, :descricao, :data_inicio, :modo, :data_fim, :prazo, :estado)")
-            .bind("id_processo", processId)
-            .bind("nome", nome)
-            .bind("modo",modo)
-            .bind("responsavel", responsavel)
-            .bind("descricao", descricao)
-            .bind("data_inicio", data_inicio)
-            .bind("data_fim", data_fim)
-            .bind("prazo", prazo)
-            .bind("estado", estado)
-            .execute()
-    }
-
-    override fun deleteStage(stageId: String) {
-        handle.createUpdate("DELETE FROM etapa WHERE id = :stageId")
-            .bind("stageId", stageId)
-            .execute()
-    }
-
-    override fun editStage(stageId: String, nome: String, modo: String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
         handle.createUpdate(
-            "UPDATE etapa SET nome = :nome, responsavel = :responsavel, descricao = :descricao, data_inicio = :dataInicio, modo =:modo, data_fim = :dataFim, prazo = :prazo, estado = :estado WHERE id = :stageId"
+        "insert into etapa (id, id_processo, indice, modo, nome, descricao, data_inicio, data_fim, prazo, estado) " +
+                "VALUES (:id, :id_processo, :idx, :modo, :name, :description, :prazo, 'PENDING')"
         )
-            .bind("stageId", stageId)
-            .bind("nome", nome)
-            .bind("modo",modo)
-            .bind("descricao", descricao)
-            .bind("data_inicio", data_inicio)
-            .bind("data_fim", data_fim)
-            .bind("prazo", prazo)
-            .bind("estado", estado)
+            .bind("id", stageId)
+            .bind("id_processo", processId)
+            .bind("idx", index)
+            .bind("modo", mode)
+            .bind("name", name)
+            .bind("description", description)
+            .bind("prazo", duration)
             .execute()
-    }
 
+        //TODO fill etapa_processo
+        //TODO fill utilizador_etapa
+        //responsible.forEach {  }
+    }
 
     override fun viewStages(processId : String): List<Stage> {
         return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId order by indice")
@@ -170,6 +178,16 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
+    /**
+     * Checks if stage exists
+     */
+    fun checkStage(stageId: String) {
+        handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
+                .bind("stageId", stageId)
+                .mapTo(Stage::class.java)
+                .list()
+                .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Etapa não encontrada.")
+    }
 
 
     /** --------------------------- Comments -------------------------------**/
@@ -199,21 +217,15 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    fun checkStage(stageId: String): Stage? {
-        return handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
-            .bind("stageId", stageId)
-            .mapTo(Stage::class.java)
-            .list()
-            .singleOrNull()
-    }
-
-    override fun checkComment(commentId: String) : Comment? {
-        return handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId")
+    /**
+     * Checks if comment exists
+     */
+    fun checkComment(commentId: String) {
+        handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
             .mapTo(Comment::class.java)
             .list()
-            .singleOrNull()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comentário não encontrado.")
     }
-
 
 }

@@ -3,9 +3,6 @@ BEGIN TRANSACTION;
 CREATE DOMAIN email AS varchar(32) 
 CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
 
-CREATE DOMAIN alfanumeric_password AS varchar(32) 
-CHECK (value ~* '^[A-Za-z0-9]+$');
-
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel (
     id varchar(36) PRIMARY KEY,
@@ -18,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Utilizador (
     email email PRIMARY KEY,
     nome varchar(32) UNIQUE NOT NULL,
     authToken varchar(64) UNIQUE NOT NULL,
-    pass alfanumeric_password NOT NULL CHECK (pass ~ '^[A-Za-z0-9]{10,}$') --verifica se tem pelo menos 10 caracteres minimo
+    pass text NOT NULL
 );
 
 create table if not exists template_processo (
@@ -43,7 +40,6 @@ CREATE TABLE IF NOT EXISTS Processo (
     descricao varchar(100),
     data_inicio date NOT NULL,
     data_fim date,
-    prazo date NOT NULL,
     estado varchar(32) NOT NULL,
     template_processo varchar(32) NOT NULL,
     constraint estado check (estado IN ('PENDING', 'APPROVED', 'DISAPPROVED')),
@@ -60,23 +56,23 @@ CREATE TABLE IF NOT EXISTS Documento (
     localizacao varchar(100) NOT NULL
 );
 
---Etapa(id,nome,responsavel,descricao,data_inicio,data_fim,prazo,estado)
+--Etapa(id,nome,descricao,data_inicio,data_fim,prazo,estado)
 CREATE TABLE IF NOT EXISTS Etapa (
     id varchar(36) PRIMARY KEY,
     id_processo varchar(36) NOT NULL,
     indice int not null,
     modo varchar(32) NOT NULL,
-    nome varchar(32) NOT NULL,
-    responsavel varchar(32) NOT NULL,
-    descricao varchar(100),
-    data_inicio date NOT NULL,
     constraint modo check (modo IN ('Unanimous', 'Majority')),
+    nome varchar(32) NOT NULL,
+    descricao varchar(100),
+    data_inicio date,
     data_fim date,
     prazo date NOT NULL,
     estado varchar(32) NOT NULL,
-    FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (responsavel) REFERENCES Utilizador (email) ON DELETE CASCADE ON UPDATE CASCADE
+    constraint estado check (estado in ('PENDING', 'APPROVED', 'DISAPPROVED')),
+    FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 --Comentario(id,texto,data)
 CREATE TABLE IF NOT EXISTS Comentario (
     id varchar(36) PRIMARY KEY,
@@ -133,7 +129,6 @@ CREATE TABLE IF NOT EXISTS Utilizador_Processo (
     PRIMARY KEY (email_utilizador, id_processo)
 );
 
-
 -- Tabela que associa Utilizadores a Etapas
 CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
     email_utilizador varchar(32) NOT NULL,
@@ -147,5 +142,7 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
 );
 
 COMMIT TRANSACTION;
+
+insert into utilizador values ('example@gmail.com','test user', 'exampleToken', 'hashPass')
 
 rollback;

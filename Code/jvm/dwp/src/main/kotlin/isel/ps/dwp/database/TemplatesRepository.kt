@@ -67,7 +67,6 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .execute()
     }
 
-
     override fun addUsersToTemplate(templateName: String, email: String) {
         if (handle.createQuery("select * from acesso_template where nome_template = :template and utilizador = :email")
                 .bind("template", templateName)

@@ -1,16 +1,22 @@
 package isel.ps.dwp.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.io.File
 
 @Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
+
+    private val objectMapper: ObjectMapper = ObjectMapper()
 
     override fun getProcesses(type: String?): List<String> {
         return transactionManager.run {
@@ -49,12 +55,26 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
-        // Guardar documentos anexados ao processo
+        // Save uploaded files associated to this process
         files.forEach{ saveInFilesystem(it, "$uploadsFolderPath/${it.originalFilename}") }
+        // TODO fill documento_processo
 
-        // Criar processo e respetivas etapas na bd
         return transactionManager.run {
-            it.processesRepository.newProcess(templateName, name, description, files)
+            // Create process
+            val processId = it.processesRepository.newProcess(templateName, name, description, files)
+
+            // Get template stages to be initialized
+            val templateDetails = it.templatesRepository.templateDetails(templateName)
+            val template = objectMapper.readValue<ProcessTemplate>(File(templateDetails.path))
+
+            // Create process stages
+            template.stages.forEachIndexed { index, stage ->
+                it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, stage.responsible, stage.duration)
+            }
+
+            //TODO start first stage of new process
+
+            processId
         }
     }
 

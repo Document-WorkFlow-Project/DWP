@@ -18,27 +18,22 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
     @Qualifier("notificationsService")
     lateinit var notificationServices: NotificationsServicesInterface
 
-    private val userServices: UserServices = UserServices(
-        transactionManager)
+    private val userServices: UserServices = UserServices(transactionManager)
 
-    private val processServices : ProcessServices = ProcessServices(
-        transactionManager
-    )
+    private val processServices : ProcessServices = ProcessServices(transactionManager)
 
 
     override fun stageDetails(stageId: String): Stage {
-        checkStage(stageId)
-
         return transactionManager.run {
+            it.stagesRepository.checkStage(stageId)
             it.stagesRepository.stageDetails(stageId)
         }
     }
 
     override fun signStage(stageId: String, approve: Boolean) {
 
-        checkStage(stageId)
-
         transactionManager.run {
+            it.stagesRepository.checkStage(stageId)
             it.stagesRepository.signStage(stageId, approve)
         }
 
@@ -67,7 +62,6 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-
     fun startNextStage(stageId: String) {
         // TODO get id from next pending stage
         val nextStage = ""
@@ -86,71 +80,27 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-    override fun createStage(processId: Int, nome: String, modo: String, responsavel: String, descricao: String, data_inicio: String, data_fim: String?, prazo: String, estado: String){
+    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int) {
+        processServices.checkProcess(processId)
 
-        processServices.checkProcess(processId.toString())
-
-
-        if (nome.isBlank())
+        if (name.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
-        if (responsavel.isBlank())
+        if (mode.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Responsable can't be blank.")
-        if (descricao.length > 100)
-            throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
 
-        /* Verificar se o modo é válido */
-        if (modo != "Unanimous" && modo != "Majority" && modo != "Unilateral") {
-            throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
+        //TODO: Mais Averiguações
+
+        return transactionManager.run {
+            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
         }
 
-
-        /*TODO: Mais Averiguações*/
-
-        return transactionManager.run {
-            it.stagesRepository.createStage(processId, nome, modo, responsavel,descricao,data_inicio,null,prazo,estado)
-        }
-
-    }
-
-    fun checkStage(stageId: String): Stage? {
-        return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.checkStage(stageId)
-        } ?: throw ExceptionControllerAdvice.StageNotFound("Stage not found. Incorrect Stage ID.")
-    }
-
-    override fun checkComment(commentId: String): Comment?{
-        return transactionManager.run {
-            val stageRepo = it.stagesRepository
-            stageRepo.checkComment(commentId)
-        } ?: throw ExceptionControllerAdvice.CommentNotFound("Comment not found. Incorrect Comment ID.")
     }
 
     override fun stageUsers(stageId: String): List<User> {
-        checkStage(stageId)
+        //checkStage(stageId)
 
         return transactionManager.run {
             it.stagesRepository.stageUsers(stageId)
-        }
-    }
-
-    override fun deleteStage(stageId: String) {
-        TODO("Necessary?")
-    }
-
-    override fun editStage(stageId: String, nome: String, modo:String, descricao: String, data_inicio: String, data_fim: String, prazo: String, estado: String) {
-        checkStage(stageId)
-        if (nome.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
-        if (descricao.length > 100)
-            throw ExceptionControllerAdvice.InvalidParameterException("Descrição length can't be bigger than 100 chars.")
-
-        /* Verificar se o modo é válido */
-        if (modo != "Unanimous" && modo != "Majority" && modo != "Unilateral") {
-            throw ExceptionControllerAdvice.InvalidParameterException("Invalid value for parameter 'modo'. Must be 'Unanimos', 'Majority' or 'Unilateral'.")
-        }
-        return transactionManager.run {
-            it.stagesRepository.editStage(stageId,nome,modo,descricao,data_inicio,data_fim,prazo,estado)
         }
     }
 
@@ -162,19 +112,15 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-
     override fun pendingStages(userEmail: String?): List<StageInfo> {
         return transactionManager.run {
             it.stagesRepository.pendingStages(userEmail)
         }
     }
 
+    /** --------------------------- Comments -------------------------------**/
 
     override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-        checkComment(id)
-
-        checkStage(stageId)
-
         userServices.checkUser(authorEmail)
 
         if (date.isBlank())
@@ -185,26 +131,23 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
+            it.stagesRepository.checkStage(stageId)
             it.stagesRepository.addComment(id,stageId,date,text,authorEmail)
         }
-
     }
 
     override fun deleteComment(commentId: String) {
-        checkComment(commentId)
-
         return transactionManager.run {
+            it.stagesRepository.checkComment(commentId)
             it.stagesRepository.deleteComment(commentId)
         }
     }
 
     override fun stageComments(stageId: String): List<Comment> {
-        checkStage(stageId)
-
         return transactionManager.run {
+            it.stagesRepository.checkStage(stageId)
             it.stagesRepository.stageComments(stageId)
         }
     }
-
 
 }
