@@ -6,6 +6,7 @@ import isel.ps.dwp.services.ProcessServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/processes")
@@ -60,9 +61,9 @@ class ProcessesController (
                 .body(details)
     }
 
-    @PostMapping("/{templateName}")
-    fun newProcess(@PathVariable templateName: String): ResponseEntity<*> {
-        val processId = processesServices.newProcessFromTemplate(templateName)
+    @PostMapping
+    fun newProcess(@RequestParam templateName: String, @RequestParam name: String, @RequestParam description: String, @RequestParam("file") files: List<MultipartFile>): ResponseEntity<*> {
+        val processId = processesServices.newProcess(files)
         return ResponseEntity
                 .status(201)
                 .contentType(MediaType.APPLICATION_JSON)

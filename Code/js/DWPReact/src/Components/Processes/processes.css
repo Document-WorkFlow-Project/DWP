@@ -16,7 +16,7 @@ div.scroll {
 .files-scroll {
     background-color: #00ffff2d;
     width: 330px;
-    height: 80px;
+    height: 120px;
     overflow-x: hidden;
     overflow-y: auto;
     text-align: center;

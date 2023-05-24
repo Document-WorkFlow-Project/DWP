@@ -1,6 +1,7 @@
 package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Process
+import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
 
@@ -29,7 +30,7 @@ interface ProcessesInterface {
     /**
      * Criar processo (função de administrador ou utilizador autorizado)
      */
-    fun newProcessFromTemplate(templateName: String): String
+    fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String
 
     /**
      * Remover processo (função de administrador ou utilizador autorizado)

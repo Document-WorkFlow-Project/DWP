@@ -4,6 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import org.jdbi.v3.core.Handle
+import org.springframework.web.multipart.MultipartFile
 
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
@@ -73,8 +74,8 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Process $processId not found.")
     }
 
-    override fun newProcessFromTemplate(templateName: String): String {
-        TODO("Not yet implemented")
+    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
+        return "example"
     }
 
     override fun deleteProcess(processId: String) {

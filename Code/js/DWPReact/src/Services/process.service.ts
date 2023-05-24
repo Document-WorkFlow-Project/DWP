@@ -47,6 +47,20 @@ class TemplatesService {
             console.log(error)
         }
     }
+
+    async createProcess(formData) {   
+        try {
+            const response = await axios.post(API_URL + "/processes", formData, {
+                withCredentials: true,
+                headers: {'Content-Type': 'multipart/form-data'}
+            })
+            console.log(response)
+            window.location.href = "/processes"
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 export default new TemplatesService();

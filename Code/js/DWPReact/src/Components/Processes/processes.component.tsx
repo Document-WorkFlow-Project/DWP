@@ -39,24 +39,10 @@ export const NewProcess = () => {
         return options;
     }  
 
-    function createProcess() {
-        if (processName === "" || processDescription === "") {
-            setError("Nome e/ou descrição do processo em falta.")
-            return
-        }
+    function DragDropFiles() {
 
-        if (uploadedDocs.length === 0){
-            setError("Nenhum documento carregado.")
-            return
-        }
-
-        console.log(uploadedDocs)
-    }
-
-    function DragDropFile() {
-
-        const [dragActive, setDragActive] = useState(false);
-        const inputRef = useRef(null);
+        const [dragActive, setDragActive] = useState(false)
+        const inputRef = useRef(null)
         
         const handleDrag = function(e) {
             e.preventDefault()
@@ -67,45 +53,81 @@ export const NewProcess = () => {
             else if (e.type === "dragleave")
                 setDragActive(false)
         }
-
-        const handleFile = function(files) {
-            setUploadedDocs(Array.from(files))
-        }
         
         const handleDrop = function(e) {
             e.preventDefault()
             e.stopPropagation()
             setDragActive(false)
-            
-            if (e.dataTransfer.files && e.dataTransfer.files[0])
-                handleFile(e.dataTransfer.files);
+
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const files = Array.from(e.dataTransfer.files)
+                setUploadedDocs((prevDocs) => [...prevDocs, ...files])
+            }
         }
         
-        const handleChange = function(e) {
+        const handleChange = function (e) {
             e.preventDefault()
-            if (e.target.files && e.target.files[0])
-                handleFile(e.target.files)
+
+            inputRef.current.click()
+        
+            if (e.target.files && e.target.files.length > 0) {
+                const files = Array.from(e.target.files)
+                setUploadedDocs((prevDocs) => [...prevDocs, ...files])
+            }
+        }
+
+        const handleDelete = function (fileName) {
+            setUploadedDocs((prevDocs) => prevDocs.filter((file) => file.name !== fileName))
+        }
+
+        const handleSubmit = function(e) {
+            e.preventDefault()
+            
+            if (processName === "" || processDescription === "") {
+                setError("Nome e/ou descrição do processo em falta.")
+                return
+            }
+    
+            if (uploadedDocs.length === 0){
+                setError("Nenhum documento carregado.")
+                return
+            }
+
+            const formData = new FormData()
+            formData.append('templateName', selectedTemplate)
+            formData.append('name', processName)
+            formData.append('description', processDescription)
+
+            uploadedDocs.forEach((file) => formData.append('file', file))
+    
+            processServices.createProcess(formData)
         }
         
         return (
-            <form id="form-file-upload" onDragEnter={handleDrag} onSubmit={(e) => e.preventDefault()}>
+            <form id="form-file-upload" onDragEnter={handleDrag} onSubmit={handleSubmit}>
                 <input ref={inputRef} type="file" id="input-file-upload" multiple={true} onChange={handleChange} />
                 <label id="label-file-upload" htmlFor="input-file-upload" className={dragActive ? "drag-active" : "" }>
-                <div>
-                    <p>Arrasta documentos para aqui ou</p>
-                    <button className="upload-button" onClick={() => inputRef.current.click()}>Procura documentos</button>
-                    {uploadedDocs.length > 0 ? (
-                        <div className="files-scroll">
-                            {uploadedDocs.map((file) => (
-                                <p key={file.name}>{file.name}</p>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>Nenhum documento carregado</p>
-                    )}
-                </div> 
+                    <div>
+                        <p>Arrasta documentos para aqui ou</p>
+                        <button className="upload-button" onClick={handleChange}>Procura documentos</button>
+                        {uploadedDocs.length > 0 ? (
+                            <div>
+                                <div className="files-scroll">
+                                    {uploadedDocs.map((file) => (
+                                        <div key={file.name}>
+                                            <p>{file.name} <button onClick={() => handleDelete(file.name)}>x</button></p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <p>Nenhum documento carregado</p>
+                        )}
+                    </div> 
                 </label>
                 { dragActive && <div id="drag-file-element" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div> }
+                <p></p>
+                <input type="submit" value="Criar Processo"/>
             </form>
         )
     }
@@ -128,9 +150,8 @@ export const NewProcess = () => {
                         <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
                         <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
                         <p className="error">{error}</p>
-                        <DragDropFile/>
-                        <p></p>
-                        <button onClick={createProcess}>Criar processo</button>
+                        
+                        <DragDropFiles/>
 
                         <div>
                             {showDetailsModal && createPortal(

@@ -4,12 +4,13 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.uploadsFolderPath
+import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
-
-
 
     override fun getProcesses(type: String?): List<String> {
         return transactionManager.run {
@@ -47,15 +48,14 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
-
-    override fun newProcessFromTemplate(templateName: String): String {
-        if (templateName.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
+    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
 
         //TODO fill new process params
 
+        files.forEach{ saveInFilesystem(it, "$uploadsFolderPath/${it.originalFilename}") }
+
         return transactionManager.run {
-            it.processesRepository.newProcessFromTemplate(templateName)
+            it.processesRepository.newProcess(templateName, name, description, files)
         }
     }
 
