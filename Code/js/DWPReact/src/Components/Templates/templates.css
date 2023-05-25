@@ -1,11 +1,35 @@
 div.scroll-resp {
     background-color: #eae9e9;
-    width: 230px;
+    width: 270px;
     height: 50px;
     overflow-x: hidden;
     overflow-y: auto;
     text-align: center;
     padding: 20px;
+    margin-top: 12px;
+}
+
+.name-input {
+    height: 20px;
+    width: 320px;
+}
+
+.description-area {
+    resize: none;
+    height: 80px;
+    width: 320px;
+    overflow: 'auto'; 
+}
+
+.responsible-container {
+    position: relative;
+    border: 1px solid #aaa;
+    margin-bottom: 12px;
+    padding: 12px;
+    width: 300px;
+    height: 100px;
+    overflow: auto;
+    background-color: white;
 }
 
 .clipping-container {
@@ -56,10 +80,10 @@ div.scroll-resp {
     border: 2px solid rgb(240, 240, 240);
     border-radius: 12px;
     position: absolute;
-    width: 500px;
-    height: 500px;
-    top: 130px;
-    left: calc(50% - 250px);
+    width: 400px;
+    height: 730px;
+    top: 50px;
+    left: calc(50% - 280px);
     justify-content: space-evenly;
     flex-direction: column;
     flex-wrap: wrap;

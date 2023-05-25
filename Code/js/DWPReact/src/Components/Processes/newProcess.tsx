@@ -147,8 +147,10 @@ export const NewProcess = () => {
                             <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
                         </label>
                     
-                        <p><label><b>Nome: </b><input type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/></label></p>
-                        <p><label><b>Descrição: </b><textarea value={processDescription} onChange={e => setProcessDescription(e.target.value)}/></label></p>
+                        <p><b>Nome: </b></p>
+                        <input className="name-input" type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/>
+                        <p><b>Descrição: </b></p>
+                        <textarea className="description-area" value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
                         <p className="error">{error}</p>
                         
                         <DragDropFiles/>

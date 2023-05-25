@@ -64,15 +64,17 @@ export function NewStageModal({
         <div className="bg">
             <div className="stage-modal">
                 <div><h2>Nova etapa</h2>
-                    <p><label><b>Nome: </b><input type="text" value={stageName} onChange={e => setStageName(e.target.value)}/></label></p>
-                    <p><label><b>Descrição: </b><textarea value={stageDescription} onChange={e => setStageDescription(e.target.value)}/></label></p>
-                    <p><label><b>Prazo: </b><input type="number" min={1} value={stageDuration} onChange={e => setStageDuration(e.target.value)}/></label> dias</p>
+                    <p><b>Nome: </b></p>
+                    <input className="name-input" type="text" value={stageName} onChange={e => setStageName(e.target.value)}/>
+                    <p><b>Descrição: </b></p>
+                    <textarea className="description-area" value={stageDescription} onChange={e => setStageDescription(e.target.value)}/>
+                    <p><b>Prazo: </b><input type="number" min={1} value={stageDuration} onChange={e => setStageDuration(e.target.value)}/> dias</p>
                     <div>
-                        <label><b>Responsáveis: </b></label>
-                        <div>
+                        <p><b>Responsáveis: </b></p>
+                        <div className="responsible-container">
                             {stageResponsibles.map((resp, index) => {
                                 return (
-                                <a key={index}> {resp} <button onClick={() => removeResp(resp)}>x</button></a>
+                                    <p key={index}> {resp} <button onClick={() => removeResp(resp)}>x</button></p>
                                 )
                             })}
                         </div>
@@ -87,7 +89,7 @@ export function NewStageModal({
                         </div>
                         <div className="scroll-resp">
                             {filteredUsers.map((item, index) => (
-                                <button key={index} onClick={() => addResponsible(item)}>{item}</button>
+                                <p key={index}><button key={index} onClick={() => addResponsible(item)}>{item}</button></p>
                             ))}
                         </div>
                     </div>
@@ -106,10 +108,12 @@ export function NewStageModal({
                             <p><b>Maioritário: </b>A maioria dos responsáveis deve assinar a etapa para o processo prosseguir</p>
                         </dialog>
                     )}
-                    {stageError && <p className="error">{stageError}</p>}
+                    <p className="error">{stageError}</p>
+                    <p>
+                        <button onClick={onClose}>Cancelar</button>
+                        <button onClick={handleSave}>Guardar etapa</button>
+                    </p>
                 </div>
-                <button onClick={handleSave}>Guardar etapa</button>
-                <button onClick={onClose}>Cancelar</button>
             </div>
         </div>
     )

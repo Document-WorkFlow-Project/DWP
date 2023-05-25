@@ -158,8 +158,10 @@ export default function Templates() {
             </div>
         }
         <h2>Novo template de processo</h2>
-        <p><label><b>Nome: </b><input type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/></label></p>
-        <p><label><b>Descrição: </b><textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/></label></p>
+        <p><b>Nome: </b></p>
+        <input className="name-input" type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/>
+        <p><b>Descrição: </b></p>
+        <textarea className="description-area" value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/>
         <p className="error">{error}</p>
 
         <button onClick={() => setShowModal(true)}>Adicionar etapa</button>
