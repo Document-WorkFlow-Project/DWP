@@ -19,7 +19,7 @@ export const NewProcess = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const templates = await processServices.getAvailableTemplates()
+            const templates = await processServices.availableTemplates()
             setAvailableTemplates(templates)
         }
         fetchData()

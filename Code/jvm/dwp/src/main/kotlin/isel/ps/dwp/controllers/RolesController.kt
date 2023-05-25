@@ -2,6 +2,7 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
+import isel.ps.dwp.model.RoleModel
 import isel.ps.dwp.services.RoleServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -15,8 +16,8 @@ class RolesController(
     )
 ) {
 
-    @PostMapping("/")
-    fun createRole(@RequestBody role: RoleCreateModel, user: UserDetails): ResponseEntity<*> {
+    @PostMapping
+    fun createRole(@RequestBody role: RoleModel): ResponseEntity<*> {
         val res = roleServices.createRole(role.name, role.description)
         return ResponseEntity
             .status(201)
@@ -24,54 +25,54 @@ class RolesController(
             .body(res)
     }
 
-    @DeleteMapping("/")
-    fun deleteRole(@RequestParam roleId: String, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.deleteRole(roleId)
+    @DeleteMapping("/{roleName}")
+    fun deleteRole(@PathVariable roleName: String): ResponseEntity<*> {
+        val res = roleServices.deleteRole(roleName)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
             .body(res)
     }
 
-    @GetMapping("/details")
-    fun roleDetails(@RequestParam roleId: String, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.roleDetails(roleId)
+    @GetMapping("/{roleName}")
+    fun roleDetails(@PathVariable roleName: String): ResponseEntity<*> {
+        val roleDetails = roleServices.roleDetails(roleName)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(res)
+            .body(roleDetails)
     }
 
-    @GetMapping("/")
-    fun rolesList(user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.getRoles()
+    @GetMapping
+    fun rolesList(): ResponseEntity<*> {
+        val roles = roleServices.getRoles()
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(res)
+            .body(roles)
     }
 
-    @GetMapping("/role")
-    fun usersWithRole(@RequestParam roleId: String, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.getRoleUsers(roleId)
+    @GetMapping("/{roleName}/users")
+    fun usersWithRole(@PathVariable roleName: String): ResponseEntity<*> {
+        val users = roleServices.getRoleUsers(roleName)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(res)
+            .body(users)
     }
 
-    @PutMapping("/user")
-    fun addRoleToUser(@RequestBody roleToAdd: RoleInPlayerModel, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.addRoleToUser(roleToAdd.roleId, roleToAdd.userId)
+    @PutMapping("/{roleName}/{userEmail}")
+    fun addRoleToUser(@PathVariable roleName: String, @PathVariable userEmail: String): ResponseEntity<*> {
+        val res = roleServices.addRoleToUser(roleName, userEmail)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
             .body(res)
     }
 
-    @DeleteMapping("/user")
-    fun removeRoleFromUser(@RequestBody roleToDelete: RoleInPlayerModel, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.removeRoleFromUser(roleToDelete.roleId, roleToDelete.userId)
+    @DeleteMapping("/{roleName}/{userEmail}")
+    fun removeRoleFromUser(@PathVariable roleName: String, @PathVariable userEmail: String): ResponseEntity<*> {
+        val res = roleServices.removeRoleFromUser(roleName, userEmail)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)

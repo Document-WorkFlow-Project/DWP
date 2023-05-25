@@ -3,19 +3,22 @@ import Home from "./Components/Home/home.component";
 import Templates from "./Components/Templates/templates.component";
 import {NewProcess} from "./Components/Processes/newProcess";
 import {Processes} from "./Components/Processes/processes";
+import { Roles } from "./Components/Roles/roles.component";
 
 export default function App() {
 
     return (
         <div>
             <Link to={"/"} className="navbar-brand">Home </Link>
-            <Link to={"/processes"} className="navbar-brand">Processos </Link>
-            <Link to={"/templates"} className="navbar-brand">Templates</Link>
+            <Link to={"/processes"} className="navbar-brand"> Processos </Link>
+            <Link to={"/templates"} className="navbar-brand"> Templates </Link>
+            <Link to={"/roles"} className="navbar-brand"> Papéis </Link>
             <Routes>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/processes" element={<Processes/>}/>
                 <Route path="/newprocess" element={<NewProcess/>}/>
                 <Route path="/templates" element={<Templates/>}/>
+                <Route path="/roles" element={<Roles/>}/>
             </Routes>
         </div>
     )

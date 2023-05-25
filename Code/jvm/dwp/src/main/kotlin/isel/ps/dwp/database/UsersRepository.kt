@@ -1,7 +1,7 @@
 package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.controllers.UserDetails
+import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
 import isel.ps.dwp.services.md5
