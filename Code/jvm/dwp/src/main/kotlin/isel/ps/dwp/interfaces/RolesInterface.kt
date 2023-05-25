@@ -6,17 +6,15 @@ interface RolesInterface {
 
     fun createRole(name: String, description: String): Int
 
-    fun deleteRole(roleId: String)
+    fun deleteRole(roleName: String)
 
-    fun editRole(roleId: String, name: String, description: String)
-
-    fun roleDetails(roleId: String): Role
+    fun roleDetails(roleName: String): Role
 
     fun getRoles(): List<Role>
 
-    fun getRoleUsers(roleId: String): List<String>
+    fun getRoleUsers(roleName: String): List<String>
 
-    fun addRoleToUser(roleId: String, userId: String)
+    fun addRoleToUser(roleName: String, userEmail: String)
 
-    fun removeRoleFromUser(roleId: String, userId: String)
+    fun removeRoleFromUser(roleName: String, userEmail: String)
 }

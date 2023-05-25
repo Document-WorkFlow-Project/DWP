@@ -9,72 +9,70 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
 
 
     override fun createRole(name: String, description: String): Int {
-        return handle.createQuery(
-            "insert into papel(nome,descricao) values (:nome,:descricao) returning id"
+        return handle.createUpdate(
+            "insert into papel (nome, descricao) values (:nome, :descricao)"
         )
             .bind("nome", name)
             .bind("descricao", description)
-            .mapTo(Int::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Role Name already in use.")
-    }
-
-    override fun deleteRole(roleId: String) {
-        handle.createUpdate("delete from papel where id=:roleId")
-            .bind("roleId", roleId)
             .execute()
-            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist.") }
+            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Nome do papel já existe.") }
     }
 
-    override fun editRole(roleId: String, name: String, description: String) {
-        handle.createUpdate("update papel set nome=:nome, descricao=:descricao where id=:roleId")
-            .bind("nome", name)
-            .bind("descricao", description)
-            .bind("roleId", roleId)
+    override fun deleteRole(roleName: String) {
+        handle.createUpdate("delete from papel where nome = :roleName")
+            .bind("roleName", roleName)
             .execute()
-            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist.") }
+            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Papel não existe.") }
     }
 
-    override fun roleDetails(roleId: String): Role {
+    override fun roleDetails(roleName: String): Role {
         return handle.createQuery(
-            "select * from papel where id=$roleId"
+            "select * from papel where nome = :roleName"
         )
+            .bind("roleName", roleName)
             .mapTo(Role::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist.")
+            .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Papel não existe.")
     }
 
     override fun getRoles(): List<Role> {
-        return handle.createQuery(
-            "select * from papel"
-        )
+        return handle.createQuery("select * from papel")
             .mapTo(Role::class.java)
             .list()
     }
 
-    override fun getRoleUsers(roleId: String): List<String> {
+    override fun getRoleUsers(roleName: String): List<String> {
         return handle.createQuery(
-            "select email_utilizador from Utilizador_Papel where id_papel=$roleId"
+            "select email_utilizador from Utilizador_Papel where papel = :roleName"
         )
+            .bind("roleName", roleName)
             .mapTo(String::class.java)
             .list()
     }
 
-    override fun addRoleToUser(roleId: String, userId: String) {
-        handle.createUpdate(
-            "insert into Utilizador_Papel(id_papel,email_utilizador) values (:id_papel,:email_utilizador)"
-        )
-            .bind("id_papel", roleId)
-            .bind("email_utilizador", userId)
-            .execute()
-            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist to be added to user.") }
+    override fun addRoleToUser(roleName: String, userEmail: String) {
+        // Check if role exists
+        roleDetails(roleName)
 
+        handle.createUpdate(
+            "insert into Utilizador_Papel (papel, email_utilizador) values (:id_papel, :email_utilizador)"
+        )
+            .bind("id_papel", roleName)
+            .bind("email_utilizador", userEmail)
+            .execute()
+            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Erro ao adicionar papel.") }
     }
 
-    override fun removeRoleFromUser(roleId: String, userId: String) {
+    override fun removeRoleFromUser(roleName: String, userEmail: String) {
+        // Check if role exists
+        roleDetails(roleName)
+
         handle.createUpdate(
-            "delete from Utilizador_Papel where id_papel=$roleId and email_utilizador='$userId'"
+            "delete from Utilizador_Papel where papel = :roleName and email_utilizador = :userEmail"
         )
+            .bind("roleName", roleName)
+            .bind("userEmail", userEmail)
             .execute()
-            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Role does not exist to be removed from user.") }
+            .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Erro ao remover papel.") }
     }
 
 }

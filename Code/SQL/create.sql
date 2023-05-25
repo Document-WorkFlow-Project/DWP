@@ -5,8 +5,7 @@ CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
 
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel (
-    id varchar(36) PRIMARY KEY,
-    nome varchar(32) NOT NULL,
+    nome varchar(32) primary key,
     descricao varchar(100)
 );
 
@@ -113,11 +112,11 @@ CREATE TABLE IF NOT EXISTS Documento_Processo (
 
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel (
-    id_papel varchar(36) NOT NULL,
+    papel varchar(36) NOT NULL,
     email_utilizador varchar(36) NOT NULL,
-    FOREIGN KEY (id_papel) REFERENCES Papel(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (papel) REFERENCES Papel(nome) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
-    PRIMARY KEY (id_papel, email_utilizador)
+    PRIMARY KEY (papel, email_utilizador)
 );
 
 -- Tabela que associa Utilizadores a Processos

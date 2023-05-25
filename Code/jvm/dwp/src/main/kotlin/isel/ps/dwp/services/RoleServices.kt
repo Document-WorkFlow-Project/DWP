@@ -24,41 +24,23 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
         }
     }
 
-    override fun deleteRole(roleId: String) {
-        if (roleId.isBlank())
+    override fun deleteRole(roleName: String) {
+        if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
-            rolesRepo.deleteRole(roleId)
+            rolesRepo.deleteRole(roleName)
         }
     }
 
-    override fun editRole(roleId: String, name: String, description: String) {
-        if (roleId.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
-        if (name.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Role Name can't be blank.")
-        if (description.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Description can't be blank.")
-        if (name.length > 32)
-            throw ExceptionControllerAdvice.InvalidParameterException("New Role Name length can't be bigger than 32 chars.")
-        if (description.length > 140)
-            throw ExceptionControllerAdvice.InvalidParameterException("New Description length can't be bigger than 140 chars.")
-
-        return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.editRole(roleId, name, description)
-        }
-    }
-
-    override fun roleDetails(roleId: String): Role {
-        if (roleId.isBlank())
+    override fun roleDetails(roleName: String): Role {
+        if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
-            rolesRepo.roleDetails(roleId)
+            rolesRepo.roleDetails(roleName)
         }
     }
 
@@ -69,37 +51,37 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
         }
     }
 
-    override fun getRoleUsers(roleId: String): List<String> {
-        if (roleId.isBlank())
+    override fun getRoleUsers(roleName: String): List<String> {
+        if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
-            rolesRepo.getRoleUsers(roleId)
+            rolesRepo.getRoleUsers(roleName)
         }
     }
 
-    override fun addRoleToUser(roleId: String, userId: String) {
-        if (roleId.isBlank())
+    override fun addRoleToUser(roleName: String, userEmail: String) {
+        if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
-        if (userId.isBlank())
+        if (userEmail.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("UserId can't be blank.")
 
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
-            rolesRepo.addRoleToUser(roleId, userId)
+            rolesRepo.addRoleToUser(roleName, userEmail)
         }
     }
 
-    override fun removeRoleFromUser(roleId: String, userId: String) {
-        if (roleId.isBlank())
+    override fun removeRoleFromUser(roleName: String, userEmail: String) {
+        if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
-        if (userId.isBlank())
+        if (userEmail.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("UserId can't be blank.")
 
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
-            rolesRepo.removeRoleFromUser(roleId, userId)
+            rolesRepo.removeRoleFromUser(roleName, userEmail)
         }
     }
 }

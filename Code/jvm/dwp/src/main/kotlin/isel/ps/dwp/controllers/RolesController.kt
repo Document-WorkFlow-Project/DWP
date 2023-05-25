@@ -33,15 +33,6 @@ class RolesController(
             .body(res)
     }
 
-    @PostMapping("/role/edit")
-    fun editRole(@RequestBody role: RoleEditModel, user: UserDetails): ResponseEntity<*> {
-        val res = roleServices.editRole(role.roleId, role.name, role.description)
-        return ResponseEntity
-            .status(200)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(res)
-    }
-
     @GetMapping("/details")
     fun roleDetails(@RequestParam roleId: String, user: UserDetails): ResponseEntity<*> {
         val res = roleServices.roleDetails(roleId)

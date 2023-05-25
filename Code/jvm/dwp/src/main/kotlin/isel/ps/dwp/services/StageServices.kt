@@ -114,10 +114,25 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         if (mode.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Responsable can't be blank.")
 
-        //TODO: Mais Averiguações
+        // TODO: Mais Averiguações
+
+        val responsibleEmails: MutableList<String> = mutableListOf()
+
+        responsible.forEach { resp ->
+            // A responsible can be a single email
+            if (resp.contains('@'))
+                responsibleEmails.add(resp)
+            // Or a group of emails
+            else {
+                val roleEmails = transactionManager.run {
+                    it.rolesRepository.getRoleUsers(resp)
+                }
+                responsibleEmails.addAll(roleEmails)
+            }
+        }
 
         return transactionManager.run {
-            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
+            it.stagesRepository.createStage(processId, index, name, description, mode, responsibleEmails, duration)
         }
     }
 

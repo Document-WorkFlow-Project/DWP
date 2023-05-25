@@ -179,9 +179,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         responsible.forEach { resp ->
             handle.createUpdate("insert into utilizador_etapa (email_utilizador, id_etapa) values (:email, :stageId)")
-                .bind("email", resp)
-                .bind("stageId", stageId)
-                .execute()
+                    .bind("email", resp)
+                    .bind("stageId", stageId)
+                    .execute()
         }
 
         return stageId

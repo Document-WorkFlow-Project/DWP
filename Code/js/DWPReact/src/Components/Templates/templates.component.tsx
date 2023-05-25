@@ -182,7 +182,7 @@ export default function Templates() {
                         <p><b>Responsáveis: </b>
                           {stage.responsibles.map((resp, index) => {
                             return (
-                              <a> {resp}; </a>
+                              <a key={index}> {resp}; </a>
                             )
                           })}
                         </p>
