@@ -83,7 +83,7 @@ div.scroll-resp {
     width: 400px;
     height: 730px;
     top: 50px;
-    left: calc(50% - 280px);
+    left: calc(50% - 250px);
     justify-content: space-evenly;
     flex-direction: column;
     flex-wrap: wrap;

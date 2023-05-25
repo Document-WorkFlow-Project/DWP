@@ -34,9 +34,9 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
             .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Papel não existe.")
     }
 
-    override fun getRoles(): List<Role> {
-        return handle.createQuery("select * from papel")
-            .mapTo(Role::class.java)
+    override fun getRoles(): List<String> {
+        return handle.createQuery("select nome from papel")
+            .mapTo(String::class.java)
             .list()
     }
 

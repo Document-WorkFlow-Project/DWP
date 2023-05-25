@@ -10,7 +10,7 @@ interface RolesInterface {
 
     fun roleDetails(roleName: String): Role
 
-    fun getRoles(): List<Role>
+    fun getRoles(): List<String>
 
     fun getRoleUsers(roleName: String): List<String>
 

@@ -14,10 +14,11 @@ class RolesService {
         }
     }
 
-    async newRole(role) {
+    async saveRole(role) {
         try {
             const response = await axios.post(API_URL, role, {withCredentials: true})
-            return response.data
+            console.log(response.data)
+            window.location.href = "/roles"
         }
         catch (error) {
             console.log(error)
@@ -27,7 +28,8 @@ class RolesService {
     async deleteRole(roleName) {
         try {
             const response = await axios.delete(API_URL + "/" + roleName, {withCredentials: true})
-            return response.data
+            console.log(response.data)
+            window.location.href = "/roles"
         }
         catch (error) {
             console.log(error)

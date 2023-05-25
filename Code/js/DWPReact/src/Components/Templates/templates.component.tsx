@@ -42,7 +42,7 @@ export default function Templates() {
   useEffect(() => {
     const fetchData = async () => {
       const templates = await processServices.availableTemplates()
-      setAvailableTemplates(templates);
+      setAvailableTemplates(templates)
     }
     fetchData()
   }, [])

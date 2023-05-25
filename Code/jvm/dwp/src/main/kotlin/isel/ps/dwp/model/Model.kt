@@ -12,7 +12,6 @@ data class User (
 )
 
 data class Role (
-    val id: Int,
     val nome: String,
     val descricao: String
 )

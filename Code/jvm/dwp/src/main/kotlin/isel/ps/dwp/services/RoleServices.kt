@@ -44,7 +44,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
         }
     }
 
-    override fun getRoles(): List<Role> {
+    override fun getRoles(): List<String> {
         return transactionManager.run {
             val rolesRepo = it.rolesRepository
             rolesRepo.getRoles()
