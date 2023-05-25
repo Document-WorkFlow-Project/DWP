@@ -12,6 +12,7 @@ import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
+import java.util.*
 
 @Service
 class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
@@ -55,13 +56,20 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
-        // Save uploaded files associated to this process
-        files.forEach{ saveInFilesystem(it, "$uploadsFolderPath/${it.originalFilename}") }
-        // TODO fill documento_processo
-
         return transactionManager.run {
             // Create process
             val processId = it.processesRepository.newProcess(templateName, name, description, files)
+
+            // Save uploaded files associated to this process
+            files.forEach{ file ->
+                val docId = UUID.randomUUID().toString()
+
+                // Save file in filesystem
+                saveInFilesystem(file, "$uploadsFolderPath/$docId-${file.originalFilename}")
+
+                it.documentsRepository.saveDocReference(file, docId)
+                it.processesRepository.associateDocToProcess(docId, processId)
+            }
 
             // Get template stages to be initialized
             val templateDetails = it.templatesRepository.templateDetails(templateName)
@@ -69,10 +77,11 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
 
             // Create process stages
             template.stages.forEachIndexed { index, stage ->
-                it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, stage.responsible, stage.duration)
+                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, stage.responsible, stage.duration)
+                // Start the first stage
+                if (index == 0)
+                    it.stagesRepository.startNextStage(stageId)
             }
-
-            //TODO start first stage of new process
 
             processId
         }

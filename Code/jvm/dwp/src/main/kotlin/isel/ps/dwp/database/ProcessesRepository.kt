@@ -95,6 +95,13 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         return uuid
     }
 
+    fun associateDocToProcess(docId: String, processId: String) {
+        handle.createUpdate("insert into documento_processo values (:docId, :processId)")
+            .bind("docId", docId)
+            .bind("processId", processId)
+            .execute()
+    }
+
     override fun deleteProcess(processId: String) {
         handle.createUpdate(
             "delete from processo where id = :processId"
