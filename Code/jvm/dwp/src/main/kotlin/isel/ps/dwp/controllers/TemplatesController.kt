@@ -25,12 +25,12 @@ class TemplatesController (
     }
 
     @PostMapping
-    fun newTemplate(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
-        val templateName = templatesServices.addTemplate(file)
+    fun newTemplate(@RequestParam("name") name: String, @RequestParam("description") description: String, @RequestParam("file") file: MultipartFile): ResponseEntity<*> {
+        templatesServices.addTemplate(name, description, file)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(templateName)
+            .body("Template $name criado.")
     }
 
     @PutMapping("/{templateName}/{email}")

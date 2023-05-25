@@ -1,4 +1,4 @@
-package isel.daw.battleships.http.pipeline
+package isel.ps.dwp.http.pipeline
 
 import isel.ps.dwp.model.User
 import isel.ps.dwp.services.UserServices
@@ -22,7 +22,7 @@ class AuthorizationHeaderProcessor(
             return null
         }
         val name = usersService.checkBearerToken(parts[1])?: return null
-        return User("test",name,"test")
+        return User("test", name,"test", "")
     }
 
         fun processCookie(authorizationValue: String?): User? {
@@ -38,7 +38,7 @@ class AuthorizationHeaderProcessor(
             }
             val tokenCookie = cookies["token"] ?: return null
             val name = usersService.checkBearerToken(tokenCookie)?: return null
-            return User("test",name,"test")
+            return User("test",name,"test", "")
         }
 
     companion object {

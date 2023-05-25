@@ -94,13 +94,13 @@ CREATE TABLE IF NOT EXISTS Documento_Processo (
 );
 
 --Tabela de associação entre Etapas e Processos
-CREATE TABLE IF NOT EXISTS Etapa_Processo (
-    id_etapa varchar(36) NOT NULL,
-    id_processo varchar(36) NOT NULL,
-    PRIMARY KEY (id_etapa, id_processo),
-    FOREIGN KEY (id_etapa) REFERENCES Etapa (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+--CREATE TABLE IF NOT EXISTS Etapa_Processo (
+--    id_etapa varchar(36) NOT NULL,
+--    id_processo varchar(36) NOT NULL,
+--    PRIMARY KEY (id_etapa, id_processo),
+--    FOREIGN KEY (id_etapa) REFERENCES Etapa (id) ON DELETE CASCADE ON UPDATE CASCADE,
+--    FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE
+--);
 
 -- Tabela que associa Comentarios a Etapas
 --CREATE TABLE IF NOT EXISTS Comentario_Etapa (

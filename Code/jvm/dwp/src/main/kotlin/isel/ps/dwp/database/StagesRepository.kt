@@ -22,13 +22,39 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     /**
-     * Atualiza a etapa com data de inicio
+     * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
+     * Caso não existam mais etapas pendentes retorna null.
      */
-    fun startStage(stageId: String) {
+    override fun startNextStage(stageId: String): String? {
+        val processId = findProcessFromStage(stageId)
+
+        val nextStage = handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
+                .bind("processId", processId)
+                .mapTo<String>()
+                .firstOrNull()
+
+        if (nextStage == null) {
+            handle.createUpdate("update processo set estado = 'APPROVED' and data_fim = :endDate where id = :processId")
+                .bind("endDate", Date())
+                .bind("processId", processId)
+                .execute()
+
+            return null
+        }
+
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
                 .bind("startDate", Date())
-                .bind("stageId", stageId)
+                .bind("stageId", nextStage)
                 .execute()
+
+        return nextStage
+    }
+
+    fun findProcessFromStage(stageId: String): String {
+        return handle.createQuery("select id_processo from etapa where id = :stageId")
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .firstOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Processo não encontrado.")
     }
 
     /**
@@ -72,17 +98,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("stageId", stageId)
             .execute()
 
-        // Em caso de reprovação a etapa e todo o processo é reprovado, sendo o seu fim
+        // Em caso de reprovação a etapa, o processo é reprovado
         if (!approve) {
             handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :stageId")
                 .bind("endDate", date)
                 .bind("stageId", stageId)
                 .execute()
 
-            val processId = handle.createQuery("select id_processo from etapa_processo where id_etapa = :stageId")
-                .bind("stageId", stageId)
-                .mapTo<String>()
-                .one()
+            val processId = findProcessFromStage(stageId)
 
             handle.createUpdate("UPDATE processo SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :processId")
                 .bind("endDate", date)
@@ -91,6 +114,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
+    /**
+     * Verificar se todos os responsáveis já assinaram de acordo com o modo selecionado.
+     * Se sim, marcar etapa como completa e prosseguir para a etapa seguinte.
+     */
     fun verifySignatures(stageId: String): Boolean {
         val mode = handle.createQuery("select modo from etapa where id = :stageId")
                 .bind("stageId", stageId)
@@ -134,7 +161,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return false
     }
 
-    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int) {
+    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
         val stageId = UUID.randomUUID().toString()
 
         handle.createUpdate(
@@ -150,9 +177,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("prazo", duration)
             .execute()
 
-        //TODO fill etapa_processo
-        //TODO fill utilizador_etapa
-        //responsible.forEach {  }
+        responsible.forEach { resp ->
+            handle.createUpdate("insert into utilizador_etapa (email_utilizador, id_etapa) values (:email, :stageId)")
+                .bind("email", resp)
+                .bind("stageId", stageId)
+                .execute()
+        }
+
+        return stageId
     }
 
     override fun viewStages(processId : String): List<Stage> {

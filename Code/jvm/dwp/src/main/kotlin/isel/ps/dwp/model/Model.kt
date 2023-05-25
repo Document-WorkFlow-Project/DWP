@@ -6,44 +6,47 @@ import java.util.*
 
 data class User (
     val email: String,
-    val name: String,
-    val token: String
+    val nome: String,
+    val authToken: String,
+    val pass: String
 )
 
 data class Role (
-    val roleId: Int,
-    val name: String,
-    val description: String
+    val id: Int,
+    val nome: String,
+    val descricao: String
 )
 
 data class Process (
-    val processId: String,
-    val name: String,
-    val description: String,
-    val type: String, // type of process template
-    var state: String, // pending, finished with success/failure
-    val responsible: String, // author of the process
-    val startDate: Date, // date of creation
-    val endDate: Date,   /*TODO: Pode ser Date?, nullable*/    // date of conclusion
-    val duration: Int
+    val id: String,
+    val nome: String,
+    val descricao: String,
+    val template_processo: String, // type of process template
+    var estado: String,    // 'PENDING', 'APPROVED', 'DISAPPROVED'
+    val autor: String,   // author of the process
+    val data_inicio: Date,  // date of creation
+    val data_fim: Date?    // date of conclusion
 )
 
 data class Stage (
-    val stageId: String,
-    val name: String,
-    val mode: String,
-    val description: String,
-    val state: String,
-    val responsible: String, // stage responsibles
-    val duration: Int // stage duration in days
+    val id: String,
+    val id_processo: String,
+    val indice: Int,
+    val modo: String,
+    val nome: String,
+    val descricao: String,
+    val data_inicio: Date,     // date of creation
+    val data_fim: Date?,      // date of conclusion
+    val estado: String,
+    val prazo: Int        // stage duration in days
 )
 
 data class Comment (
-    val commentId: String,
-    val stageId: String,
-    val date: Date,
-    val text: String,
-    val sender: String
+    val id: String,
+    val id_etapa: String,
+    val data: Date,
+    val texto: String,
+    val remetente: String
 )
 
 // Representação de um documento guardado na base de dados

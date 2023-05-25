@@ -12,7 +12,7 @@ interface TemplatesInterface {
     /**
      * Importar template de um processo à aplicação a partir de um ficheiro json (função de administrador)
      */
-    fun addTemplate(templateFile: MultipartFile): String
+    fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String
 
     /**
      * Adicionar utilizadores que podem usar template (função de administrador)

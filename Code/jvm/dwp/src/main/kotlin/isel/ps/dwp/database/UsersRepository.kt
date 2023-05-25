@@ -26,12 +26,12 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
 
     override fun login(email: String, password: String): String? {
         val user =
-            handle.createQuery("select token from utilizador where email = :email and hashpassword = :hashpassword")
+            handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
                 .bind("email", email)
                 .bind("password", password)
                 .mapTo(User::class.java)
                 .singleOrNull() ?: return null
-        return user.token
+        return user.authToken
     }
 
     override fun register(email: String, name: String, password: String): String {
@@ -56,14 +56,14 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
     }
 
     override fun userDetails(email: String): UserDetails {
-        return handle.createQuery("select email, name from utilizador where email = :email")
+        return handle.createQuery("select email, nome from utilizador where email = :email")
             .bind("email", email)
             .mapTo(UserDetails::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
     }
 
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {
-        handle.createQuery("select token from utilizador where email = :email and hashpassword = :hashpassword")
+        handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
             .bind("email", email)
             .bind("password", hashPassword)
             .mapTo(User::class.java)

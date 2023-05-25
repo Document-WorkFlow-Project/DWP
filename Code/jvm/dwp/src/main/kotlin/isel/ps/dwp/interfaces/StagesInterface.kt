@@ -7,12 +7,15 @@ import isel.ps.dwp.model.User
 
 interface StagesInterface {
 
-    fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int)
+    fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String
+
+    fun startNextStage(stageId: String): String?
 
     fun viewStages(processId : String): List<Stage>
 
     /**
      * Os responsáveis pela etapa devem assinar para o workflow avançar (true para aprovação e false para reprovação)
+     * Se a etapa for reprovada, o processo é terminado
      */
     fun signStage(stageId: String, approve: Boolean)
 

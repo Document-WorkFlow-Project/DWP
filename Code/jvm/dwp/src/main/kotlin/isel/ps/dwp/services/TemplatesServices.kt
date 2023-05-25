@@ -21,7 +21,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         }
     }
 
-    override fun addTemplate(templateFile: MultipartFile): String {
+    override fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String {
         if (templateFile.contentType != "application/json")
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
 
@@ -30,7 +30,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
 
         // Save template file description in database
         return transactionManager.run {
-            it.templatesRepository.addTemplate(templateFile)
+            it.templatesRepository.addTemplate(templateName, templateDescription, templateFile)
         }
     }
 

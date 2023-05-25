@@ -29,27 +29,24 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
                 .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
     }
 
-    override fun addTemplate(templateFile: MultipartFile): String {
-        val fileNameWithType = templateFile.originalFilename
-        val fileName = fileNameWithType!!.substringBeforeLast(".json")
-        val description = "sample description" //TODO get description from json
-        val filePath = "$templatesFolderPath/$fileNameWithType"
+    override fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String {
+        val filePath = "$templatesFolderPath/${templateFile.originalFilename}"
 
         if (handle.createQuery("select * from template_processo where nome = :nome")
-                .bind("nome", fileName)
+                .bind("nome", templateName)
                 .mapTo(String::class.java)
                 .firstOrNull() != null)
-            throw ExceptionControllerAdvice.InvalidParameterException("Template $fileName already exists.")
+            throw ExceptionControllerAdvice.InvalidParameterException("Template $templateName já existe.")
 
         handle.createUpdate(
             "insert into template_processo(nome, descricao, path) values (:name,:description,:path)"
         )
-            .bind("name", fileName)
-            .bind("description", description)
+            .bind("name", templateName)
+            .bind("description", templateDescription)
             .bind("path", filePath)
             .execute()
 
-        return fileName
+        return templateName
     }
 
     fun templateDetails(templateName: String): Template {

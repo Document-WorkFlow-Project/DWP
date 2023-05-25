@@ -30,8 +30,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
+    /**
+     * Assinar etapa, marcando como completa se todos os responsáveis já assinaram
+     * Cancela notificações recorrentes associadas
+     */
     override fun signStage(stageId: String, approve: Boolean) {
-
         transactionManager.run {
             it.stagesRepository.checkStage(stageId)
             it.stagesRepository.signStage(stageId, approve)
@@ -42,45 +45,68 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         val userEmail = ""
 
         if (approve) {
+            // Selecionar apenas a notificação associada ao user que assinou
             notificationIds = transactionManager.run {
                 it.stagesRepository.getStageNotifications(stageId, userEmail)
             }
 
-            // Verificar se todos os responsáveis já assinaram, se sim marcar etapa como completa e prosseguir para a etapa seguinte
-            if (transactionManager.run { it.stagesRepository.verifySignatures(stageId) })
-                startNextStage(stageId)
+            // Verificar se todos os responsáveis já assinaram
+            // Se sim, marcar etapa como completa e prosseguir para a etapa seguinte
+            // Se não existirem mais etapas o processo é terminado
+            if (transactionManager.run { it.stagesRepository.verifySignatures(stageId) }) {
 
+                //Se não existir etapa seguinte, o processo acaba e deve ser enviado email informativo ao autor
+                startNextStage(stageId) ?: run {
+                    val processDetails = transactionManager.run {
+                        val processId = it.stagesRepository.findProcessFromStage(stageId)
+                        it.processesRepository.processDetails(processId)
+                    }
+
+                    val emailDetails = EmailDetails(
+                            processDetails.autor,
+                            "O processo ${processDetails.id} foi concluido com estado ${processDetails.estado}.",
+                            "Processo ${processDetails.id} concluído"
+                    )
+                    notificationServices.sendSimpleMail(emailDetails)
+                }
+            }
         } else {
+            // Selecionar todas as notificações associadas à etapa
             notificationIds = transactionManager.run {
                 it.stagesRepository.getStageNotifications(stageId, null)
             }
         }
 
-        // Cancelar emails agendados, referentes a esta etapa
+        // Cancelar emails agendados
         notificationIds.forEach {
             notificationServices.cancelScheduledEmails(it)
         }
     }
 
-    fun startNextStage(stageId: String) {
-        // TODO get id from next pending stage
-        val nextStage = ""
-
-        // Atualizar etapa seguinte com data inicio
-        transactionManager.run {
-            it.stagesRepository.startStage(nextStage)
+    /**
+     * Inicia a próxima etapa pendente do processo associado
+     * Notifica utilizadores resposáveis pela etapa e agendando notificações recorrentes
+     */
+    override fun startNextStage(stageId: String): String? {
+        // Ver qual a próxima etapa e atualizar com data inicio
+        val nextStageId = transactionManager.run {
+            it.stagesRepository.startNextStage(stageId)
         }
 
-        // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acorodo com NOTIFICATION_FREQUENCY
-        transactionManager.run {
-            it.stagesRepository.stageResponsible(nextStage)
-        }.forEach {
-            val msgBody = "Olá $it, \nTem uma tarefa pendente. \nObrigado"
-            notificationServices.scheduleEmail(EmailDetails(it, msgBody, "Tarefa pendente"), NOTIFICATION_FREQUENCY)
+        if (nextStageId != null) {
+            // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acordo com NOTIFICATION_FREQUENCY
+            transactionManager.run {
+                it.stagesRepository.stageResponsible(nextStageId)
+            }.forEach {
+                val msgBody = "Olá $it, \nTem uma tarefa pendente. \nObrigado"
+                notificationServices.scheduleEmail(EmailDetails(it, msgBody, "Tarefa pendente"), NOTIFICATION_FREQUENCY)
+            }
         }
+
+        return nextStageId
     }
 
-    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int) {
+    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
         processServices.checkProcess(processId)
 
         if (name.isBlank())
@@ -93,7 +119,6 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         return transactionManager.run {
             it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
         }
-
     }
 
     override fun stageUsers(stageId: String): List<User> {

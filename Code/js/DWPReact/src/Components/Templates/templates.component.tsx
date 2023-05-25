@@ -122,6 +122,8 @@ export default function Templates() {
     const formData = new FormData()
     const jsonBlob = new Blob([templateJson], { type: 'application/json' })
 
+    formData.append('name', templateName)
+    formData.append('description', templateDescription)
     formData.append('file', jsonBlob, template.name + ".json")
 
     processServices.saveTemplate(formData)
