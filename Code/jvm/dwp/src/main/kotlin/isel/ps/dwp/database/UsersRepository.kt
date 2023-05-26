@@ -1,11 +1,12 @@
 package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
-import isel.ps.dwp.services.md5
+import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.util.*
 
 class UsersRepository(private val handle: Handle) : UsersInterface {
@@ -29,27 +30,47 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .mapTo(String::class.java)
             .singleOrNull()
 
-    override fun login(email: String, password: String): String? {
-        val user =
-            handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
+    override fun login(email: String, password: String): String {
+        return handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
                 .bind("email", email)
-                .bind("password", password)
-                .mapTo(User::class.java)
-                .singleOrNull() ?: return null
-        return user.authToken
+                .bind("hashpassword", password.md5())
+                .mapTo(String::class.java)
+                .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Email e/ou password incorretos.")
     }
 
-    override fun register(email: String, name: String, password: String): String {
+     /**
+     * Generates an MD5 Hash for a certain password
+     */
+    private fun String.md5(): String {
+        val md = MessageDigest.getInstance("MD5")
+        return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
+    }
+
+    private fun generateRandomPassword(length: Int): String {
+        val allowedChars = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')')
+        return (1..length)
+                .map { allowedChars.random() }
+                .joinToString("")
+    }
+
+    fun register(email: String, name: String): String {
+        if (checkUser(email) != null)
+            throw ExceptionControllerAdvice.InvalidParameterException("Utilizador já registado.")
+
         val newUUID = UUID.randomUUID().toString()
+
+        val password = generateRandomPassword(10)
+
         handle.createUpdate(
-            "insert into utilizador(email, nome, pass, authtoken) values (:email,:nome,:password,:uuid)"
+            "insert into utilizador (email, nome, pass, authtoken) values (:email, :nome, :password, :uuid)"
         )
             .bind("email", email)
             .bind("nome", name)
-            .bind("password", password)
+            .bind("password", password.md5())
             .bind("uuid", newUUID)
             .execute()
-        return newUUID
+
+        return password
     }
 
     override fun deleteUser(email: String) {
@@ -70,9 +91,9 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {
         handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
             .bind("email", email)
-            .bind("password", hashPassword)
+            .bind("password", hashPassword.md5())
             .mapTo(User::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Invalid password.")
+            .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Password incorreta.")
 
         handle.createUpdate(
             "update utilizador set pass = :newPass where email = :email"

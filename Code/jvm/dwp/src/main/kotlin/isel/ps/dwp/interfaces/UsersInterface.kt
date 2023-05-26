@@ -12,11 +12,6 @@ interface UsersInterface {
     fun login(email: String, password: String): String?
 
     /**
-     * Criar utilizador (função de administrador)
-     */
-    fun register(email: String, name: String, password: String): String
-
-    /**
      * Apagar utilizador (função de administrador)
      */
     fun deleteUser(email: String)

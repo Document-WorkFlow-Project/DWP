@@ -31,12 +31,11 @@ class UsersController (
 
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {
-        val newPlayer: String = userServices.register(register.email, register.name, register.password)
+        userServices.register(register.email, register.name)
         return ResponseEntity
             .status(201)
-            .header("Set-Cookie", "token=${newPlayer};Path=/;HttpOnly")
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Token(newPlayer))
+            .body("${register.email} registado com sucesso.")
     }
 
     @PostMapping("/login")

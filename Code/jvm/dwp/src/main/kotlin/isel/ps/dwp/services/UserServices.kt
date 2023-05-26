@@ -3,14 +3,22 @@ package isel.ps.dwp.services
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.database.jdbi.TransactionManager
+import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.UsersInterface
+import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.security.MessageDigest
 
 @Service
 class UserServices(private val transactionManager: TransactionManager): UsersInterface {
+
+    @Autowired
+    @Qualifier("notificationsService")
+    lateinit var notificationServices: NotificationsServicesInterface
 
     override fun checkBearerToken(bearerToken: String): String? = transactionManager.run {
         it.usersRepository.checkBearerToken(bearerToken)
@@ -29,25 +37,30 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
             throw ExceptionControllerAdvice.ParameterIsBlank("Password is required.")
 
         return transactionManager.run {
-            it.usersRepository.login(email, password.md5())
-        } ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Invalid username or password.")
+            it.usersRepository.login(email, password)
+        }
     }
 
-    override fun register(email: String, name: String, password: String): String {
+    fun register(email: String, name: String) {
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
         if (name.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Name is required.")
-        if (password.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Password is required.")
         if (name.length > 32)
             throw ExceptionControllerAdvice.InvalidParameterException("Name is too long.")
-        if (password.length > 32)
-            throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
-        return transactionManager.run {
-            it.usersRepository.register(email, name, password.md5())
+        val password = transactionManager.run {
+            it.usersRepository.register(email, name)
         }
+
+        val emailDetails = EmailDetails(
+                email,
+                "Olá $name,\n\nAs suas credenciais de acesso:\n\nEmail: $email\nPassword: $password\n\nObrigado,\nDWP",
+                "Bem-vindo ao Document workflow platform"
+            )
+
+        // Send credentials to new user
+        notificationServices.sendSimpleMail(emailDetails)
     }
 
     override fun deleteUser(email: String) {
@@ -79,7 +92,7 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
             throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
         return transactionManager.run {
-            it.usersRepository.updateProfile(email, hashPassword.md5(), newPass.md5())
+            it.usersRepository.updateProfile(email, hashPassword, newPass)
         }
     }
 
@@ -88,12 +101,4 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
             it.usersRepository.checkUser(email)
         } ?: throw ExceptionControllerAdvice.UserNotFound("User not found. Incorrect email.")
     }
-}
-
-/**
- * Generates an MD5 Hash for a certain password
- */
-fun String.md5(): String {
-    val md = MessageDigest.getInstance("MD5")
-    return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
 }
