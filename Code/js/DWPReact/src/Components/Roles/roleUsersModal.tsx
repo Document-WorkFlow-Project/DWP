@@ -62,7 +62,7 @@ export function RoleUsersModal({
                     ))}
                 </div>
 
-                <p><button onClick={onClose}>Cancelar</button></p>
+                <p><button onClick={onClose}>Fechar</button></p>
             </div>
         </div>
     )
