@@ -15,14 +15,14 @@ export function NewStageModal({
     stageError, 
     setStageError,
     stages,
-    userGroups,
+    roleGroups,
     users,
     selectedMode,
     setSelectedMode
 }) {
     const [searchInput, setSearchInput] = useState("")
     const [selectedList, setSelectedList] = useState("Groups")
-    const [groups, setGroups] = useState(userGroups)
+    const [groups, setGroups] = useState(roleGroups)
     const [all, setAll] = useState(users)
 
     const [isHovering, setIsHovering] = useState(false)

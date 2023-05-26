@@ -5,25 +5,22 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
 import processServices from "../../Services/process.service"
 import {NewStageModal, TemplateDetailsModal} from "./templateModals"
+import rolesService from "../../Services/roles.service";
+import usersService from "../../Services/users.service";
 
 export default function Templates() {
 
   const [availableTemplates, setAvailableTemplates] = useState([])
   const [selectedTemplate, setSelectedTemplate] = useState("")
-
-  const responsiblesSample = ["CP", "CTC", "user1@gmail.com", "user2@gmail.com", "user3@gmail.com"]
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
   const [templateDescription, setTemplateDescription] = useState("")
   const [stages, setStages] = useState([])
 
-  // TODO get users and user groups from API
-  const userGroups = ["RUC", "CCC", "CCD", "CP", "CTC", "Serviços Académicos", "Serviço de comunicação"]
-  const users = ["Miguel Almeida <miguelalmeida@isel.pt>", "Ricado Bernardino <ricky@isel.pt>", "David Costa <david@isel.pt>"]
-  // This contains user emails associated to a role, fetched from the API
-  // TODO when a user group is added to stage responsibles, adding individual users, filters the previously added
-  const [groupUsers, setGroupUsers] = useState()
+  // Availables roles and users, fetched from the API
+  const [roleGroups, setRoleGroups] = useState([])
+  const [users, setUsers] = useState([])
 
   // new stage name, description, and responsibles
   const [stageName, setStageName] = useState("")
@@ -43,6 +40,10 @@ export default function Templates() {
     const fetchData = async () => {
       const templates = await processServices.availableTemplates()
       setAvailableTemplates(templates)
+      const roles = await rolesService.availableRoles()
+      setRoleGroups(roles)
+      const users = await usersService.usersList()
+      setUsers(users)
     }
     fetchData()
   }, [])
@@ -228,7 +229,7 @@ export default function Templates() {
             stageError={stageError} 
             setStageError={setStageError}
             stages={stages}
-            userGroups={userGroups}
+            roleGroups={roleGroups}
             users={users}
             selectedMode={selectedMode}
             setSelectedMode={setSelectedMode}

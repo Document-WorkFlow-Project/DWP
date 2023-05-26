@@ -1,10 +1,7 @@
 DROP TABLE IF EXISTS Documento_Processo cascade;
-DROP TABLE IF EXISTS Etapa_Processo cascade;
 DROP TABLE IF EXISTS Utilizador_Papel cascade;
 DROP TABLE IF EXISTS Utilizador_Etapa cascade;
 DROP TABLE IF EXISTS Utilizador_Processo cascade;
-DROP TABLE IF EXISTS Comentario_Etapa cascade;
-DROP TABLE IF EXISTS Comentario_Utilizador cascade;
 DROP TABLE IF EXISTS Comentario cascade;
 DROP TABLE IF EXISTS Utilizador cascade;
 DROP TABLE IF EXISTS Etapa cascade;
@@ -12,6 +9,5 @@ DROP TABLE IF EXISTS Processo cascade;
 DROP TABLE IF EXISTS Documento cascade;
 DROP TABLE IF EXISTS Papel cascade;
 drop domain if exists email cascade;
-drop domain if exists alfanumeric_password cascade;
 drop table if exists template_processo cascade;
 drop table if exists acesso_template cascade;
