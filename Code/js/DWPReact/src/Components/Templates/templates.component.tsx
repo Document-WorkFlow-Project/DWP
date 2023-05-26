@@ -38,12 +38,9 @@ export default function Templates() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const templates = await processServices.availableTemplates()
-      setAvailableTemplates(templates)
-      const roles = await rolesService.availableRoles()
-      setRoleGroups(roles)
-      const users = await usersService.usersList()
-      setUsers(users)
+      setAvailableTemplates(await processServices.availableTemplates())
+      setRoleGroups(await rolesService.availableRoles())
+      setUsers(await usersService.usersList())
     }
     fetchData()
   }, [])

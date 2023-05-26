@@ -72,15 +72,26 @@ class TemplatesService {
         }
     } 
 
-    async getProcesses() {
+    async pendingProcesses() {
         try {
-            const response = await axios.get(API_URL + "/pending", {withCredentials: true})
+            const response = await axios.get(API_URL + "/processes/pending", {withCredentials: true})
             return response.data
         }
         catch (error) {
             console.log(error)
         }
     }
+
+    async finishedProcesses() {
+        try {
+            const response = await axios.get(API_URL + "/processes/finished", {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
 }
 
 export default new TemplatesService();

@@ -17,8 +17,7 @@ export const Roles = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-          const roles = await rolesService.availableRoles()
-          setAvailableRoles(roles)
+          setAvailableRoles(await rolesService.availableRoles())
         }
         fetchData()
     }, [])
@@ -31,8 +30,7 @@ export const Roles = () => {
     useEffect(() => {
         if (availableRoles.length > 0) {
             const fetchDetails = async () => {
-                const role = await rolesService.roleDetails(selectedRole)
-                setSelectedRoleDetails(role)
+                setSelectedRoleDetails(await rolesService.roleDetails(selectedRole))
             }
             fetchDetails()
         }

@@ -34,13 +34,13 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     override fun pendingProcesses(userEmail: String?): List<String> {
         //TODO email must be provided unless user is admin
         return if (userEmail != null) handle.createQuery(
-            "select id from processo where autor = :email and estado = 'PENDING'"
+            "select id from processo where autor = :email and estado = 'PENDING' order by data_inicio"
         )
             .bind("email", userEmail)
             .mapTo(String::class.java)
             .list() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
         else
-            handle.createQuery("select id from processo where estado = 'PENDING'")
+            handle.createQuery("select id from processo where estado = 'PENDING' order by data_inicio")
             .mapTo(String::class.java)
             .list()
     }
@@ -48,13 +48,13 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     override fun finishedProcesses(userEmail: String?): List<String> {
         //TODO email must be provided unless user is admin
         return if (userEmail != null) handle.createQuery(
-            "select id from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED')"
+            "select id from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim"
         )
             .bind("email", userEmail)
             .mapTo(String::class.java)
             .list() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
         else
-            handle.createQuery("select id from processo where estado = 'APPROVED' or estado = 'DISAPPROVED'")
+            handle.createQuery("select id from processo where estado = 'APPROVED' or estado = 'DISAPPROVED' order by data_fim")
                 .mapTo(String::class.java)
                 .list()
     }

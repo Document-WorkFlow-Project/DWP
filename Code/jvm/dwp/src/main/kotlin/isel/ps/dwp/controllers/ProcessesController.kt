@@ -26,7 +26,7 @@ class ProcessesController (
     }
 
     @GetMapping("/pending")
-    fun pendingProcesses(@RequestBody email: String): ResponseEntity<*> {
+    fun pendingProcesses(@RequestBody email: String?): ResponseEntity<*> {
         val pending = processesServices.pendingProcesses(email)
         return ResponseEntity
             .status(200)
@@ -35,7 +35,7 @@ class ProcessesController (
     }
 
     @GetMapping("/finished")
-    fun finishedProcesses(@RequestBody email: String): ResponseEntity<*> {
+    fun finishedProcesses(@RequestBody email: String?): ResponseEntity<*> {
         val finished = processesServices.finishedProcesses(email)
         return ResponseEntity
             .status(200)
