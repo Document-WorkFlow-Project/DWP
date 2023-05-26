@@ -16,6 +16,12 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
         it.usersRepository.checkBearerToken(bearerToken)
     }
 
+    override fun usersList(): List<String> {
+        return transactionManager.run {
+            it.usersRepository.usersList()
+        }
+    }
+
     override fun login(email: String, password: String): String {
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")

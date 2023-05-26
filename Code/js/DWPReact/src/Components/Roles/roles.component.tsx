@@ -101,6 +101,7 @@ export const Roles = () => {
                 {showModal && createPortal(
                 <RoleUsersModal 
                     onClose={() => setShowModal(false)}
+                    selectedRole={selectedRole}
                 />,
                 document.body
                 )}

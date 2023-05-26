@@ -17,6 +17,11 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .singleOrNull()
     }
 
+    override fun usersList(): List<String> {
+        return handle.createQuery("select email from utilizador")
+            .mapTo(String::class.java)
+            .list()
+    }
 
     override fun checkBearerToken(bearerToken: String): String? =
         handle.createQuery("select email from utilizador where authtoken = :token")

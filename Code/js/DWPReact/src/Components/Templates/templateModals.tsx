@@ -156,11 +156,11 @@ export function TemplateDetailsModal({onClose, selectedTemplate}) {
                                 <p><b>Descrição: </b>{stage.description}</p>
                                 <p><b>Prazo: </b>{stage.duration} dias</p>
                                 <p><b>Responsáveis: </b>
-                                {stage.responsibles.map((resp, index) => {
-                                    return (
-                                    <a key={index}> {resp}; </a>
-                                    )
-                                })}
+                                    {stage.responsibles.map((resp, index) => {
+                                        return (
+                                            <a key={index}> {resp}; </a>
+                                        )
+                                    })}
                                 </p>
                                 <p><b>Modo de assinatura: </b>{stage.mode}</p>
                             </div>

@@ -20,6 +20,14 @@ class UsersController (
     )
 ) {
 
+    @GetMapping
+    fun apiUsers(): ResponseEntity<*> {
+        val users = userServices.usersList()
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(users)
+    }
 
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {

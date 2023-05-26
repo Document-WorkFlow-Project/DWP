@@ -41,6 +41,9 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
     }
 
     override fun getRoleUsers(roleName: String): List<String> {
+        // Check if role exists
+        roleDetails(roleName)
+        
         return handle.createQuery(
             "select email_utilizador from Utilizador_Papel where papel = :roleName"
         )

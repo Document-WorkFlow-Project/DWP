@@ -7,6 +7,8 @@ interface UsersInterface {
 
     fun checkBearerToken(bearerToken: String): String?
 
+    fun usersList(): List<String>
+
     fun login(email: String, password: String): String?
 
     /**

@@ -46,6 +46,16 @@ class RolesService {
         }
     }
 
+    async roleUsers(roleName) {
+        try {
+            const response = await axios.get(API_URL + `/${roleName}/users`, {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
     async addRoleToUSer(roleName, email) {
         try {
             const response = await axios.put(API_URL + `/${roleName}/${email}`, {withCredentials: true})
