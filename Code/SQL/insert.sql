@@ -14,18 +14,18 @@ VALUES ('CR', 'Membro do Conselho de Representantes'),
 
 -- Inserting data into Utilizador table
 INSERT INTO Utilizador (email, nome, authToken, pass)
-VALUES ('jose.nascimento@isel.pt', 'José Nascimento', '6049ddab-f1ae-44fb-a083-468f70868875', '41d823ab960ef49973ce628377d7bf5d'),
-('joao.alfredo.santos@isel.pt', 'João Alfredo Santos', 'bbf5f642-785a-4d4d-bbd5-740016e350c6', '41d823ab960ef49973ce628377d7bf5d'),
-('antonio.silvestre@isel.pt', 'Antonio Silvestre', 'dfa81f3f-2ac1-4742-a0a9-86a217658939', '41d823ab960ef49973ce628377d7bf5d'),
-('pedro.silva@isel.pt', 'Pedro Silva', '8999de2b-ac32-4a93-8c1f-c9d940c7f130', '41d823ab960ef49973ce628377d7bf5d'),
-('pedro.patricio@isel.pt', 'Pedro Patrício', '4f02ba1f-ee80-4859-ba1d-d73d4e372d04', '41d823ab960ef49973ce628377d7bf5d'),
-('alessandro.fantoni@isel.pt', 'Alessandro Fantoni', '5bbba4cf-f9da-4de5-a67d-9c1a668588bb', '41d823ab960ef49973ce628377d7bf5d'),
-('sandra.aleixo@isel.pt', 'Sandra Aleixo', 'a1fab80b-ec5e-4a5a-ab73-044de58fcc09', '41d823ab960ef49973ce628377d7bf5d'),
-('artur.ferreira@isel.pt', 'Artur Ferreira', '58961ae4-4e13-4db5-872e-f538da7cfb3c', '41d823ab960ef49973ce628377d7bf5d'),
-('jose.simao@isel.pt', 'José Simão', 'a0e60524-3f45-4e24-a605-e0e775a24a61', '41d823ab960ef49973ce628377d7bf5d'),
-('nuno.datia@isel.pt', 'Nuno Datia', 'e193dffd-b0ce-4497-a233-3a4ad8aababa', '41d823ab960ef49973ce628377d7bf5d'),
-('pedro.miguens@isel.pt', 'Pedro Miguens', '175207a2-d244-4561-b6c6-1607620822aa', '41d823ab960ef49973ce628377d7bf5d'),
-('nuno.leite@isel.pt', 'Nuno Leite', 'd90880c5-7706-49a1-8dec-ab11f160042f', '41d823ab960ef49973ce628377d7bf5d');
+VALUES ('jose.nascimentomock@isel.pt', 'José Nascimento', '6049ddab-f1ae-44fb-a083-468f70868875', '41d823ab960ef49973ce628377d7bf5d'),
+('joao.alfredo.santosmock@isel.pt', 'João Alfredo Santos', 'bbf5f642-785a-4d4d-bbd5-740016e350c6', '41d823ab960ef49973ce628377d7bf5d'),
+('antonio.silvestremock@isel.pt', 'Antonio Silvestre', 'dfa81f3f-2ac1-4742-a0a9-86a217658939', '41d823ab960ef49973ce628377d7bf5d'),
+('pedro.silvamock@isel.pt', 'Pedro Silva', '8999de2b-ac32-4a93-8c1f-c9d940c7f130', '41d823ab960ef49973ce628377d7bf5d'),
+('pedro.patriciomock@isel.pt', 'Pedro Patrício', '4f02ba1f-ee80-4859-ba1d-d73d4e372d04', '41d823ab960ef49973ce628377d7bf5d'),
+('alessandro.fantonimock@isel.pt', 'Alessandro Fantoni', '5bbba4cf-f9da-4de5-a67d-9c1a668588bb', '41d823ab960ef49973ce628377d7bf5d'),
+('sandra.aleixomock@isel.pt', 'Sandra Aleixo', 'a1fab80b-ec5e-4a5a-ab73-044de58fcc09', '41d823ab960ef49973ce628377d7bf5d'),
+('artur.ferreiramock@isel.pt', 'Artur Ferreira', '58961ae4-4e13-4db5-872e-f538da7cfb3c', '41d823ab960ef49973ce628377d7bf5d'),
+('jose.simaomock@isel.pt', 'José Simão', 'a0e60524-3f45-4e24-a605-e0e775a24a61', '41d823ab960ef49973ce628377d7bf5d'),
+('nuno.datiamock@isel.pt', 'Nuno Datia', 'e193dffd-b0ce-4497-a233-3a4ad8aababa', '41d823ab960ef49973ce628377d7bf5d'),
+('pedro.miguensmock@isel.pt', 'Pedro Miguens', '175207a2-d244-4561-b6c6-1607620822aa', '41d823ab960ef49973ce628377d7bf5d'),
+('nuno.leitemock@isel.pt', 'Nuno Leite', 'd90880c5-7706-49a1-8dec-ab11f160042f', '41d823ab960ef49973ce628377d7bf5d');
 
 -- Inserting data into template_processo table
 INSERT INTO template_processo (nome, descricao, path)
@@ -34,13 +34,13 @@ VALUES ('procFUC', 'Template para Mudança de FUC', '/templates/mudFUC'),
 
 -- Inserting data into acesso_template table
 INSERT INTO acesso_template (nome_template, utilizador)
-VALUES ('procFUC', 'pedro.miguens@isel.pt'),
-       ('procHORARIO', 'nuno.leite@isel.pt');
+VALUES ('procFUC', 'pedro.miguensmock@isel.pt'),
+       ('procHORARIO', 'nuno.leitemock@isel.pt');
 
 -- Inserting data into Processo table
 INSERT INTO Processo (id, nome, autor, descricao, data_inicio, data_fim, estado, template_processo)
-VALUES ('1', 'FUC_IA', 'nuno.leite@isel.pt', 'Mudança do Plano da UC IA', '2023-07-14', '2023-09-14', 'PENDING', 'procFUC'),
-       ('2', 'HORARIO_LEIC', 'nuno.leite@isel.pt', 'Mudança do Horario de LEIC', '2023-07-15', '2023-08-15', 'PENDING', 'procHORARIO');
+VALUES ('1', 'FUC_IA', 'nuno.leitemock@isel.pt', 'Mudança do Plano da UC IA', '2023-07-14', '2023-09-14', 'PENDING', 'procFUC'),
+       ('2', 'HORARIO_LEIC', 'nuno.leitemock@isel.pt', 'Mudança do Horario de LEIC', '2023-07-15', '2023-08-15', 'PENDING', 'procHORARIO');
 
 -- Inserting data into Documento table
 INSERT INTO Documento (id, nome, tipo, tamanho, localizacao)
@@ -78,23 +78,23 @@ VALUES ('doc4FucIA', '1'),
 
 -- Inserting data into Utilizador_Papel table
 INSERT INTO Utilizador_Papel (papel, email_utilizador)
-VALUES ('P', 'jose.nascimento@isel.pt'),
-('CR', 'antonio.silvestre@isel.pt'),
-('CCE', 'joao.alfredo.santos@isel.pt'),
-('CP', 'sandra.aleixo@isel.pt'),
-('CPR', 'pedro.patricio@isel.pt'),
-('CTC', 'alessandro.fantoni@isel.pt'),
-('CA', 'pedro.silva@isel.pt'),
-('CCC', 'artur.ferreira@isel.pt'),
-('CCD', 'nuno.datia@isel.pt'),
-('UID', 'nuno.leite@isel.pt');
+VALUES ('P', 'jose.nascimentomock@isel.pt'),
+('CR', 'antonio.silvestremock@isel.pt'),
+('CCE', 'joao.alfredo.santosmock@isel.pt'),
+('CP', 'sandra.aleixomock@isel.pt'),
+('CPR', 'pedro.patriciomock@isel.pt'),
+('CTC', 'alessandro.fantonimock@isel.pt'),
+('CA', 'pedro.silvamock@isel.pt'),
+('CCC', 'artur.ferreiramock@isel.pt'),
+('CCD', 'nuno.datiamock@isel.pt'),
+('UID', 'nuno.leitemock@isel.pt');
 
 -- Inserting data into Utilizador_Etapa table
 INSERT INTO Utilizador_Etapa (email_utilizador, id_etapa, assinatura, data_assinatura, id_notificacao)
-VALUES ('artur.ferreira@isel.pt', 'step1', false, null, 'notification1'),
-('nuno.datia@isel.pt', 'step2', false, null, null),
-('sandra.aleixo@isel.pt', 'step3', false, null, null),
-('alessandro.fantoni@isel.pt', 'step4', false, null, null),
-('jose.nascimento@isel.pt', 'step5', false, null, null);
+VALUES ('artur.ferreiramock@isel.pt', 'step1', false, null, 'notification1'),
+('nuno.datiamock@isel.pt', 'step2', false, null, null),
+('sandra.aleixomock@isel.pt', 'step3', false, null, null),
+('alessandro.fantonimock@isel.pt', 'step4', false, null, null),
+('jose.nascimentomock@isel.pt', 'step5', false, null, null);
       
       
