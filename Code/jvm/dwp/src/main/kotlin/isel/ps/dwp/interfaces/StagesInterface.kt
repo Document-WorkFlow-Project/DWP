@@ -1,9 +1,6 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.StageInfo
-import isel.ps.dwp.model.User
+import isel.ps.dwp.model.*
 
 interface StagesInterface {
 
@@ -22,7 +19,7 @@ interface StagesInterface {
     /**
      * Obter lista de utilizadores associados a uma etapa (função de administrador ou utilizador associado à etapa)
      */
-    fun stageUsers(stageId: String): List<User>
+    fun stageUsers(stageId: String): List<UserDetails>
 
     /**
      * Obter lista de etapas pendentes que o utilizador necessita de assinar (função de administrador ou utilizador associado à etapa)

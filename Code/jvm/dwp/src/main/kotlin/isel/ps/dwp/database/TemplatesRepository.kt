@@ -39,7 +39,7 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             throw ExceptionControllerAdvice.InvalidParameterException("Template $templateName já existe.")
 
         handle.createUpdate(
-            "insert into template_processo(nome, descricao, path) values (:name,:description,:path)"
+            "insert into template_processo (nome, descricao, path) values (:name, :description, :path)"
         )
             .bind("name", templateName)
             .bind("description", templateDescription)

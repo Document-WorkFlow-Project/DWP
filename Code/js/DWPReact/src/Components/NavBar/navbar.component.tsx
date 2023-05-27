@@ -1,4 +1,3 @@
-import React from "react";
 
 function NavBar({handleLoginClick}){
     const handleClick = () => {
@@ -8,7 +7,7 @@ function NavBar({handleLoginClick}){
     return (
         <div className="navBar">
             <div>
-                <span onClick={handleClick} className="loginicon">Sign In</span>
+                <button onClick={handleClick} className="loginicon">Sign In</button>
             </div>
         </div>
     )

@@ -89,3 +89,12 @@ class ProcessesController (
     }
 
 }
+
+/**
+ *
+ */
+
+//TODO ver notificação responsaveis quando inicia etapa
+//TODO averiguar se o utilizador não assina uma etapa que ainda não começou
+//TODO pending processes não funciona se fornecer email
+//TODO assinatura não funciona

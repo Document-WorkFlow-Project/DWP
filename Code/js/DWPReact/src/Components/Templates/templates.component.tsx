@@ -8,6 +8,8 @@ import {NewStageModal, TemplateDetailsModal} from "./templateModals"
 import rolesService from "../../Services/roles.service";
 import usersService from "../../Services/users.service";
 
+// TODO adicionar controlo de permissões de acesso a templates
+
 export default function Templates() {
 
   const [availableTemplates, setAvailableTemplates] = useState([])

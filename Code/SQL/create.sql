@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS Etapa (
     descricao varchar(100),
     data_inicio date,
     data_fim date,
-    prazo date NOT NULL,
+    prazo int NOT NULL,
     estado varchar(32) NOT NULL,
     constraint estado check (estado in ('PENDING', 'APPROVED', 'DISAPPROVED')),
     FOREIGN KEY (id_processo) REFERENCES Processo (id) ON DELETE CASCADE ON UPDATE CASCADE

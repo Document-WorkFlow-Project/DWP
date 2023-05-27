@@ -56,6 +56,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         }
     }
 
+    //TODO verificar se user tem acesso ao template
     fun getTemplate(templateName: String): ByteArray {
         val templateDetails = transactionManager.run {
             it.templatesRepository.templateDetails(templateName)

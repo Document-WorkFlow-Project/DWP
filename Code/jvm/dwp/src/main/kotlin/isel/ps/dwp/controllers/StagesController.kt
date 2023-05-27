@@ -27,46 +27,6 @@ class StagesController (
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
-    /*
-    @PostMapping
-    fun createStage(
-        @RequestParam processId: Int,
-        @RequestParam nome: String,
-        @RequestParam modo: String,
-        @RequestParam responsavel: String,
-        @RequestParam descricao: String,
-        @RequestParam data_inicio: String,
-        @RequestParam data_fim: String,
-        @RequestParam prazo: String,
-        @RequestParam estado: String
-    ): ResponseEntity<Void> {
-        stageServices.createStage(processId, nome, modo, responsavel, descricao, data_inicio, data_fim, prazo, estado)
-        return ResponseEntity(HttpStatus.CREATED)
-    }
-
-
-
-    @DeleteMapping("/{stageId}")
-    fun deleteStage(@PathVariable stageId: String): ResponseEntity<Void> {
-        stageServices.deleteStage(stageId)
-        return ResponseEntity(HttpStatus.NO_CONTENT)
-    }
-
-    @PutMapping("/{stageId}")
-    fun editStage(
-        @PathVariable stageId: String,
-        @RequestParam nome: String,
-        @RequestParam modo: String,
-        @RequestParam descricao: String,
-        @RequestParam data_inicio: String,
-        @RequestParam data_fim: String,
-        @RequestParam prazo: String,
-        @RequestParam estado: String
-    ): ResponseEntity<Void> {
-        stageServices.editStage(stageId, nome, modo, descricao, data_inicio, data_fim, prazo, estado)
-        return ResponseEntity(HttpStatus.NO_CONTENT)
-    }
-    */
     @GetMapping("/{processId}")
     fun viewStages(@PathVariable processId: String): ResponseEntity<List<*>> {
         val stages = stageServices.viewStages(processId)
@@ -80,7 +40,7 @@ class StagesController (
     }
 
     @GetMapping("/{stageId}/users")
-    fun stageUsers(@PathVariable stageId: String): ResponseEntity<List<*>> {
+    fun stageResponsible(@PathVariable stageId: String): ResponseEntity<List<*>> {
         val users = stageServices.stageUsers(stageId)
         return ResponseEntity.ok(users)
     }

@@ -2,10 +2,7 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.StageInfo
-import isel.ps.dwp.model.User
+import isel.ps.dwp.model.*
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import java.util.*
@@ -34,7 +31,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .firstOrNull()
 
         if (nextStage == null) {
-            handle.createUpdate("update processo set estado = 'APPROVED' and data_fim = :endDate where id = :processId")
+            handle.createUpdate("update processo set estado = 'APPROVED', data_fim = :endDate where id = :processId")
                 .bind("endDate", Date())
                 .bind("processId", processId)
                 .execute()
@@ -88,10 +85,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun signStage(stageId: String, approve: Boolean) {
+        //TODO exception already signed
         val date = Date()
 
         handle.createUpdate(
-            "UPDATE utilizador_etapa SET assinatura = :value and data_assinatura = :signDate WHERE id_etapa = :stageId"
+            "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE id_etapa = :stageId"
         )
             .bind("value", approve)
             .bind("signDate", date)
@@ -100,14 +98,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         // Em caso de reprovação a etapa, o processo é reprovado
         if (!approve) {
-            handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :stageId")
+            handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
                 .bind("endDate", date)
                 .bind("stageId", stageId)
                 .execute()
 
             val processId = findProcessFromStage(stageId)
 
-            handle.createUpdate("UPDATE processo SET estado = 'DISAPPROVED' and data_fim = :endDate WHERE id = :processId")
+            handle.createUpdate("UPDATE processo SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :processId")
                 .bind("endDate", date)
                 .bind("processId", processId)
                 .execute()
@@ -131,7 +129,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                             .mapTo<String>()
                             .one() == null
             ) {
-                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
+                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
                         .bind("endDate", Date())
                         .bind("stageId", stageId)
                         .execute()
@@ -148,7 +146,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                     .mapTo<Boolean>()
                     .one()
             ) {
-                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED' and data_fim = :endDate WHERE id = :stageId")
+                handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
                         .bind("endDate", Date())
                         .bind("stageId", stageId)
                         .execute()
@@ -165,7 +163,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         val stageId = UUID.randomUUID().toString()
 
         handle.createUpdate(
-        "insert into etapa (id, id_processo, indice, modo, nome, descricao, data_inicio, data_fim, prazo, estado) " +
+        "insert into etapa (id, id_processo, indice, modo, nome, descricao, prazo, estado) " +
                 "VALUES (:id, :id_processo, :idx, :modo, :name, :description, :prazo, 'PENDING')"
         )
             .bind("id", stageId)
@@ -203,10 +201,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun stageUsers(stageId: String): List<User> {
+    override fun stageUsers(stageId: String): List<UserDetails> {
         return handle.createQuery("SELECT Utilizador.email, Utilizador.nome FROM Utilizador JOIN Utilizador_Etapa ON Utilizador.email = Utilizador_Etapa.email_utilizador JOIN Etapa ON Etapa.id = Utilizador_Etapa.id_etapa WHERE Etapa.id = :stageId")
             .bind("stageId", stageId)
-            .mapTo(User::class.java)
+            .mapTo(UserDetails::class.java)
             .list()
     }
 
@@ -214,7 +212,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      * Checks if stage exists
      */
     fun checkStage(stageId: String) {
-        handle.createQuery("SELECT * FROM Etapa WHERE id_etapa = :stageId")
+        handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
                 .bind("stageId", stageId)
                 .mapTo(Stage::class.java)
                 .list()

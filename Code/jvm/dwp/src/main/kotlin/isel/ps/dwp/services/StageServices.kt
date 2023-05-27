@@ -136,10 +136,9 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
         }
     }
 
-    override fun stageUsers(stageId: String): List<User> {
-        //checkStage(stageId)
-
+    override fun stageUsers(stageId: String): List<UserDetails> {
         return transactionManager.run {
+            it.stagesRepository.checkStage(stageId)
             it.stagesRepository.stageUsers(stageId)
         }
     }
