@@ -1,7 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.services.ProcessServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -11,9 +9,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/processes")
 class ProcessesController (
-    private val processesServices: ProcessServices = ProcessServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+    private val processesServices: ProcessServices
 ) {
 
     @GetMapping
@@ -90,11 +86,5 @@ class ProcessesController (
 
 }
 
-/**
- *
- */
-
-//TODO ver notificação responsaveis quando inicia etapa
 //TODO averiguar se o utilizador não assina uma etapa que ainda não começou
 //TODO pending processes não funciona se fornecer email
-//TODO assinatura não funciona

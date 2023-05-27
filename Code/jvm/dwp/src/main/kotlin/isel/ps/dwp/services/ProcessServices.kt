@@ -15,7 +15,10 @@ import java.io.File
 import java.util.*
 
 @Service
-class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
+class ProcessServices(
+        private val transactionManager: TransactionManager,
+        private val stageServices: StageServices
+): ProcessesInterface {
 
     private val objectMapper: ObjectMapper = ObjectMapper()
 
@@ -80,7 +83,7 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
                 val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, stage.responsible, stage.duration)
                 // Start the first stage
                 if (index == 0)
-                    it.stagesRepository.startNextStage(stageId)
+                    stageServices.startNextPendingStage(stageId)
             }
 
             processId
@@ -103,12 +106,6 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         transactionManager.run {
             it.processesRepository.cancelProcess(processId)
         }
-    }
-
-    override fun checkProcess(id: String): Process? {
-        return transactionManager.run {
-            it.processesRepository.checkProcess(id)
-        } ?: throw ExceptionControllerAdvice.ProcessNotFound("Process not found. Incorrect id.")
     }
 
 }

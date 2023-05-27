@@ -35,7 +35,7 @@ data class Stage (
     val modo: String,
     val nome: String,
     val descricao: String,
-    val data_inicio: LocalDate,     // date of creation
+    val data_inicio: LocalDate?,     // date of creation
     val data_fim: LocalDate?,      // date of conclusion
     val estado: String,
     val prazo: Int        // stage duration in days

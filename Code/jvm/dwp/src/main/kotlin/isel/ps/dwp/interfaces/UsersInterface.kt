@@ -1,7 +1,7 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserDetails
 
 interface UsersInterface {
 

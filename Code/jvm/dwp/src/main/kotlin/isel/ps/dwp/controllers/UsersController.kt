@@ -1,7 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.model.RegisterModel
 import isel.ps.dwp.model.SignInModel
 import isel.ps.dwp.model.Token
@@ -15,9 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/users")
 class UsersController (
-    private val userServices: UserServices = UserServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+    private val userServices: UserServices
 ) {
 
     @GetMapping

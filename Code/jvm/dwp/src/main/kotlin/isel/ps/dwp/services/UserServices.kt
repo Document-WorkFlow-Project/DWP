@@ -1,20 +1,20 @@
 package isel.ps.dwp.services
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserDetails
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import java.math.BigInteger
-import java.security.MessageDigest
 
 @Service
-class UserServices(private val transactionManager: TransactionManager): UsersInterface {
+class UserServices(
+        private val transactionManager: TransactionManager
+): UsersInterface {
 
     @Autowired
     @Qualifier("notificationsService")

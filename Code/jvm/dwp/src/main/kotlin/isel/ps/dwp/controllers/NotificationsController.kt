@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class EmailController {
-
-    @Autowired
-    @Qualifier("notificationsService")
-    lateinit var notificationServices: NotificationsServicesInterface
+class EmailController (
+    private val notificationServices: NotificationsServicesInterface
+) {
 
     @PostMapping("/sendEmail")
     fun sendMail(@RequestBody details: EmailDetails): ResponseEntity<*> {

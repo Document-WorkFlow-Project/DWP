@@ -10,11 +10,11 @@ import java.util.*
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun checkProcess(id: String): Process? {
+    fun checkProcess(id: String): Process {
         return handle.createQuery("SELECT * FROM processo WHERE id = :id")
             .bind("id", id)
             .mapTo(Process::class.java)
-            .singleOrNull()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo não encontrado.")
     }
 
     override fun getProcesses(type: String?): List<String> {
@@ -79,7 +79,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
         val uuid = UUID.randomUUID().toString()
         //TODO get email from requesting user
-        val userEmail = "example@gmail.com"
+        val userEmail = "davidrobalo9@gmail.com"
 
         handle.createUpdate(
                 "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"

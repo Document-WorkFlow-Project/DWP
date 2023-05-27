@@ -2,7 +2,10 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
-import isel.ps.dwp.model.*
+import isel.ps.dwp.model.Comment
+import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.StageInfo
+import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import java.util.*
@@ -11,18 +14,21 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Stages -------------------------------**/
 
+    /**
+     * Retorna os detalhes de uma etapa
+     */
     override fun stageDetails(stageId: String): Stage {
         return handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
             .bind("stageId", stageId)
             .mapTo(Stage::class.java)
-            .one()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Etapa não encontrada.")
     }
 
     /**
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
-    override fun startNextStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): String? {
         val processId = findProcessFromStage(stageId)
 
         val nextStage = handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
@@ -30,6 +36,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .mapTo<String>()
                 .firstOrNull()
 
+        // Não existem mais etapas pendentes, fim do processo
         if (nextStage == null) {
             handle.createUpdate("update processo set estado = 'APPROVED', data_fim = :endDate where id = :processId")
                 .bind("endDate", Date())
@@ -45,6 +52,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .execute()
 
         return nextStage
+    }
+
+    /**
+     * Guarda id de notificação na base de dados
+     */
+    fun addNotificationId(userEmail: String, notificationId: String, stageId: String) {
+        handle.createUpdate("UPDATE utilizador_etapa SET id_notificacao = :notificationId WHERE id_etapa = :stageId and email_utilizador = :email")
+                .bind("notificationId", notificationId)
+                .bind("stageId", stageId)
+                .bind("email", userEmail)
+                .execute()
     }
 
     fun findProcessFromStage(stageId: String): String {
@@ -85,7 +103,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun signStage(stageId: String, approve: Boolean) {
-        //TODO exception already signed
+        /* //TODO get email from signing user
+        val userEmail = ""
+        if (handle.createQuery("select assinatura from utilizador_etapa where id_etapa = :stageId and email_utilizador = :email")
+                .bind("stageId", stageId)
+                .bind("email", userEmail)
+                .mapTo<String>()
+                .singleOrNull() != null
+        )
+            throw ExceptionControllerAdvice.InvalidParameterException("Etapa já assinada.")
+         */
+
         val date = Date()
 
         handle.createUpdate(
@@ -127,7 +155,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
                             .bind("stageId", stageId)
                             .mapTo<String>()
-                            .one() == null
+                            .singleOrNull() == null
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
                         .bind("endDate", Date())
@@ -206,17 +234,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("stageId", stageId)
             .mapTo(UserDetails::class.java)
             .list()
-    }
-
-    /**
-     * Checks if stage exists
-     */
-    fun checkStage(stageId: String) {
-        handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
-                .bind("stageId", stageId)
-                .mapTo(Stage::class.java)
-                .list()
-                .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Etapa não encontrada.")
     }
 
 

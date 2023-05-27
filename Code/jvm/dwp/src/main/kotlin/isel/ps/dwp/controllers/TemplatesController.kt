@@ -1,7 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -11,9 +9,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/templates")
 class TemplatesController (
-    private val templatesServices: TemplatesServices = TemplatesServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+    private val templatesServices: TemplatesServices
 ) {
 
     @GetMapping
