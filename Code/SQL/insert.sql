@@ -2,7 +2,7 @@
 INSERT INTO Papel (nome, descricao)
 VALUES ('CR', 'Membro do Conselho de Representantes'),
        ('P', 'Presidente do ISEL'),
-       ('CCE', 'Membro do Conselho COnsultivo Estratégico'),
+       ('CCE', 'Membro do Conselho Consultivo Estratégico'),
        ('CA', 'Membro do Conselho Administrativo'),
        ('CP', 'Membro do Conselho Pedagógico'),
        ('CTC', 'Membro do Conselho Técnico-Científico'),
@@ -23,20 +23,78 @@ VALUES ('jose.nascimento@isel.pt', 'José Nascimento', '6049ddab-f1ae-44fb-a083-
 ('sandra.aleixo@isel.pt', 'Sandra Aleixo', 'a1fab80b-ec5e-4a5a-ab73-044de58fcc09', '41d823ab960ef49973ce628377d7bf5d'),
 ('artur.ferreira@isel.pt', 'Artur Ferreira', '58961ae4-4e13-4db5-872e-f538da7cfb3c', '41d823ab960ef49973ce628377d7bf5d'),
 ('jose.simao@isel.pt', 'José Simão', 'a0e60524-3f45-4e24-a605-e0e775a24a61', '41d823ab960ef49973ce628377d7bf5d'),
+('nuno.datia@isel.pt', 'Nuno Datia', 'e193dffd-b0ce-4497-a233-3a4ad8aababa', '41d823ab960ef49973ce628377d7bf5d'),
 ('pedro.miguens@isel.pt', 'Pedro Miguens', '175207a2-d244-4561-b6c6-1607620822aa', '41d823ab960ef49973ce628377d7bf5d'),
 ('nuno.leite@isel.pt', 'Nuno Leite', 'd90880c5-7706-49a1-8dec-ab11f160042f', '41d823ab960ef49973ce628377d7bf5d');
 
 -- Inserting data into template_processo table
 INSERT INTO template_processo (nome, descricao, path)
-VALUES ('FUC', 'Template para Mudança de FUC', '/templates/mudFUC'),
-       ('HORARIO', 'Template para Mudança de Horario', '/templates/horario');
+VALUES ('procFUC', 'Template para Mudança de FUC', '/templates/mudFUC'),
+       ('procHORARIO', 'Template para Mudança de Horario', '/templates/horario');
 
 -- Inserting data into acesso_template table
 INSERT INTO acesso_template (nome_template, utilizador)
-VALUES ('FUC', 'pedro.miguens@isel.pt'),
-       ('HORARIO', 'nuno.leite@isel.pt');
+VALUES ('procFUC', 'pedro.miguens@isel.pt'),
+       ('procHORARIO', 'nuno.leite@isel.pt');
 
 -- Inserting data into Processo table
 INSERT INTO Processo (id, nome, autor, descricao, data_inicio, data_fim, estado, template_processo)
-VALUES ('1', 'FUC IA', 'nuno.leite@isel.pt', 'Mudança do Plano da UC IA', '2023-07-14', '2023-09-14', 'PENDING', 'FUC'),
-       ('2', 'HORARIO LEIC', 'nuno.leite@isel.pt', 'Mudança do Horario de LEIC', '2023-07-15', '2023-08-15', 'PENDING', 'HORARIO');
+VALUES ('1', 'FUC_IA', 'nuno.leite@isel.pt', 'Mudança do Plano da UC IA', '2023-07-14', '2023-09-14', 'PENDING', 'procFUC'),
+       ('2', 'HORARIO_LEIC', 'nuno.leite@isel.pt', 'Mudança do Horario de LEIC', '2023-07-15', '2023-08-15', 'PENDING', 'procHORARIO');
+
+-- Inserting data into Documento table
+INSERT INTO Documento (id, nome, tipo, tamanho, localizacao)
+VALUES ('doc4FucIA', 'Nova_FUC_IA', 'PDF', 2048, '/documents/FUC_IA_2324.pdf'),
+       ('doc4HorarioLEIC', 'Novo_HorarioLEIC', 'PDF', 2048, '/documents/HORARIO_LEIC_2324.pdf');
+
+      
+-- RUC -> Envia para CCC
+-- CCC -> CCD
+-- CCD -> CP
+-- CP -> CTC
+-- CTC -> P
+
+-- • O RUC da UC envia proposta de FUC para a comissão coordenadora de curso (CCC) para aprovação;
+-- • A CCC aprecia a proposta e envia a proposta aprovada para a(s) comissão(ões) coordenadora(s) do(s)
+-- departamento(s) (CCD) envolvido(s) nessa UC;
+-- • A(s) CCD envolvida(s) analisam a FUC e após a aprovação de todas as CCD, a FUC é enviada ao CP;
+-- • O CP analisa a FUC do ponto de vista pedagógico e aprova, enviando de seguida para o CTC;
+-- • O CTC analisa a FUC do ponto de vista científico e aprova, enviando para o secretariado da presidência do ISEL,
+-- o qual envia para os Serviços Académicos do ISEL e para o Serviço de Comunicação para publicação na página de internet do ISEL.
+
+      
+-- Inserting data into Etapa table
+INSERT INTO Etapa (id, id_processo, indice, modo, nome, descricao, data_inicio, data_fim, prazo, estado)
+VALUES ('step1', '1', 1, 'Unanimous', 'Step 1', 'RUC da UC -> FUC p/CCC para aprovação', '2023-01-01', '2023-01-10', 10, 'PENDING'),
+('step2', '1', 2, 'Unanimous', 'Step 2', 'CCC evals proposta -> CCD', '2023-01-01', '2023-01-10', 10, 'PENDING'),
+('step3', '1', 3, 'Unanimous', 'Step 3', 'CCD envolvida(s) analisam a FUC -> ao CP', '2023-01-01', '2023-01-10', 10, 'PENDING'),
+('step4', '1', 4, 'Unanimous', 'Step 4', 'CP analisa FUC e aprova -> CTC;', '2023-01-01', '2023-01-10', 10, 'PENDING'),
+('step5', '1', 5, 'Unanimous', 'Step 5', 'CTC analisa FUC e aprova -> P ISEL,', '2023-01-11', '2023-01-20', 10, 'PENDING');
+
+-- Inserting data into Documento_Processo table
+INSERT INTO Documento_Processo (id_documento, id_processo)
+VALUES ('doc4FucIA', '1'),
+       ('doc4HorarioLEIC', '2');
+
+-- Inserting data into Utilizador_Papel table
+INSERT INTO Utilizador_Papel (papel, email_utilizador)
+VALUES ('P', 'jose.nascimento@isel.pt'),
+('CR', 'antonio.silvestre@isel.pt'),
+('CCE', 'joao.alfredo.santos@isel.pt'),
+('CP', 'sandra.aleixo@isel.pt'),
+('CPR', 'pedro.patricio@isel.pt'),
+('CTC', 'alessandro.fantoni@isel.pt'),
+('CA', 'pedro.silva@isel.pt'),
+('CCC', 'artur.ferreira@isel.pt'),
+('CCD', 'nuno.datia@isel.pt'),
+('UID', 'nuno.leite@isel.pt');
+
+-- Inserting data into Utilizador_Etapa table
+INSERT INTO Utilizador_Etapa (email_utilizador, id_etapa, assinatura, data_assinatura, id_notificacao)
+VALUES ('artur.ferreira@isel.pt', 'step1', false, null, 'notification1'),
+('nuno.datia@isel.pt', 'step2', false, null, null),
+('sandra.aleixo@isel.pt', 'step3', false, null, null),
+('alessandro.fantoni@isel.pt', 'step4', false, null, null),
+('jose.nascimento@isel.pt', 'step5', false, null, null);
+      
+      
