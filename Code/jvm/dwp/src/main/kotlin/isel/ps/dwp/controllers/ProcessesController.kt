@@ -88,3 +88,5 @@ class ProcessesController (
 
 //TODO averiguar se o utilizador não assina uma etapa que ainda não começou
 //TODO pending processes não funciona se fornecer email
+//TODO sign stage tem de distinguir quem assinou para não ficarem logo todas assinadas ou não falsificarem assinatura
+// ver problema com grupo a traduzir para emails

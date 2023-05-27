@@ -2,7 +2,7 @@ package isel.ps.dwp.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.LocalDate
+import java.sql.Timestamp
 import java.util.*
 
 data class User (
@@ -24,8 +24,8 @@ data class Process (
     val template_processo: String, // type of process template
     var estado: String,    // 'PENDING', 'APPROVED', 'DISAPPROVED'
     val autor: String,   // author of the process
-    val data_inicio: LocalDate,  // date of creation
-    val data_fim: LocalDate?    // date of conclusion
+    val data_inicio: Timestamp,  // date of creation
+    val data_fim: Timestamp?    // date of conclusion
 )
 
 data class Stage (
@@ -35,8 +35,8 @@ data class Stage (
     val modo: String,
     val nome: String,
     val descricao: String,
-    val data_inicio: LocalDate?,     // date of creation
-    val data_fim: LocalDate?,      // date of conclusion
+    val data_inicio: Timestamp?,     // date of creation
+    val data_fim: Timestamp?,      // date of conclusion
     val estado: String,
     val prazo: Int        // stage duration in days
 )
@@ -44,7 +44,7 @@ data class Stage (
 data class Comment (
     val id: String,
     val id_etapa: String,
-    val data: LocalDate,
+    val data: Timestamp,
     val texto: String,
     val remetente: String
 )

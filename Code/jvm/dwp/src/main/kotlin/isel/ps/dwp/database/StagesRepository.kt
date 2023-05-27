@@ -8,6 +8,7 @@ import isel.ps.dwp.model.StageInfo
 import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
+import java.sql.Timestamp
 import java.util.*
 
 class StagesRepository(private val handle: Handle) : StagesInterface {
@@ -39,7 +40,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         // Não existem mais etapas pendentes, fim do processo
         if (nextStage == null) {
             handle.createUpdate("update processo set estado = 'APPROVED', data_fim = :endDate where id = :processId")
-                .bind("endDate", Date())
+                .bind("endDate", Timestamp(System.currentTimeMillis()))
                 .bind("processId", processId)
                 .execute()
 
@@ -47,7 +48,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
 
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
-                .bind("startDate", Date())
+                .bind("startDate", Timestamp(System.currentTimeMillis()))
                 .bind("stageId", nextStage)
                 .execute()
 
@@ -114,7 +115,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             throw ExceptionControllerAdvice.InvalidParameterException("Etapa já assinada.")
          */
 
-        val date = Date()
+        val date = Timestamp(System.currentTimeMillis())
 
         handle.createUpdate(
             "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE id_etapa = :stageId"
@@ -158,7 +159,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                             .singleOrNull() == null
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Date())
+                        .bind("endDate", Timestamp(System.currentTimeMillis()))
                         .bind("stageId", stageId)
                         .execute()
 
@@ -175,7 +176,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                     .one()
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Date())
+                        .bind("endDate", Timestamp(System.currentTimeMillis()))
                         .bind("stageId", stageId)
                         .execute()
 

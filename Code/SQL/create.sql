@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Papel (
 --Utilizador(email, nome, authToken, password)
 CREATE TABLE IF NOT EXISTS Utilizador (
     email email PRIMARY KEY,
-    nome varchar(32) UNIQUE NOT NULL,
+    nome varchar(32) NOT NULL,
     authToken varchar(64) UNIQUE NOT NULL,
     pass text NOT NULL
 );
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS Processo (
     nome varchar(32) NOT NULL,
     autor varchar(32) NOT NULL,
     descricao varchar(100),
-    data_inicio date NOT NULL,
-    data_fim date,
+    data_inicio timestamp NOT NULL,
+    data_fim timestamp,
     estado varchar(32) NOT NULL,
     template_processo varchar(32) NOT NULL,
     constraint estado check (estado IN ('PENDING', 'APPROVED', 'DISAPPROVED')),
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS Etapa (
     constraint modo check (modo IN ('Unanimous', 'Majority')),
     nome varchar(32) NOT NULL,
     descricao varchar(100),
-    data_inicio date,
-    data_fim date,
+    data_inicio timestamp,
+    data_fim timestamp,
     prazo int NOT NULL,
     estado varchar(32) NOT NULL,
     constraint estado check (estado in ('PENDING', 'APPROVED', 'DISAPPROVED')),
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS Etapa (
 CREATE TABLE IF NOT EXISTS Comentario (
     id varchar(36) PRIMARY KEY,
     id_etapa varchar(36) NOT NULL,
-    data date NOT NULL,
+    data timestamp NOT NULL,
     texto varchar(150),
     remetente varchar(36) NOT NULL,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
     email_utilizador varchar(32) NOT NULL,
     id_etapa varchar(36) NOT NULL,
     assinatura boolean,
-    data_assinatura date,
+    data_assinatura timestamp,
     id_notificacao text,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -114,7 +114,5 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
 );
 
 COMMIT TRANSACTION;
-
-insert into utilizador values ('example@gmail.com','test user', 'exampleToken', 'hashPass')
 
 rollback;

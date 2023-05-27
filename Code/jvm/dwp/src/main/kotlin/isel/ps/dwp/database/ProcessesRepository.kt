@@ -5,6 +5,7 @@ import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Process
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
+import java.sql.Timestamp
 import java.util.*
 
 
@@ -88,7 +89,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .bind("name", name)
                 .bind("author", userEmail)
                 .bind("description", description)
-                .bind("startDate", Date())
+                .bind("startDate", Timestamp(System.currentTimeMillis()))
                 .bind("template", templateName)
                 .execute()
 
