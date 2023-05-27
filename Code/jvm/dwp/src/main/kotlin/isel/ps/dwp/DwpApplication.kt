@@ -15,6 +15,11 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import java.nio.file.Path
 import java.nio.file.Paths
+import isel.ps.dwp.http.pipeline.AuthenticationInterceptor
+import isel.ps.dwp.http.pipeline.UserArgumentResolver
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 private val JDBC_DATABASE_URL: String = System.getenv("DWP_DATABASE_URL")
 
@@ -47,29 +52,26 @@ class DwpApplication {
 
 }
 
+@Configuration
+class PipelineConfigurer(
+    val authenticationInterceptor: AuthenticationInterceptor,
+    val userArgumentResolver: UserArgumentResolver,
+) : WebMvcConfigurer {
 
-//@Configuration
-//class PipelineConfigurer(
-//    val authenticationInterceptor: AuthenticationInterceptor,
-//    val userArgumentResolver: UserArgumentResolver,
-//) : WebMvcConfigurer {
-//
-//    override fun addInterceptors(registry: InterceptorRegistry) {
-//        registry
-//            .addInterceptor(authenticationInterceptor)
-//            .addPathPatterns("/docs/**")
-//            .addPathPatterns("/processes/**")
-//            .addPathPatterns("/roles/**")
-//            .addPathPatterns("/stages/**")
-//            .addPathPatterns("/templates/**")
-//    }
-//
-//
-//
-//    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-//        resolvers.add(userArgumentResolver)
-//    }
-//}
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry
+            .addInterceptor(authenticationInterceptor)
+            .addPathPatterns("/docs/**")
+            .addPathPatterns("/processes/**")
+            .addPathPatterns("/roles/**")
+            .addPathPatterns("/stages/**")
+            .addPathPatterns("/templates/**")
+    }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(userArgumentResolver)
+    }
+}
 
 fun main(args: Array<String>) {
     runApplication<DwpApplication>(*args)

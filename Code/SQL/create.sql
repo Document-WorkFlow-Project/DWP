@@ -114,7 +114,3 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa (
 );
 
 COMMIT TRANSACTION;
-
-insert into utilizador values ('example@gmail.com','test user', 'exampleToken', 'hashPass')
-
-rollback;

@@ -7,11 +7,10 @@ import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserAuth
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import java.math.BigInteger
-import java.security.MessageDigest
 
 @Service
 class UserServices(private val transactionManager: TransactionManager): UsersInterface {
@@ -20,7 +19,7 @@ class UserServices(private val transactionManager: TransactionManager): UsersInt
     @Qualifier("notificationsService")
     lateinit var notificationServices: NotificationsServicesInterface
 
-    override fun checkBearerToken(bearerToken: String): String? = transactionManager.run {
+    override fun checkBearerToken(bearerToken: String): UserAuth? = transactionManager.run {
         it.usersRepository.checkBearerToken(bearerToken)
     }
 

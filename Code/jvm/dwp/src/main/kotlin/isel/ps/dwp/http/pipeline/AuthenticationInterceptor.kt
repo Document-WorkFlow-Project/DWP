@@ -1,13 +1,24 @@
 package isel.ps.dwp.http.pipeline
 
-/*
+import isel.ps.dwp.ExceptionControllerAdvice
+import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserAuth
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
+import org.springframework.jdbc.datasource.DataSourceUtils
+import org.springframework.stereotype.Component
+import org.springframework.web.method.HandlerMethod
+import org.springframework.web.servlet.HandlerInterceptor
+import javax.sql.DataSource
+
 @Component
 class AuthenticationInterceptor(
     private val authorizationHeaderProcessor: AuthorizationHeaderProcessor
 ) : HandlerInterceptor {
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-        if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == User::class.java }
+        if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == UserAuth::class.java }
         ) {
             val bean = handler.bean as DataSource
             val connection = DataSourceUtils.getConnection(bean)
@@ -40,4 +51,4 @@ class AuthenticationInterceptor(
     }
 }
 
- */
+

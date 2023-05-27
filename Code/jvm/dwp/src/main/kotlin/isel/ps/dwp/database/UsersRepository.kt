@@ -3,6 +3,7 @@ package isel.ps.dwp.database
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
 import java.math.BigInteger
@@ -24,21 +25,30 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .list()
     }
 
-    override fun checkBearerToken(bearerToken: String): String? =
-        handle.createQuery("select email from utilizador where authtoken = :token")
+    override fun checkBearerToken(bearerToken: String): UserAuth? {
+        val email = handle.createQuery("select email from utilizador where authtoken = :token")
             .bind("token", bearerToken)
             .mapTo(String::class.java)
             .singleOrNull()
 
-    override fun login(email: String, password: String): String {
-        return handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
-                .bind("email", email)
-                .bind("hashpassword", password.md5())
-                .mapTo(String::class.java)
-                .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Email e/ou password incorretos.")
+        val role = handle.createQuery("select papel from Utilizador_Papel where email_utilizador = :email")
+            .bind("email", email)
+            .mapTo(String::class.java)
+            .singleOrNull()
+        if (email == null || role == null) return null
+        return UserAuth(email, role)
     }
 
-     /**
+    override fun login(email: String, password: String): String {
+        return handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
+            .bind("email", email)
+            .bind("hashpassword", password.md5())
+            .mapTo(String::class.java)
+            .singleOrNull()
+            ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Email e/ou password incorretos.")
+    }
+
+    /**
      * Generates an MD5 Hash for a certain password
      */
     private fun String.md5(): String {
@@ -47,10 +57,11 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
     }
 
     private fun generateRandomPassword(length: Int): String {
-        val allowedChars = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')')
+        val allowedChars =
+            ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')')
         return (1..length)
-                .map { allowedChars.random() }
-                .joinToString("")
+            .map { allowedChars.random() }
+            .joinToString("")
     }
 
     fun register(email: String, name: String): String {

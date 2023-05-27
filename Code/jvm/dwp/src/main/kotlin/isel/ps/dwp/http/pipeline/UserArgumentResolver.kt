@@ -1,8 +1,9 @@
-package isel.daw.battleships.http.pipeline
+package isel.ps.dwp.http.pipeline
 
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserAuth
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
@@ -14,7 +15,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
 @Component
 class UserArgumentResolver : HandlerMethodArgumentResolver {
 
-    override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == User::class.java
+    override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == UserAuth::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
@@ -30,7 +31,7 @@ class UserArgumentResolver : HandlerMethodArgumentResolver {
     companion object {
         private const val KEY = "UserArgumentResolver"
 
-        fun addUserTo(user: User, request: HttpServletRequest) {
+        fun addUserTo(user: UserAuth, request: HttpServletRequest) {
             return request.setAttribute(KEY, user)
         }
 

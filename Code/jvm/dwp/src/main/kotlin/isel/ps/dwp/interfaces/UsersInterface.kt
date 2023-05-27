@@ -2,10 +2,11 @@ package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.model.User
+import isel.ps.dwp.model.UserAuth
 
 interface UsersInterface {
 
-    fun checkBearerToken(bearerToken: String): String?
+    fun checkBearerToken(bearerToken: String): UserAuth?
 
     fun usersList(): List<String>
 
