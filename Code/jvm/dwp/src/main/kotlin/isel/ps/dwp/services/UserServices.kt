@@ -7,6 +7,7 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserDetails
+import isel.ps.dwp.model.UserDetailsWithRoles
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -72,7 +73,7 @@ class UserServices(
         }
     }
 
-    override fun userDetails(email: String): UserDetails {
+    override fun userDetails(email: String): UserDetailsWithRoles {
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
 
