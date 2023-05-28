@@ -5,6 +5,7 @@ import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -22,14 +23,17 @@ class StagesController(
         return ResponseEntity.ok(stage)
     }
 
-    @PostMapping("sign/{stageId}")
+    @PutMapping("sign/{stageId}")
     fun signStage(
         @PathVariable stageId: String,
         @RequestParam(required = true) approve: Boolean,
         user: UserAuth
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<String> {
         stageServices.signStage(stageId, approve, user)
-        return ResponseEntity(HttpStatus.NO_CONTENT)
+        return ResponseEntity
+            .status(201)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("A Etapa foi aprovada=$approve com sucesso")
     }
 
     @GetMapping("/{processId}")

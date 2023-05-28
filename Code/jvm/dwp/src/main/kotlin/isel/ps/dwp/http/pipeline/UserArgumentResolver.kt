@@ -35,9 +35,9 @@ class UserArgumentResolver : HandlerMethodArgumentResolver {
             return request.setAttribute(KEY, user)
         }
 
-        fun getUserFrom(request: HttpServletRequest): User? {
+        fun getUserFrom(request: HttpServletRequest): UserAuth? {
             return request.getAttribute(KEY)?.let {
-                it as? User
+                it as? UserAuth
             }
         }
     }

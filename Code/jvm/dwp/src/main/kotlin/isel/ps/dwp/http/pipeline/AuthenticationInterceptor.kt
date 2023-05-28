@@ -1,6 +1,9 @@
 package isel.ps.dwp.http.pipeline
 
+import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
+import isel.ps.dwp.database.jdbi.JdbiTransactionManager
+import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
 import jakarta.servlet.http.HttpServletRequest
@@ -10,6 +13,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
+import java.sql.Connection
 import javax.sql.DataSource
 
 @Component
@@ -20,15 +24,14 @@ class AuthenticationInterceptor(
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == UserAuth::class.java }
         ) {
-            val bean = handler.bean as DataSource
-            val connection = DataSourceUtils.getConnection(bean)
+            val bean = DwpApplication().jdbi()
+            val connection = bean.open().connection
+
             connection.isClosed
             if (connection.isValid(5)) {
-
             } else {
                 throw ExceptionControllerAdvice.DatabaseIsNotAvailable("JDBI controller connection is not valid")
             }
-
             val user = if(request.getHeader(NAME_AUTHORIZATION_HEADER) != null) authorizationHeaderProcessor.process(request.getHeader(NAME_AUTHORIZATION_HEADER)) else authorizationHeaderProcessor.processCookie(request.getHeader(NAME_COOKIE_HEADER))
             //println(request.getHeader(NAME_COOKIE_HEADER))
             return if (user == null) {

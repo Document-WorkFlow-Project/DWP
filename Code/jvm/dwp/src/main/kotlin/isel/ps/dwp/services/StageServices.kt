@@ -36,7 +36,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
-            it.stagesRepository.stageUsers(stageId).find { it.email == userAuth.email } ?: ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está na etapa em questão para a aprovar")
+            val user = it.stagesRepository.stageUsers(stageId).find { it.email == userAuth.email } ?: ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está na etapa em questão para a aprovar")
             it.stagesRepository.checkStage(stageId)
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
