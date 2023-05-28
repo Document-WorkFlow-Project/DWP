@@ -1,23 +1,11 @@
 import { useState } from "react";
 import LoginForm from "../LoginForm/login.component";
-import NavBar from "../NavBar/navbar.component";
+import Login from "../LoginForm/login.component";
 
 export default function Home() {
 
-    const [isShowLogin, setIsShowLogin] = useState(false)
-
-    const handleLoginClick = () => {
-        setIsShowLogin((isShowLogin) => !isShowLogin)
-    }
-
     return (
         <div>
-            <NavBar handleLoginClick={handleLoginClick}/>
-            {isShowLogin && 
-                <div className="sign-in-container">
-                    <LoginForm isShowLogin={isShowLogin}/>
-                </div>
-            }
             <h1>Document Workflow Platform</h1>
             <p>
                 Os processos de geração, verificação, aprovação e publicação de documentos em organizações hierárquicas são vitais para o funcionamento das mesmas. <br></br>
