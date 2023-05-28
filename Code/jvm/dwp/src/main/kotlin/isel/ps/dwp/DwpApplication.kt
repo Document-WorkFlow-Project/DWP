@@ -22,6 +22,9 @@ private val JDBC_DATABASE_URL: String = System.getenv("DWP_DATABASE_URL")
 val uploadsFolderPath: Path = Paths.get("filestorage")
 val templatesFolderPath: Path = Paths.get("templates")
 
+// Ativar/Desativar notificações por email
+const val notificationsSwitch = true
+
 @SpringBootApplication
 @Configuration
 @EnableScheduling

@@ -2,6 +2,7 @@ package isel.ps.dwp.services
 
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.model.EmailDetails
+import isel.ps.dwp.notificationsSwitch
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
@@ -28,14 +29,16 @@ class NotificationServices: NotificationsServicesInterface {
 
     override fun sendSimpleMail(details: EmailDetails): String {
         return try {
-            val mailMessage = SimpleMailMessage()
+            if (notificationsSwitch) {
+                val mailMessage = SimpleMailMessage()
 
-            mailMessage.from = sender
-            mailMessage.setTo(details.recipient)
-            mailMessage.text = details.msgBody
-            mailMessage.subject = details.subject
+                mailMessage.from = sender
+                mailMessage.setTo(details.recipient)
+                mailMessage.text = details.msgBody
+                mailMessage.subject = details.subject
 
-            javaMailSender.send(mailMessage)
+                javaMailSender.send(mailMessage)
+            }
             "Mail Sent Successfully"
         }
         catch (e: Exception) {
@@ -45,16 +48,19 @@ class NotificationServices: NotificationsServicesInterface {
 
     override fun scheduleEmail(details: EmailDetails, period: Long): String {
         val notificationId = UUID.randomUUID().toString()
-        val scheduledFuture = taskScheduler.scheduleAtFixedRate(
-                { sendSimpleMail(details) },
-                Duration.ofDays(period)
+        if (notificationsSwitch) {
+            val scheduledFuture = taskScheduler.scheduleAtFixedRate(
+                    { sendSimpleMail(details) },
+                    Duration.ofDays(period)
             )
-        scheduledTasks[notificationId] = scheduledFuture
+            scheduledTasks[notificationId] = scheduledFuture
+        }
         return notificationId
     }
 
     override fun cancelScheduledEmails(notificationId: String) {
-        scheduledTasks[notificationId]?.cancel(true)
+        if (notificationsSwitch)
+            scheduledTasks[notificationId]?.cancel(true)
     }
 }
 
