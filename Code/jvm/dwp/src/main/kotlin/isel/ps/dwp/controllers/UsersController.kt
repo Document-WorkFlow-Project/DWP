@@ -25,6 +25,15 @@ class UsersController (
                 .body(users)
     }
 
+    @GetMapping("/{email}")
+    fun getUserInfo(@PathVariable email: String): ResponseEntity<*> {
+        val users = userServices.userDetails(email)
+        return ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(users)
+    }
+
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {
         userServices.register(register.email, register.name)
