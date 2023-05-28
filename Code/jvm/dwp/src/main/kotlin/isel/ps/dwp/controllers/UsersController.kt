@@ -57,6 +57,6 @@ class UsersController (
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Token(cookie))
+            .body("O Utilizador acabou de sair da sessão")
     }
 }
