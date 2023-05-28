@@ -26,16 +26,23 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     /**
+     * Retorna a próxima etapa pendente de um processo ou null caso não existam mais etapas pendentes
+     */
+    private fun nextPendingStage(processId: String): String? {
+        return handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
+                .bind("processId", processId)
+                .mapTo<String>()
+                .firstOrNull()
+    }
+
+    /**
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
     override fun startNextPendingStage(stageId: String): String? {
         val processId = findProcessFromStage(stageId)
 
-        val nextStage = handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
-                .bind("processId", processId)
-                .mapTo<String>()
-                .firstOrNull()
+        val nextStage = nextPendingStage(processId)
 
         // Não existem mais etapas pendentes, fim do processo
         if (nextStage == null) {
@@ -114,6 +121,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         )
             throw ExceptionControllerAdvice.InvalidParameterException("Etapa já assinada.")
          */
+
+        // Averiguar se o utilizador não assina uma etapa que ainda não começou
+        val processId = findProcessFromStage(stageId)
+
+        if (nextPendingStage(processId) != stageId)
+            throw ExceptionControllerAdvice.InvalidParameterException("Esta não é a etapa currente, ainda não pode assinar.")
 
         val date = Timestamp(System.currentTimeMillis())
 
