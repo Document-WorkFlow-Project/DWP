@@ -45,7 +45,7 @@ class UsersController (
             .status(201)
             .header("Set-Cookie", "token=${uuid};Path=/;HttpOnly")
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Token(uuid))
+            .body("Login feito com Sucesso")
     }
 
     @PostMapping("/logout")
