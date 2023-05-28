@@ -2,6 +2,7 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,7 +23,7 @@ class StagesController (
     }
 
     @PostMapping("sign/{stageId}")
-    fun signStage(@PathVariable stageId: String, @RequestParam(required = true) approve: Boolean): ResponseEntity<Void> {
+    fun signStage(@PathVariable stageId: String, @RequestParam(required = true) approve: Boolean, user: UserAuth): ResponseEntity<Void> {
         stageServices.signStage(stageId, approve)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
