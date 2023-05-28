@@ -96,6 +96,7 @@ class StageServices (
             // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acordo com NOTIFICATION_FREQUENCY
             transactionManager.run {
                 it.stagesRepository.stageResponsible(nextStageId).forEach { resp ->
+                    //TODO adicionar link de redirect
                     val email = EmailDetails(resp, "Olá $resp,\nTem uma tarefa pendente.\nObrigado", "Tarefa pendente")
                     val notificationId = notificationServices.scheduleEmail(email, NOTIFICATION_FREQUENCY)
                     it.stagesRepository.addNotificationId(resp, notificationId, nextStageId)

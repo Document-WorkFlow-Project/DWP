@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.uploadsFolderPath
@@ -55,6 +56,12 @@ class ProcessServices(
 
         return transactionManager.run {
             it.processesRepository.processDetails(processId)
+        }
+    }
+
+    override fun processDocs(processId: String): List<Document> {
+        return transactionManager.run {
+            it.processesRepository.processDocs(processId)
         }
     }
 

@@ -17,7 +17,6 @@ class DocumentsController (
     private val documentServices: DocumentServices
 ) {
 
-    //TODO associate with process
     @PostMapping
     fun fileUpload(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
         val savedFileId = documentServices.uploadDoc(file)

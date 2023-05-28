@@ -2,6 +2,7 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
@@ -75,6 +76,18 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .bind("processId", processId)
             .mapTo(Process::class.java)
             .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.")
+    }
+
+    override fun processDocs(processId: String): List<Document> {
+        return handle.createQuery(
+            "select id, nome, tipo, tamanho, localizacao " +
+                "from documento d join documento_processo dp on d.id = dp.id_documento " +
+                "where dp.id_processo = :processId"
+        )
+                .bind("processId", processId)
+                .mapTo(Document::class.java)
+                .list()
+                .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {

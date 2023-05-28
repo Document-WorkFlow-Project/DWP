@@ -1,5 +1,6 @@
 package isel.ps.dwp.interfaces
 
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import org.springframework.web.multipart.MultipartFile
 
@@ -26,6 +27,11 @@ interface ProcessesInterface {
     * Detalhes de um processo (função de utilizadores associados ao processo)
      */
     fun processDetails(processId: String): Process
+
+    /**
+     * Retorna os detalhes de todos os documentos associados a um processo
+     */
+    fun processDocs(processId: String): List<Document>
 
     /**
      * Criar processo (função de administrador ou utilizador autorizado)
