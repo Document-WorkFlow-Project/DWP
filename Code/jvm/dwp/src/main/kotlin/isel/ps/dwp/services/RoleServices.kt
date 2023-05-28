@@ -19,8 +19,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.InvalidParameterException("Description length can't be bigger than 140 chars.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.createRole(name, description)
+            it.rolesRepository.createRole(name, description)
         }
     }
 
@@ -29,8 +28,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.deleteRole(roleName)
+            it.rolesRepository.deleteRole(roleName)
         }
     }
 
@@ -39,15 +37,13 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.roleDetails(roleName)
+            it.rolesRepository.roleDetails(roleName)
         }
     }
 
     override fun getRoles(): List<String> {
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.getRoles()
+            it.rolesRepository.getRoles()
         }
     }
 
@@ -56,8 +52,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.getRoleUsers(roleName)
+            it.rolesRepository.getRoleUsers(roleName)
         }
     }
 
@@ -68,8 +63,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.ParameterIsBlank("UserId can't be blank.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.addRoleToUser(roleName, userEmail)
+            it.rolesRepository.addRoleToUser(roleName, userEmail)
         }
     }
 
@@ -80,8 +74,7 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
             throw ExceptionControllerAdvice.ParameterIsBlank("UserId can't be blank.")
 
         return transactionManager.run {
-            val rolesRepo = it.rolesRepository
-            rolesRepo.removeRoleFromUser(roleName, userEmail)
+            it.rolesRepository.removeRoleFromUser(roleName, userEmail)
         }
     }
 }
