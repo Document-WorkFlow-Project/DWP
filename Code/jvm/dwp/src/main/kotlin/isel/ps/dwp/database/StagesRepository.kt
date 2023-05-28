@@ -84,13 +84,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
-    override fun signStage(stageId: String, approve: Boolean) {
+    override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         //TODO exception already signed
         val date = Date()
 
         handle.createUpdate(
-            "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE id_etapa = :stageId"
+            "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE email_utilizador = :email AND id_etapa = :stageId"
         )
+            .bind("email",userAuth.email)
             .bind("value", approve)
             .bind("signDate", date)
             .bind("stageId", stageId)

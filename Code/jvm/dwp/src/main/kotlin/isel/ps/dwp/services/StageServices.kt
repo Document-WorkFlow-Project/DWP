@@ -34,10 +34,11 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
      * Assinar etapa, marcando como completa se todos os responsáveis já assinaram
      * Cancela notificações recorrentes associadas
      */
-    override fun signStage(stageId: String, approve: Boolean) {
+    override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
+            it.stagesRepository.stageUsers(stageId).find { it.email == userAuth.email } ?: ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está na etapa em questão para a aprovar")
             it.stagesRepository.checkStage(stageId)
-            it.stagesRepository.signStage(stageId, approve)
+            it.stagesRepository.signStage(stageId, approve, userAuth)
         }
 
         val notificationIds: List<String>

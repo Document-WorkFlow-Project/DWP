@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/stages")
-class StagesController (
+class StagesController(
     private val stageServices: StageServices = StageServices(
         JdbiTransactionManager(jdbi = DwpApplication().jdbi())
     )
@@ -23,8 +23,12 @@ class StagesController (
     }
 
     @PostMapping("sign/{stageId}")
-    fun signStage(@PathVariable stageId: String, @RequestParam(required = true) approve: Boolean, user: UserAuth): ResponseEntity<Void> {
-        stageServices.signStage(stageId, approve)
+    fun signStage(
+        @PathVariable stageId: String,
+        @RequestParam(required = true) approve: Boolean,
+        user: UserAuth
+    ): ResponseEntity<Void> {
+        stageServices.signStage(stageId, approve, user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
