@@ -35,9 +35,10 @@ export default function App() {
          */
         const user = AuthService.getCurrentUserInfo();
 
+
         if (user) {
             setCurrentUser(user);
-            setShowAdminBoard(user.roles.includes("ROLE_ADMIN"));
+            //setShowAdminBoard(user.roles.includes("admin"));
         }
     },[])
 
@@ -94,7 +95,7 @@ export default function App() {
                 <Link to={"/roles"} className="navbar-brand">
                     Papéis
                 </Link>
-                {currentUser && currentUser.roles.includes("ROLE_ADMIN") && (
+                {currentUser && currentUser.roles=="ROLE_ADMIN" && (
                     <Link to={"/admin"} className="navbar-brand">
                         Administrador
                     </Link>

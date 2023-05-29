@@ -66,8 +66,10 @@ const Login = () => {
         setMessage("");
         setLoading(true);
 
+
         // @ts-ignore
         form.current.validateAll();
+
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {

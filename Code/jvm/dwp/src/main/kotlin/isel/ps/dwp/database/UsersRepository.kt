@@ -83,17 +83,10 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
     }
 
     override fun userDetails(email: String): UserDetailsWithRoles {
-        val user : UserDetailsWithRoles = handle.createQuery("select email, nome from utilizador where email = :email")
+        return handle.createQuery("SELECT u.email, u.nome, string_agg(up.papel, ', ') AS roles FROM utilizador u LEFT JOIN Utilizador_Papel up ON u.email = up.email_utilizador WHERE u.email = :email GROUP BY u.email, u.nome;")
             .bind("email", email)
             .mapTo(UserDetailsWithRoles::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
-
-        val roles: List<String> = handle.createQuery("SELECT papel FROM Utilizador_Papel WHERE email_utilizador = :email")
-            .bind("email", email)
-            .mapTo(String::class.java)
-            .list()
-
-        return user.copy(roles = roles)
     }
 
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {

@@ -17,8 +17,9 @@ const Profile =  () => {
             </p>
             <strong>Authorities:</strong>
             <ul>
-                {currentUser.roles &&
-                    currentUser.roles.map((role, index) => <li key={index}>{role}</li>)}
+                {currentUser.roles.split(',').map((role, index) => (
+                    <li key={index}>{role.trim()}</li>
+                ))}
             </ul>
         </div>
     );

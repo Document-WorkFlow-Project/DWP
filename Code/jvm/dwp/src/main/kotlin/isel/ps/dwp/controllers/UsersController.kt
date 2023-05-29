@@ -25,7 +25,7 @@ class UsersController (
                 .body(users)
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/info/{email}")
     fun getUserInfo(@PathVariable email: String): ResponseEntity<*> {
         val users = userServices.userDetails(email)
         return ResponseEntity
