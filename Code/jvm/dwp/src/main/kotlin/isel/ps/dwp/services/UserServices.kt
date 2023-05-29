@@ -7,7 +7,6 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.model.UserDetailsWithRoles
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier

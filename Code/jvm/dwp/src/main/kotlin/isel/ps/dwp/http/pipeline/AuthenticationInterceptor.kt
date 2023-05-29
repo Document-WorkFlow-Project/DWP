@@ -2,19 +2,13 @@ package isel.ps.dwp.http.pipeline
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
-import isel.ps.dwp.database.jdbi.TransactionManager
-import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
-import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
-import java.sql.Connection
-import javax.sql.DataSource
 
 @Component
 class AuthenticationInterceptor(

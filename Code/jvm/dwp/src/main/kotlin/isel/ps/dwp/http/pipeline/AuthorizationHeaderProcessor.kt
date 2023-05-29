@@ -1,6 +1,5 @@
 package isel.ps.dwp.http.pipeline
 
-import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.UserServices
 import org.slf4j.LoggerFactory

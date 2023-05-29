@@ -4,7 +4,6 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.model.UserDetails
 import isel.ps.dwp.model.UserDetailsWithRoles
 import org.jdbi.v3.core.Handle
 import java.math.BigInteger

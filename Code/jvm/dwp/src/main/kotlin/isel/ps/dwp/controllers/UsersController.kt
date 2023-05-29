@@ -2,7 +2,6 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.model.RegisterModel
 import isel.ps.dwp.model.SignInModel
-import isel.ps.dwp.model.Token
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
