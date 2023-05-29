@@ -12,13 +12,6 @@ data class User(
     val pass: String
 )
 
-
-// TODO("Suppot Multiple Roles")
-data class UserAuth(
-    val email: String,
-    val role: String
-)
-
 data class Role(
     val nome: String,
     val descricao: String

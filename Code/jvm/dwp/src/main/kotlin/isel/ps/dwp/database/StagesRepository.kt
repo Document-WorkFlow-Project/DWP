@@ -32,12 +32,22 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .firstOrNull()
     }
 
+    private fun processEnded(processId: String): Boolean {
+        return handle.createQuery("select estado from processo where id = :processId")
+                .bind("processId", processId)
+                .mapTo<String>()
+                .first() != "PENDING"
+    }
+
     /**
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
     override fun startNextPendingStage(stageId: String): String? {
         val processId = findProcessFromStage(stageId)
+
+        if (processEnded(processId))
+            throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
 
         val nextStage = nextPendingStage(processId)
 
@@ -108,14 +118,16 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
-        val signedAlready =
-            handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
+        if (handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
                 .bind("email", userAuth.email)
                 .mapTo<Boolean>()
-                .singleOrNull()
-        if (signedAlready != null) throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa")
+                .singleOrNull() != null)
+            throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa.")
 
         val processId = findProcessFromStage(stageId)
+
+        if (processEnded(processId))
+            throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
 
         if (nextPendingStage(processId) != stageId)
             throw ExceptionControllerAdvice.InvalidParameterException("Esta não é a etapa currente, ainda não pode assinar.")
@@ -131,16 +143,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("stageId", stageId)
             .execute()
 
-        // Em caso de reprovação a etapa, o processo é reprovado
+        // Em caso de reprovação as etapas seguintes e o processo é reprovado
         if (!approve) {
-
-            //TODO("Resta colocar todas as outras etapas do mesmo processo como disapproved tmb..")
             handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
                 .bind("endDate", date)
                 .bind("stageId", stageId)
                 .execute()
-
-            val processId = findProcessFromStage(stageId)
 
             handle.createUpdate("UPDATE processo SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :processId")
                 .bind("endDate", date)

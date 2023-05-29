@@ -8,6 +8,7 @@ import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.ProcessTemplate
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
@@ -65,10 +66,10 @@ class ProcessServices(
         }
     }
 
-    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
+    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
         return transactionManager.run {
             // Create process
-            val processId = it.processesRepository.newProcess(templateName, name, description, files)
+            val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
             // Save uploaded files associated to this process
             files.forEach{ file ->
@@ -91,9 +92,11 @@ class ProcessServices(
                 // Translate groups into email, using a hash set to avoid duplicates
                 val responsibleSet = HashSet<String>()
                 stage.responsible.forEach { resp ->
-                    if (resp.contains('@')) {
+                    // A responsible can be a single email
+                    if (resp.contains('@'))
                         responsibleSet.add(resp)
-                    } else {
+                    // Or a role, a group of emails
+                    else {
                         val emails = it.rolesRepository.getRoleUsers(resp)
                         responsibleSet.addAll(emails)
                     }

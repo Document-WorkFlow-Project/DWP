@@ -4,6 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.UserAuth
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
 import java.sql.Timestamp
@@ -90,10 +91,9 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
     }
 
-    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
+    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
         val uuid = UUID.randomUUID().toString()
-        //TODO get email from requesting user
-        val userEmail = "davidrobalo9@gmail.com"
+        val userEmail = userAuth.email
 
         handle.createUpdate(
                 "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"

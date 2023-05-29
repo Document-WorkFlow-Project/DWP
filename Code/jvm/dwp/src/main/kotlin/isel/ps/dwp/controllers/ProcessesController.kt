@@ -1,5 +1,6 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.ProcessServices
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.core.io.ByteArrayResource
@@ -113,8 +114,14 @@ class ProcessesController (
     }
 
     @PostMapping
-    fun newProcess(@RequestParam templateName: String, @RequestParam name: String, @RequestParam description: String, @RequestParam("file") files: List<MultipartFile>): ResponseEntity<*> {
-        val processId = processesServices.newProcess(templateName, name, description, files)
+    fun newProcess(
+            @RequestParam templateName: String,
+            @RequestParam name: String,
+            @RequestParam description: String,
+            @RequestParam("file") files: List<MultipartFile>,
+            user: UserAuth
+    ): ResponseEntity<*> {
+        val processId = processesServices.newProcess(templateName, name, description, files, user)
         return ResponseEntity
                 .status(201)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -27,6 +27,9 @@ private val JDBC_DATABASE_URL: String = System.getenv("DWP_DATABASE_URL")
 val uploadsFolderPath: Path = Paths.get("filestorage")
 val templatesFolderPath: Path = Paths.get("templates")
 
+// Frequência para envio de emails agendados para tarefas pendentes, em dias
+const val NOTIFICATION_FREQUENCY: Long = 2
+
 // Ativar/Desativar notificações por email
 const val notificationsSwitch = true
 

@@ -1,6 +1,7 @@
 package isel.ps.dwp.services
 
 import isel.ps.dwp.ExceptionControllerAdvice
+import isel.ps.dwp.NOTIFICATION_FREQUENCY
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
@@ -14,8 +15,6 @@ class StageServices (
 ) : StagesInterface {
 
     private val userServices: UserServices = UserServices(transactionManager)
-
-    private val NOTIFICATION_FREQUENCY: Long = 2
 
     override fun stageDetails(stageId: String): Stage {
         return transactionManager.run {
@@ -43,13 +42,14 @@ class StageServices (
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
-            val user = it.stagesRepository.stageUsers(stageId).find { it.email == userAuth.email } ?: ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está na etapa em questão para a aprovar")
+            it.stagesRepository.stageUsers(stageId).find {
+                det -> det.email == userAuth.email
+            } ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não faz parte da etapa.")
             //it.stagesRepository.checkStage(stageId)
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
 
         val notificationIds: List<String>
-        // TODO get email of user who signed
         val userEmail = userAuth.email
 
         if (approve) {
@@ -109,34 +109,9 @@ class StageServices (
     }
 
     override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
-        transactionManager.run {
-            it.processesRepository.checkProcess(processId)
-        }
-
-        if (name.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Stage Name can't be blank.")
-        if (mode.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("Responsable can't be blank.")
-
-        // TODO: Mais Averiguações
-
-        val responsibleEmails: MutableList<String> = mutableListOf()
-
-        responsible.forEach { resp ->
-            // A responsible can be a single email
-            if (resp.contains('@'))
-                responsibleEmails.add(resp)
-            // Or a group of emails
-            else {
-                val roleEmails = transactionManager.run {
-                    it.rolesRepository.getRoleUsers(resp)
-                }
-                responsibleEmails.addAll(roleEmails)
-            }
-        }
-
         return transactionManager.run {
-            it.stagesRepository.createStage(processId, index, name, description, mode, responsibleEmails, duration)
+            it.processesRepository.checkProcess(processId)
+            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
         }
     }
 
