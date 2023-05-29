@@ -2,7 +2,6 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.model.RegisterModel
 import isel.ps.dwp.model.SignInModel
-import isel.ps.dwp.model.Token
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -50,7 +49,7 @@ class UsersController (
             .status(201)
             .header("Set-Cookie", "token=${uuid};Path=/;HttpOnly")
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Token(uuid))
+            .body("Login feito com Sucesso")
     }
 
     @PostMapping("/logout")
@@ -62,6 +61,6 @@ class UsersController (
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Token(cookie))
+            .body("O Utilizador acabou de sair da sessão")
     }
 }

@@ -1,9 +1,6 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.StageInfo
-import isel.ps.dwp.model.UserDetails
+import isel.ps.dwp.model.*
 
 interface StagesInterface {
 
@@ -17,7 +14,7 @@ interface StagesInterface {
      * Os responsáveis pela etapa devem assinar para o workflow avançar (true para aprovação e false para reprovação)
      * Se a etapa for reprovada, o processo é terminado
      */
-    fun signStage(stageId: String, approve: Boolean)
+    fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth)
 
     /**
      * Obter lista de utilizadores associados a uma etapa (função de administrador ou utilizador associado à etapa)
