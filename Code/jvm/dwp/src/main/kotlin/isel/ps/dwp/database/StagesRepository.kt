@@ -135,7 +135,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         if (!approve) {
 
             //TODO("Resta colocar todas as outras etapas do mesmo processo como disapproved tmb..")
-            handle.createUpdate("UPDATE etapa SET est ado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
+            handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
                 .bind("endDate", date)
                 .bind("stageId", stageId)
                 .execute()
