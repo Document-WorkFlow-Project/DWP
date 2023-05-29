@@ -25,6 +25,7 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .list()
     }
 
+    // TODO("Suppot Multiple Roles")
     override fun checkBearerToken(bearerToken: String): UserAuth? {
         val email = handle.createQuery("select email from utilizador where authtoken = :token")
             .bind("token", bearerToken)
@@ -35,8 +36,8 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .bind("email", email)
             .mapTo(String::class.java)
             .singleOrNull()
-        if (email == null || role == null) return null
-        return UserAuth(email, role)
+        if (email == null) return null
+        return UserAuth(email, role!!)
     }
 
     override fun login(email: String, password: String): String {
