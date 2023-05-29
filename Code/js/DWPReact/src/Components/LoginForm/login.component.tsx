@@ -1,28 +1,153 @@
-import './login.css';
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Form from "react-validation/build/form";
+import Input from "react-validation/build/input";
+import CheckButton from "react-validation/build/button";
+import AuthService from "../../Services/Users/auth.service";
+import { isEmail } from "validator";
 
-const LoginForm = ({isShowLogin}) => {
-    return(
-        <div className="login-form">
-            <div className="form-box solid">
-                <form>
-                    <h1 className="login-text">Sign In</h1>
-                    <label>Email</label><br></br>
-                    <input
-                        type="text"
-                        name="email"
-                        className="login-box"
-                        /><br></br>
-                    <label>Password</label><br/>
-                    <input
-                        type="password"
-                        name="password"
-                        className="login-box"
-                        /><br/>
-                    <input type="submit" value="LOGIN" className="login-btn"/>
-                </form>
+
+
+const required = (value) => {
+    if (!value) {
+        return (
+            <div className="invalid-feedback d-block">
+                This field is required!
+            </div>
+        );
+    }
+};
+
+
+const validEmail = (value) => {
+    if (!isEmail(value)) {
+        return (
+            <div className="invalid-feedback d-block">
+                This is not a valid email.
+            </div>
+        );
+    }
+};
+
+const vpassword = (value) => {
+    if (value.length < 6 || value.length > 40) {
+        return (
+            <div className="invalid-feedback d-block">
+                The password must be between 6 and 40 characters.
+            </div>
+        );
+    }
+};
+
+const Login = () => {
+    const form = useRef();
+    const checkBtn = useRef();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const navigate = useNavigate();
+
+    const onChangeEmail = (e) => {
+        const email = e.target.value;
+        setEmail(email);
+    };
+
+    const onChangePassword = (e) => {
+        const password = e.target.value;
+        setPassword(password);
+    };
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+
+        setMessage("");
+        setLoading(true);
+
+        // @ts-ignore
+        form.current.validateAll();
+
+        // @ts-ignore
+        if (checkBtn.current.context._errors.length === 0) {
+            AuthService.login(email, password).then(
+                () => {
+                    navigate("/profile");
+                    window.location.reload();
+                },
+                (error) => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    setLoading(false);
+                    setMessage(resMessage);
+                }
+            );
+        } else {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="col-md-12">
+            <div className="card card-container">
+                <img
+                    src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
+                    alt="profile-img"
+                    className="profile-img-card"
+                />
+
+                <Form onSubmit={handleLogin} ref={form}>
+                    <div className="form-group">
+                        <label htmlFor="username">Email</label>
+                        <Input
+                            type="text"
+                            className="form-control"
+                            name="email"
+                            value={email}
+                            onChange={onChangeEmail}
+                            validations={[required, validEmail]}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <Input
+                            type="password"
+                            className="form-control"
+                            name="password"
+                            value={password}
+                            onChange={onChangePassword}
+                            validations={[required, vpassword]}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <button className="btn btn-primary btn-block" disabled={loading}>
+                            {loading && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span>Login</span>
+                        </button>
+                    </div>
+
+                    {message && (
+                        <div className="form-group">
+                            <div className="alert alert-danger" role="alert">
+                                {message}
+                            </div>
+                        </div>
+                    )}
+                    <CheckButton style={{ display: "none" }} ref={checkBtn} />
+                </Form>
             </div>
         </div>
     );
-}
+};
 
-export default LoginForm;
+export default Login;

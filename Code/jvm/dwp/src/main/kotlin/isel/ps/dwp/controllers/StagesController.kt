@@ -1,8 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
-import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -11,10 +8,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/stages")
-class StagesController(
-    private val stageServices: StageServices = StageServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+class StagesController (
+    private val stageServices: StageServices
 ) {
     /** --------------------------- Stages -------------------------------**/
     @GetMapping("/{stageId}")

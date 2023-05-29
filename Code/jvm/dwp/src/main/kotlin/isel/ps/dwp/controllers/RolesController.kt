@@ -1,7 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
-import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.model.RoleModel
 import isel.ps.dwp.services.RoleServices
 import org.springframework.http.MediaType
@@ -11,9 +9,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/roles")
 class RolesController(
-    private val roleServices: RoleServices = RoleServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+    private val roleServices: RoleServices
 ) {
 
     @PostMapping

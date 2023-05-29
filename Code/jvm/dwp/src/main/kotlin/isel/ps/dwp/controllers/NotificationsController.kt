@@ -3,8 +3,6 @@ package isel.ps.dwp.controllers
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.EmailSchedule
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
@@ -13,11 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class EmailController {
-
-    @Autowired
-    @Qualifier("notificationsService")
-    lateinit var notificationServices: NotificationsServicesInterface
+class EmailController (
+    private val notificationServices: NotificationsServicesInterface
+) {
 
     @PostMapping("/sendEmail")
     fun sendMail(@RequestBody details: EmailDetails): ResponseEntity<*> {

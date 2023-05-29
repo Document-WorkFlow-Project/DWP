@@ -1,14 +1,10 @@
 package isel.ps.dwp.utils
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.templatesFolderPath
-import isel.ps.dwp.uploadsFolderPath
 import org.springframework.web.multipart.MultipartFile
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.file.Files
-import java.nio.file.Path
 
 // Save file in filesystem in the specified path
 fun saveInFilesystem(file: MultipartFile, path: String) {

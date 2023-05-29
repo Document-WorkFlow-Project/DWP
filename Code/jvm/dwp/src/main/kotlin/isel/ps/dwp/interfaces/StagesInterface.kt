@@ -1,12 +1,15 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.*
+import isel.ps.dwp.model.Comment
+import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.StageInfo
+import isel.ps.dwp.model.UserDetails
 
 interface StagesInterface {
 
     fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String
 
-    fun startNextStage(stageId: String): String?
+    fun startNextPendingStage(stageId: String): String?
 
     fun viewStages(processId : String): List<Stage>
 

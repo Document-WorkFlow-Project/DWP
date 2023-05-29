@@ -2,7 +2,6 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.TemplatesInterface
-import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Template
 import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle

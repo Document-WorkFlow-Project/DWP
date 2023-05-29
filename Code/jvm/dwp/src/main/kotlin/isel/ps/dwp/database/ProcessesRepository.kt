@@ -2,19 +2,21 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
+import java.sql.Timestamp
 import java.util.*
 
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun checkProcess(id: String): Process? {
+    fun checkProcess(id: String): Process {
         return handle.createQuery("SELECT * FROM processo WHERE id = :id")
             .bind("id", id)
             .mapTo(Process::class.java)
-            .singleOrNull()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo não encontrado.")
     }
 
     override fun getProcesses(type: String?): List<String> {
@@ -76,10 +78,22 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.")
     }
 
+    override fun processDocs(processId: String): List<Document> {
+        return handle.createQuery(
+            "select id, nome, tipo, tamanho, localizacao " +
+                "from documento d join documento_processo dp on d.id = dp.id_documento " +
+                "where dp.id_processo = :processId"
+        )
+                .bind("processId", processId)
+                .mapTo(Document::class.java)
+                .list()
+                .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
+    }
+
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
         val uuid = UUID.randomUUID().toString()
         //TODO get email from requesting user
-        val userEmail = "example@gmail.com"
+        val userEmail = "davidrobalo9@gmail.com"
 
         handle.createUpdate(
                 "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"
@@ -88,7 +102,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .bind("name", name)
                 .bind("author", userEmail)
                 .bind("description", description)
-                .bind("startDate", Date())
+                .bind("startDate", Timestamp(System.currentTimeMillis()))
                 .bind("template", templateName)
                 .execute()
 

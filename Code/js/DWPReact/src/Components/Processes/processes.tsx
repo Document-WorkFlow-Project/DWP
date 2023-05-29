@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import processServices from "../../Services/process.service"
+import processServices from "../../Services/Processes/process.service"
 
 
 export const Processes = () => {

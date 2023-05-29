@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.uploadsFolderPath
@@ -15,7 +16,10 @@ import java.io.File
 import java.util.*
 
 @Service
-class ProcessServices(private val transactionManager: TransactionManager): ProcessesInterface {
+class ProcessServices(
+        private val transactionManager: TransactionManager,
+        private val stageServices: StageServices
+): ProcessesInterface {
 
     private val objectMapper: ObjectMapper = ObjectMapper()
 
@@ -55,6 +59,12 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         }
     }
 
+    override fun processDocs(processId: String): List<Document> {
+        return transactionManager.run {
+            it.processesRepository.processDocs(processId)
+        }
+    }
+
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String {
         return transactionManager.run {
             // Create process
@@ -77,10 +87,22 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
 
             // Create process stages
             template.stages.forEachIndexed { index, stage ->
-                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, stage.responsible, stage.duration)
+
+                // Translate groups into email, using a hash set to avoid duplicates
+                val responsibleSet = HashSet<String>()
+                stage.responsible.forEach { resp ->
+                    if (resp.contains('@')) {
+                        responsibleSet.add(resp)
+                    } else {
+                        val emails = it.rolesRepository.getRoleUsers(resp)
+                        responsibleSet.addAll(emails)
+                    }
+                }
+
+                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration)
                 // Start the first stage
                 if (index == 0)
-                    it.stagesRepository.startNextStage(stageId)
+                    stageServices.startNextPendingStage(stageId)
             }
 
             processId
@@ -103,12 +125,6 @@ class ProcessServices(private val transactionManager: TransactionManager): Proce
         transactionManager.run {
             it.processesRepository.cancelProcess(processId)
         }
-    }
-
-    override fun checkProcess(id: String): Process? {
-        return transactionManager.run {
-            it.processesRepository.checkProcess(id)
-        } ?: throw ExceptionControllerAdvice.ProcessNotFound("Process not found. Incorrect id.")
     }
 
 }

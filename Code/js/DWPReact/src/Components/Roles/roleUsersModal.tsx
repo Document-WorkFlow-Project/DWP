@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import rolesService from "../../Services/roles.service"
-import usersService from "../../Services/users.service"
+import rolesService from "../../Services/Roles/roles.service"
+import usersService from "../../Services/Users/users.service"
 
 export function RoleUsersModal({
     onClose,

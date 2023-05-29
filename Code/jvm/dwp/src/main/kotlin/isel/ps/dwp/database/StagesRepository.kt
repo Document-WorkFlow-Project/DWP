@@ -2,37 +2,52 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
-import isel.ps.dwp.model.*
+import isel.ps.dwp.model.Comment
+import isel.ps.dwp.model.Stage
+import isel.ps.dwp.model.StageInfo
+import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
+import java.sql.Timestamp
 import java.util.*
 
 class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Stages -------------------------------**/
 
+    /**
+     * Retorna os detalhes de uma etapa
+     */
     override fun stageDetails(stageId: String): Stage {
         return handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
             .bind("stageId", stageId)
             .mapTo(Stage::class.java)
-            .one()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Etapa não encontrada.")
+    }
+
+    /**
+     * Retorna a próxima etapa pendente de um processo ou null caso não existam mais etapas pendentes
+     */
+    private fun nextPendingStage(processId: String): String? {
+        return handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
+                .bind("processId", processId)
+                .mapTo<String>()
+                .firstOrNull()
     }
 
     /**
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
-    override fun startNextStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): String? {
         val processId = findProcessFromStage(stageId)
 
-        val nextStage = handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
-                .bind("processId", processId)
-                .mapTo<String>()
-                .firstOrNull()
+        val nextStage = nextPendingStage(processId)
 
+        // Não existem mais etapas pendentes, fim do processo
         if (nextStage == null) {
             handle.createUpdate("update processo set estado = 'APPROVED', data_fim = :endDate where id = :processId")
-                .bind("endDate", Date())
+                .bind("endDate", Timestamp(System.currentTimeMillis()))
                 .bind("processId", processId)
                 .execute()
 
@@ -40,11 +55,22 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
 
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
-                .bind("startDate", Date())
+                .bind("startDate", Timestamp(System.currentTimeMillis()))
                 .bind("stageId", nextStage)
                 .execute()
 
         return nextStage
+    }
+
+    /**
+     * Guarda id de notificação na base de dados
+     */
+    fun addNotificationId(userEmail: String, notificationId: String, stageId: String) {
+        handle.createUpdate("UPDATE utilizador_etapa SET id_notificacao = :notificationId WHERE id_etapa = :stageId and email_utilizador = :email")
+                .bind("notificationId", notificationId)
+                .bind("stageId", stageId)
+                .bind("email", userEmail)
+                .execute()
     }
 
     fun findProcessFromStage(stageId: String): String {
@@ -91,8 +117,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .singleOrNull()
         if(signedAlready != null) throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa")
 
-        val date = Date()
+        val processId = findProcessFromStage(stageId)
 
+        if (nextPendingStage(processId) != stageId)
+            throw ExceptionControllerAdvice.InvalidParameterException("Esta não é a etapa currente, ainda não pode assinar.")
+
+        val date = Timestamp(System.currentTimeMillis())
 
         handle.createUpdate(
             "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE email_utilizador = :email AND id_etapa = :stageId"
@@ -134,10 +164,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
                             .bind("stageId", stageId)
                             .mapTo<String>()
-                            .one() == null
+                            .singleOrNull() == null
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Date())
+                        .bind("endDate", Timestamp(System.currentTimeMillis()))
                         .bind("stageId", stageId)
                         .execute()
 
@@ -154,7 +184,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                     .one()
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Date())
+                        .bind("endDate", Timestamp(System.currentTimeMillis()))
                         .bind("stageId", stageId)
                         .execute()
 
@@ -213,17 +243,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .bind("stageId", stageId)
             .mapTo(UserDetails::class.java)
             .list()
-    }
-
-    /**
-     * Checks if stage exists
-     */
-    fun checkStage(stageId: String) {
-        handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
-                .bind("stageId", stageId)
-                .mapTo(Stage::class.java)
-                .list()
-                .singleOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Etapa não encontrada.")
     }
 
 

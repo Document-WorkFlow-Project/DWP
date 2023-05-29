@@ -3,10 +3,10 @@ import { createPortal } from 'react-dom'
 import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
-import processServices from "../../Services/process.service"
+import processServices from "../../Services/Processes/process.service"
 import {NewStageModal, TemplateDetailsModal} from "./templateModals"
-import rolesService from "../../Services/roles.service";
-import usersService from "../../Services/users.service";
+import rolesService from "../../Services/Roles/roles.service";
+import usersService from "../../Services/Users/users.service";
 
 // TODO adicionar controlo de permissões de acesso a templates
 

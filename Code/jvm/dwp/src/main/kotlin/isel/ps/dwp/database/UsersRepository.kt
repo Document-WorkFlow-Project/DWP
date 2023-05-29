@@ -5,6 +5,7 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.model.UserDetails
+import isel.ps.dwp.model.UserDetailsWithRoles
 import org.jdbi.v3.core.Handle
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -92,11 +93,18 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .execute()
     }
 
-    override fun userDetails(email: String): UserDetails {
-        return handle.createQuery("select email, nome from utilizador where email = :email")
+    override fun userDetails(email: String): UserDetailsWithRoles {
+        val user : UserDetailsWithRoles = handle.createQuery("select email, nome from utilizador where email = :email")
             .bind("email", email)
-            .mapTo(UserDetails::class.java)
+            .mapTo(UserDetailsWithRoles::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
+
+        val roles: List<String> = handle.createQuery("SELECT papel FROM Utilizador_Papel WHERE email_utilizador = :email")
+            .bind("email", email)
+            .mapTo(String::class.java)
+            .list()
+
+        return user.copy(roles = roles)
     }
 
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {

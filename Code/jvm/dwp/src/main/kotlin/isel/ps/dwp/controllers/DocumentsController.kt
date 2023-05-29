@@ -1,6 +1,5 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.JdbiTransactionManager
 import isel.ps.dwp.model.UserAuth
@@ -17,12 +16,9 @@ import java.io.FileInputStream
 @RestController
 @RequestMapping("/docs")
 class DocumentsController (
-    private val documentServices: DocumentServices = DocumentServices(
-        JdbiTransactionManager(jdbi = DwpApplication().jdbi())
-    )
+    private val documentServices: DocumentServices
 ) {
 
-    //TODO associate with process
     @PostMapping
     fun fileUpload(@RequestParam("file") file: MultipartFile): ResponseEntity<*> {
         val savedFileId = documentServices.uploadDoc(file)

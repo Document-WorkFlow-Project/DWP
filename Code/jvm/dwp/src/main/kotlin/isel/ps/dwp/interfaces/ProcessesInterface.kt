@@ -1,5 +1,6 @@
 package isel.ps.dwp.interfaces
 
+import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
 import org.springframework.web.multipart.MultipartFile
 
@@ -28,6 +29,11 @@ interface ProcessesInterface {
     fun processDetails(processId: String): Process
 
     /**
+     * Retorna os detalhes de todos os documentos associados a um processo
+     */
+    fun processDocs(processId: String): List<Document>
+
+    /**
      * Criar processo (função de administrador ou utilizador autorizado)
      */
     fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>): String
@@ -42,6 +48,4 @@ interface ProcessesInterface {
      */
     fun cancelProcess(processId: String)
 
-
-    fun checkProcess(id: String): Process?
 }
