@@ -85,8 +85,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
-        //TODO exception already signed
+        val signedAlready = handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
+            .bind("email", userAuth.email)
+            .mapTo<Boolean>()
+            .singleOrNull()
+        if(signedAlready != null) throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa")
+
         val date = Date()
+
 
         handle.createUpdate(
             "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE email_utilizador = :email AND id_etapa = :stageId"

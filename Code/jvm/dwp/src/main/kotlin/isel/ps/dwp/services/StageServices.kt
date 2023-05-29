@@ -43,7 +43,7 @@ class StageServices(private val transactionManager: TransactionManager): StagesI
 
         val notificationIds: List<String>
         // TODO get email of user who signed
-        val userEmail = ""
+        val userEmail = userAuth.email
 
         if (approve) {
             // Selecionar apenas a notificação associada ao user que assinou
