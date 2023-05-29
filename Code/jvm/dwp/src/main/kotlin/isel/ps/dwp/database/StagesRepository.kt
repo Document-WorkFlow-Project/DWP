@@ -2,10 +2,7 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.StagesInterface
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.StageInfo
-import isel.ps.dwp.model.UserDetails
+import isel.ps.dwp.model.*
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import java.sql.Timestamp
@@ -30,9 +27,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      */
     private fun nextPendingStage(processId: String): String? {
         return handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
-                .bind("processId", processId)
-                .mapTo<String>()
-                .firstOrNull()
+            .bind("processId", processId)
+            .mapTo<String>()
+            .firstOrNull()
     }
 
     /**
@@ -55,9 +52,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
 
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
-                .bind("startDate", Timestamp(System.currentTimeMillis()))
-                .bind("stageId", nextStage)
-                .execute()
+            .bind("startDate", Timestamp(System.currentTimeMillis()))
+            .bind("stageId", nextStage)
+            .execute()
 
         return nextStage
     }
@@ -67,17 +64,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      */
     fun addNotificationId(userEmail: String, notificationId: String, stageId: String) {
         handle.createUpdate("UPDATE utilizador_etapa SET id_notificacao = :notificationId WHERE id_etapa = :stageId and email_utilizador = :email")
-                .bind("notificationId", notificationId)
-                .bind("stageId", stageId)
-                .bind("email", userEmail)
-                .execute()
+            .bind("notificationId", notificationId)
+            .bind("stageId", stageId)
+            .bind("email", userEmail)
+            .execute()
     }
 
     fun findProcessFromStage(stageId: String): String {
         return handle.createQuery("select id_processo from etapa where id = :stageId")
-                .bind("stageId", stageId)
-                .mapTo<String>()
-                .firstOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Processo não encontrado.")
+            .bind("stageId", stageId)
+            .mapTo<String>()
+            .firstOrNull() ?: throw ExceptionControllerAdvice.StageNotFound("Processo não encontrado.")
     }
 
     /**
@@ -85,9 +82,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      */
     fun stageResponsible(stageId: String): List<String> {
         return handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId")
-                .bind("stageId", stageId)
-                .mapTo<String>()
-                .list()
+            .bind("stageId", stageId)
+            .mapTo<String>()
+            .list()
     }
 
     /**
@@ -97,25 +94,26 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return if (email == null) {
             // Retornar o id de todas as notificações ativas associadas a esta etapa
             handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId")
-                    .bind("stageId", stageId)
-                    .mapTo<String>()
-                    .list()
+                .bind("stageId", stageId)
+                .mapTo<String>()
+                .list()
         } else {
             // Retornar o id das notificações ativas associadas a esta etapa, de um utilizador em especifico
             handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId and email_utilizador = :email")
-                    .bind("stageId", stageId)
-                    .bind("email", email)
-                    .mapTo<String>()
-                    .list()
+                .bind("stageId", stageId)
+                .bind("email", email)
+                .mapTo<String>()
+                .list()
         }
     }
 
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
-        val signedAlready = handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
-            .bind("email", userAuth.email)
-            .mapTo<Boolean>()
-            .singleOrNull()
-        if(signedAlready != null) throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa")
+        val signedAlready =
+            handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
+                .bind("email", userAuth.email)
+                .mapTo<Boolean>()
+                .singleOrNull()
+        if (signedAlready != null) throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa")
 
         val processId = findProcessFromStage(stageId)
 
@@ -127,7 +125,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         handle.createUpdate(
             "UPDATE utilizador_etapa SET assinatura = :value, data_assinatura = :signDate WHERE email_utilizador = :email AND id_etapa = :stageId"
         )
-            .bind("email",userAuth.email)
+            .bind("email", userAuth.email)
             .bind("value", approve)
             .bind("signDate", date)
             .bind("stageId", stageId)
@@ -135,7 +133,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         // Em caso de reprovação a etapa, o processo é reprovado
         if (!approve) {
-            handle.createUpdate("UPDATE etapa SET estado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
+
+            //TODO("Resta colocar todas as outras etapas do mesmo processo como disapproved tmb..")
+            handle.createUpdate("UPDATE etapa SET est ado = 'DISAPPROVED', data_fim = :endDate WHERE id = :stageId")
                 .bind("endDate", date)
                 .bind("stageId", stageId)
                 .execute()
@@ -155,38 +155,38 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      */
     fun verifySignatures(stageId: String): Boolean {
         val mode = handle.createQuery("select modo from etapa where id = :stageId")
-                .bind("stageId", stageId)
-                .mapTo<String>()
-                .one()
+            .bind("stageId", stageId)
+            .mapTo<String>()
+            .one()
 
         if (mode == "Unanimous") {
             // Se nenhuma assinatura estiver por preencher, todos os responsáveis já assinaram
             if (handle.createQuery("select email_utilizador from utilizador_etapa where id_etapa = :stageId and assinatura is null")
-                            .bind("stageId", stageId)
-                            .mapTo<String>()
-                            .singleOrNull() == null
+                    .bind("stageId", stageId)
+                    .mapTo<String>()
+                    .singleOrNull() == null
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Timestamp(System.currentTimeMillis()))
-                        .bind("stageId", stageId)
-                        .execute()
+                    .bind("endDate", Timestamp(System.currentTimeMillis()))
+                    .bind("stageId", stageId)
+                    .execute()
 
                 return true
             }
         } else if (mode == "Majority") {
             // Se mais de metade das assinaturas já estiverem preenchidas, o workflow pode prosseguir
             if (handle.createQuery(
-                "with counted_values as (select assinatura, count(*) as total_count, count(*) filter (where assinatura is not null) as non_null_count from utilizador_etapa where id = :stageId)" +
-                        "select non_null_count > total_count / 2 from counted_values"
+                    "with counted_values as (select assinatura, count(*) as total_count, count(*) filter (where assinatura is not null) as non_null_count from utilizador_etapa where id = :stageId)" +
+                            "select non_null_count > total_count / 2 from counted_values"
                 )
                     .bind("stageId", stageId)
                     .mapTo<Boolean>()
                     .one()
             ) {
                 handle.createUpdate("UPDATE etapa SET estado = 'APPROVED', data_fim = :endDate WHERE id = :stageId")
-                        .bind("endDate", Timestamp(System.currentTimeMillis()))
-                        .bind("stageId", stageId)
-                        .execute()
+                    .bind("endDate", Timestamp(System.currentTimeMillis()))
+                    .bind("stageId", stageId)
+                    .execute()
 
                 return true
             }
@@ -196,12 +196,20 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return false
     }
 
-    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
+    override fun createStage(
+        processId: String,
+        index: Int,
+        name: String,
+        description: String,
+        mode: String,
+        responsible: List<String>,
+        duration: Int
+    ): String {
         val stageId = UUID.randomUUID().toString()
 
         handle.createUpdate(
-        "insert into etapa (id, id_processo, indice, modo, nome, descricao, prazo, estado) " +
-                "VALUES (:id, :id_processo, :idx, :modo, :name, :description, :prazo, 'PENDING')"
+            "insert into etapa (id, id_processo, indice, modo, nome, descricao, prazo, estado) " +
+                    "VALUES (:id, :id_processo, :idx, :modo, :name, :description, :prazo, 'PENDING')"
         )
             .bind("id", stageId)
             .bind("id_processo", processId)
@@ -214,15 +222,15 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         responsible.forEach { resp ->
             handle.createUpdate("insert into utilizador_etapa (email_utilizador, id_etapa) values (:email, :stageId)")
-                    .bind("email", resp)
-                    .bind("stageId", stageId)
-                    .execute()
+                .bind("email", resp)
+                .bind("stageId", stageId)
+                .execute()
         }
 
         return stageId
     }
 
-    override fun viewStages(processId : String): List<Stage> {
+    override fun viewStages(processId: String): List<Stage> {
         return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId order by indice")
             .bind("processId", processId)
             .mapTo(Stage::class.java)
@@ -247,14 +255,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
 
     /** --------------------------- Comments -------------------------------**/
-    override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
+    override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail: String): String {
         handle.createUpdate("INSERT INTO Comentario (id, id_etapa, data, texto, remetente) VALUES (:id, :stageId, :date, :text, :authorEmail)")
             .bind("id", id)
             .bind("stageId", stageId)
             .bind("date", date)
             .bind("text", text)
             .bind("authorEmail", authorEmail)
-          //  .bind("createdAt", now())
+            //  .bind("createdAt", now())
             .execute()
 
         return id

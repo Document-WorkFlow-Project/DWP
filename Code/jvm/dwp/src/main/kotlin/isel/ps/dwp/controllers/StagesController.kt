@@ -1,5 +1,6 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

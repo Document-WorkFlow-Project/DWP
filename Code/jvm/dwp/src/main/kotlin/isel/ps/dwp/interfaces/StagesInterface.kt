@@ -1,9 +1,6 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.Comment
-import isel.ps.dwp.model.Stage
-import isel.ps.dwp.model.StageInfo
-import isel.ps.dwp.model.UserDetails
+import isel.ps.dwp.model.*
 
 interface StagesInterface {
 
