@@ -5,10 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
-import isel.ps.dwp.model.Document
-import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.model.UserAuth
+import isel.ps.dwp.model.*
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
@@ -30,15 +27,15 @@ class ProcessServices(
         }
     }
 
-    override fun pendingProcesses(userEmail: String?): List<String> {
+    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
         return transactionManager.run {
-            it.processesRepository.pendingProcesses(userEmail)
+            it.processesRepository.pendingProcesses(userAuth, userEmail)
         }
     }
 
-    override fun finishedProcesses(userEmail: String?): List<String> {
+    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
         return transactionManager.run {
-            it.processesRepository.finishedProcesses(userEmail)
+            it.processesRepository.finishedProcesses(userAuth, userEmail)
         }
     }
 

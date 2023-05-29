@@ -9,6 +9,8 @@ import {useEffect, useState} from "react";
 import AuthService from "./Services/Users/auth.service";
 import Login from "./Components/LoginForm/login.component";
 import Profile from "./Components/Profile/profile.component";
+import { ProcessDetails } from "./Components/Processes/processDetails";
+import { StageDetails } from "./Components/Stages/stageDetails";
 
 export default function App() {
 
@@ -105,6 +107,8 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/processes" element={<Processes />} />
                 <Route path="/newprocess" element={<NewProcess />} />
+                <Route path="/process/:id" element={<ProcessDetails/>} />
+                <Route path="/stage/:id/:sign" element={<StageDetails/>} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/roles" element={<Roles />} />
                 <Route path="/admin" element={<Admin />} /> {/* Added admin route */}

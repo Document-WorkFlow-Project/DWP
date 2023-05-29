@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import processServices from "../../Services/Processes/process.service"
+import { Link } from "react-router-dom"
 
 
 export const Processes = () => {
@@ -17,10 +18,14 @@ export const Processes = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (selectedProccessType === "PENDING")
-                setProcesses(await processServices.pendingProcesses())
+            let processes
+            if (selectedProccessType === "PENDING") 
+                processes = await processServices.pendingProcesses()
             else if (selectedProccessType === "FINISHED")
-                setProcesses(await processServices.finishedProcesses())
+                processes = await processServices.finishedProcesses()
+        
+            if(Array.isArray(processes))
+                setProcesses(processes)
         }
         fetchData()
     }, [selectedProccessType])
@@ -33,7 +38,15 @@ export const Processes = () => {
                 {pendingTasks.length === 0 ?
                     <p>Nenhuma tarefa pendente</p>
                 :
-                    <p>{pendingTasks}</p>
+                    <div>
+                        {pendingTasks.map((stage, index) => {
+                            return (
+                                <p key={index}> 
+                                    <Link to={"/stage/" + stage.id + "/true"} >{stage.nome}</Link>
+                                </p>
+                            )
+                        })}
+                    </div>
                 }
             </div>
             <h2>Processos</h2>
@@ -42,10 +55,18 @@ export const Processes = () => {
                 <option value="FINISHED">Terminados</option>
             </select>
             <div>  
-                {pendingTasks.length === 0 ?
-                    <p>Nenhuma processo disponível</p>
+                {processes.length === 0 ?
+                    <p>Nenhum processo disponível</p>
                 :
-                    <p>{processes}</p>
+                    <div>
+                        {processes.map((process, index) => {
+                            return (
+                                <p key={index}> 
+                                    <Link to={"/process/" + process.id} >{process.nome}</Link>
+                                </p>
+                            )
+                        })}
+                    </div>
                 }
             </div>
         </div>

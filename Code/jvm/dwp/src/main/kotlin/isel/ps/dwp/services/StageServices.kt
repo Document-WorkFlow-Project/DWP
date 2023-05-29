@@ -132,9 +132,9 @@ class StageServices (
         }
     }
 
-    override fun pendingStages(userEmail: String?): List<StageInfo> {
+    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
         return transactionManager.run {
-            it.stagesRepository.pendingStages(userEmail)
+            it.stagesRepository.pendingStages(userAuth, userEmail)
         }
     }
 

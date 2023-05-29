@@ -78,7 +78,7 @@ data class EmailSchedule(
 
 data class StageInfo(
     val id: String,
-    val name: String
+    val nome: String
 )
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

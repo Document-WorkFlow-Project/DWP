@@ -33,8 +33,8 @@ class ProcessesController (
     }
 
     @GetMapping("/pending")
-    fun pendingProcesses(@RequestBody email: String?): ResponseEntity<*> {
-        val pending = processesServices.pendingProcesses(email)
+    fun pendingProcesses(@RequestBody email: String?, user: UserAuth): ResponseEntity<*> {
+        val pending = processesServices.pendingProcesses(user, email)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -42,8 +42,8 @@ class ProcessesController (
     }
 
     @GetMapping("/finished")
-    fun finishedProcesses(@RequestBody email: String?): ResponseEntity<*> {
-        val finished = processesServices.finishedProcesses(email)
+    fun finishedProcesses(@RequestBody email: String?, user: UserAuth): ResponseEntity<*> {
+        val finished = processesServices.finishedProcesses(user, email)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -149,4 +149,3 @@ class ProcessesController (
 }
 
 //TODO pending processes não funciona se fornecer email
-//TODO sign stage tem de distinguir quem assinou para não ficarem logo todas assinadas ou não falsificarem assinatura

@@ -2,6 +2,7 @@ package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.ProcessModel
 import isel.ps.dwp.model.UserAuth
 import org.springframework.web.multipart.MultipartFile
 
@@ -12,12 +13,12 @@ interface ProcessesInterface {
     /**
      * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)
      */
-    fun pendingProcesses(userEmail: String?): List<String>
+    fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel>
 
     /**
      * Obter lista de processos terminados (função de administrador ou utilizador associado ao processo)
      */
-    fun finishedProcesses(userEmail: String?): List<String>
+    fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel>
 
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)

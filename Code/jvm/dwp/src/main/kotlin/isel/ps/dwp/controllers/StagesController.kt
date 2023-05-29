@@ -38,9 +38,10 @@ class StagesController (
         return ResponseEntity.ok(stages)
     }
 
+    // Etapa pendentes que um responsável tem que assinar
     @GetMapping("/pending")
-    fun pendingStages(userEmail: String?): ResponseEntity<List<*>> {
-        val stages = stageServices.pendingStages(userEmail)
+    fun pendingStages(userEmail: String?, user: UserAuth): ResponseEntity<List<*>> {
+        val stages = stageServices.pendingStages(user, userEmail)
         return ResponseEntity.ok(stages)
     }
 

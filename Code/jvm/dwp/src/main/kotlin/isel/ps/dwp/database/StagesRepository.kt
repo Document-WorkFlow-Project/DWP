@@ -245,11 +245,14 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .list()
     }
 
-    override fun pendingStages(userEmail: String?): List<StageInfo> {
+    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+        val email = userEmail ?: userAuth.email
+        //TODO fix and dont fetch tasks from finished processes
         return handle.createQuery(
-            "SELECT id_etapa, nome FROM utilizador_etapa join etapa on id_etapa = id WHERE assinatura is null AND id_notificacao is not null AND email_utilizador = :email"
+            "SELECT e.id, e.nome FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
+                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and p.estado = 'PENDING')"
         )
-            .bind("email", userEmail)
+            .bind("email", email)
             .mapTo(StageInfo::class.java)
             .list()
     }

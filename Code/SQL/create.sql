@@ -49,9 +49,9 @@ CREATE TABLE IF NOT EXISTS Processo(
 CREATE TABLE IF NOT EXISTS Documento(
     id text PRIMARY KEY,
     nome text NOT NULL,
-    tipo varchar(32) NOT NULL,
+    tipo text NOT NULL,
     tamanho bigint NOT NULL,
-    localizacao varchar(100) NOT NULL
+    localizacao text NOT NULL
 );
 
 --Etapa(id,nome,descricao,data_inicio,data_fim,prazo,estado)

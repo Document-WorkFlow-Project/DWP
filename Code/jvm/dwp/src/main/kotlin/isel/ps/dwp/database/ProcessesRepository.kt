@@ -4,6 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.model.Process
+import isel.ps.dwp.model.ProcessModel
 import isel.ps.dwp.model.UserAuth
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
@@ -34,42 +35,42 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .list()
     }
 
-    override fun pendingProcesses(userEmail: String?): List<String> {
-        //TODO email must be provided unless user is admin
-        return if (userEmail != null) handle.createQuery(
-            "select id from processo where autor = :email and estado = 'PENDING' order by data_inicio"
+    // Retorna lista de processos pendentes do user que fez o pedido
+    // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
+    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
+        val email = userEmail ?: userAuth.email
+
+        return handle.createQuery(
+            "select id, nome from processo where autor = :email and estado = 'PENDING' order by data_inicio"
         )
-            .bind("email", userEmail)
-            .mapTo(String::class.java)
-            .list() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
-        else
-            handle.createQuery("select id from processo where estado = 'PENDING' order by data_inicio")
-            .mapTo(String::class.java)
+            .bind("email", email)
+            .mapTo(ProcessModel::class.java)
             .list()
+            .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
-    override fun finishedProcesses(userEmail: String?): List<String> {
-        //TODO email must be provided unless user is admin
-        return if (userEmail != null) handle.createQuery(
-            "select id from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim"
+    // Retorna lista de processos terminados do user que fez o pedido
+    // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
+    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
+        val email = userEmail ?: userAuth.email
+
+        return handle.createQuery(
+            "select id, nome from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim"
         )
-            .bind("email", userEmail)
-            .mapTo(String::class.java)
-            .list() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
-        else
-            handle.createQuery("select id from processo where estado = 'APPROVED' or estado = 'DISAPPROVED' order by data_fim")
-                .mapTo(String::class.java)
-                .list()
+            .bind("email", email)
+            .mapTo(ProcessModel::class.java)
+            .list()
+            .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
     override fun processStages(processId: String): List<String> {
-        val stages = handle.createQuery(
+        return handle.createQuery(
                 "select id from etapa where id_processo = :processId order by indice"
         )
             .bind("processId", processId)
             .mapTo(String::class.java)
             .list()
-        return stages.ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.") }
+            .ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.") }
     }
 
     override fun processDetails(processId: String): Process {

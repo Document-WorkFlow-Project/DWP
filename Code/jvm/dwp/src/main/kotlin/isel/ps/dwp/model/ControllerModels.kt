@@ -12,6 +12,8 @@ data class UserDetailsWithRoles(val email: String, val nome: String,  val roles 
 
 data class RoleModel(val name: String, val description: String)
 
+data class ProcessModel(val nome: String, val id: String)
+
 // TODO("Support Multiple Roles")
 data class UserAuth(
         val email: String,
