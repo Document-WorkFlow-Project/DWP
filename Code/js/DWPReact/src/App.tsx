@@ -1,16 +1,16 @@
-import { Routes, Route, Link } from "react-router-dom";
+import {Routes, Route, Link} from "react-router-dom";
 import Home from "./Components/Home/home.component";
 import Templates from "./Components/Templates/templates.component";
-import { NewProcess } from "./Components/Processes/newProcess";
-import { Processes } from "./Components/Processes/processes";
-import { Roles } from "./Components/Roles/roles.component";
+import {NewProcess} from "./Components/Processes/newProcess";
+import {Processes} from "./Components/Processes/processes";
+import {Roles} from "./Components/Roles/roles.component";
 import "./App.css";
 import {useEffect, useState} from "react";
 import AuthService from "./Services/Users/auth.service";
 import Login from "./Components/LoginForm/login.component";
 import Profile from "./Components/Profile/profile.component";
-import { ProcessDetails } from "./Components/Processes/processDetails";
-import { StageDetails } from "./Components/Stages/stageDetails";
+import {ProcessDetails} from "./Components/Processes/processDetails";
+import {StageDetails} from "./Components/Stages/stageDetails";
 
 export default function App() {
 
@@ -38,11 +38,11 @@ export default function App() {
         const user = AuthService.getCurrentUserInfo();
 
         console.log(user)
-        if (user.email!=null) {
+        if (user.email != null) {
             setCurrentUser(user);
             //setShowAdminBoard(user.roles.includes("admin"));
         }
-    },[])
+    }, [])
 
     const toggleLogin = () => {
         setShowLogin(!showLogin);
@@ -51,27 +51,48 @@ export default function App() {
     return (
         <div>
             <div className="navbar-container">
+                <Link to={"/"} className="navbar-brand">
+                    Home
+                </Link>
                 <div className="navbar-login">
+                    {currentUser && (
+                        <Link to={"/processes"} className="navbar-brand">
+                            Processos
+                        </Link>
+                    )}
+                    {currentUser && currentUser.roles.includes("admin") && (
+                        <div>
+                            <Link to={"/templates"} className="navbar-brand">
+                                Templates
+                            </Link>
+                            <Link to={"/roles"} className="navbar-brand">
+                                Papéis
+                            </Link>
+                        </div>
+
+                    )}
                     {currentUser ? (
-                        <div className="navbar-nav ml-auto">
-                            <li className="nav-item">
-                                <Link to={"/profile"} className="nav-link">
-                                    {currentUser.username}
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <a href="/" className="nav-link" onClick={() => AuthService.logout()}>
-                                    Logout
+                        <div className="navbar-login-right">
+                            <div className="navbar-profile">
+                                <a className="nav-item">
+                                    <Link to={"/profile"} className="nav-link">
+                                        {currentUser.nome}
+                                    </Link>
                                 </a>
-                            </li>
+                                <a className="nav-item">
+                                    <button className="loginicon" onClick={async () => await AuthService.logout()}>
+                                        Logout
+                                    </button>
+                                </a>
+                            </div>
                         </div>
                     ) : (
-                        <div className="navbar-nav ml-auto">
-                            <li className="nav-item">
+                        <div className="navbar-nav">
+                            <a className="nav-item">
                                 <button className="loginicon" onClick={toggleLogin}>
                                     Login
                                 </button>
-                            </li>
+                            </a>
                         </div>
                     )}
                     {showLogin && (
@@ -80,38 +101,21 @@ export default function App() {
                                 <button className="close-button" onClick={toggleLogin}>
                                     X
                                 </button>
-                                <Login />
+                                <Login/>
                             </div>
                         </div>
                     )}
                 </div>
-                <Link to={"/"} className="navbar-brand">
-                    Home
-                </Link>
-                <Link to={"/processes"} className="navbar-brand">
-                    Processos
-                </Link>
-                <Link to={"/templates"} className="navbar-brand">
-                    Templates
-                </Link>
-                <Link to={"/roles"} className="navbar-brand">
-                    Papéis
-                </Link>
-                {currentUser && currentUser.roles=="ROLE_ADMIN" && (
-                    <Link to={"/admin"} className="navbar-brand">
-                        Administrador
-                    </Link>
-                )}
             </div>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/processes" element={<Processes />} />
-                <Route path="/newprocess" element={<NewProcess />} />
-                <Route path="/process/:id" element={<ProcessDetails/>} />
-                <Route path="/stage/:id/:sign" element={<StageDetails/>} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/roles" element={<Roles />} />
-                <Route path="/admin" element={<Admin />} /> {/* Added admin route */}
+                <Route path="/" element={<Home/>}/>
+                <Route path="/processes" element={<Processes/>}/>
+                <Route path="/newprocess" element={<NewProcess/>}/>
+                <Route path="/process/:id" element={<ProcessDetails/>}/>
+                <Route path="/stage/:id/:sign" element={<StageDetails/>}/>
+                <Route path="/templates" element={<Templates/>}/>
+                <Route path="/roles" element={<Roles/>}/>
+                <Route path="/admin" element={<Admin/>}/> {/* Added admin route */}
                 <Route path="/profile" element={<Profile/>}/>
             </Routes>
 
@@ -120,5 +124,7 @@ export default function App() {
 }
 
 function Admin() {
-    return <h1>Admin Page</h1>; {/* Sample content for the admin route */}
+    return <h1>Admin Page</h1>;
+    {/* Sample content for the admin route */
+    }
 }

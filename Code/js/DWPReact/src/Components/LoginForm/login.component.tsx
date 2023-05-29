@@ -60,7 +60,7 @@ const Login = () => {
         setPassword(password);
     };
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
         setMessage("");
@@ -73,9 +73,8 @@ const Login = () => {
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
-            AuthService.login(email, password).then(
+            await AuthService.login(email, password).then(
                 () => {
-                    navigate("/profile");
                     window.location.reload();
                 },
                 (error) => {

@@ -14,7 +14,7 @@
 /* Navbar styles */
 .navbar-container {
     background-color: #f1f1f1;
-    padding: 10px;
+    padding: 10px 0; /* Adjusted padding */
     display: flex;
     justify-content: space-between;
 }
@@ -23,12 +23,18 @@
     color: #333;
     text-decoration: none;
     padding: 10px;
+    margin-right: 10px; /* Added margin-right */
 }
 
 .navbar-login {
     display: flex;
     align-items: center;
 }
+
+.navbar-login-right {
+    margin-left: auto; /* Added margin-left:auto to push the content to the right */
+}
+
 
 .navbar-login button {
     background-color: transparent;
@@ -37,6 +43,13 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+.navbar-profile {
+    display: flex;
+    align-items: center;
+    margin-left: 10px; /* Added margin-left for spacing */
+}
+
 
 /* Popup styles */
 .popup-container {
