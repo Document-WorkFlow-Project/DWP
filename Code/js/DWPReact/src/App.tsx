@@ -35,8 +35,8 @@ export default function App() {
          */
         const user = AuthService.getCurrentUserInfo();
 
-
-        if (user) {
+        console.log(user)
+        if (user.email!=null) {
             setCurrentUser(user);
             //setShowAdminBoard(user.roles.includes("admin"));
         }
