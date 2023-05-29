@@ -5,19 +5,26 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.sql.Timestamp
 import java.util.*
 
-data class User (
+data class User(
     val email: String,
     val nome: String,
     val authToken: String,
     val pass: String
 )
 
-data class Role (
+
+// TODO("Suppot Multiple Roles")
+data class UserAuth(
+    val email: String,
+    val role: String
+)
+
+data class Role(
     val nome: String,
     val descricao: String
 )
 
-data class Process (
+data class Process(
     val id: String,
     val nome: String,
     val descricao: String,
@@ -28,7 +35,7 @@ data class Process (
     val data_fim: Timestamp?    // date of conclusion
 )
 
-data class Stage (
+data class Stage(
     val id: String,
     val id_processo: String,
     val indice: Int,
@@ -41,7 +48,7 @@ data class Stage (
     val prazo: Int        // stage duration in days
 )
 
-data class Comment (
+data class Comment(
     val id: String,
     val id_etapa: String,
     val data: Timestamp,
@@ -50,7 +57,7 @@ data class Comment (
 )
 
 // Representação de um documento guardado na base de dados
-data class Document (
+data class Document(
     val id: String,
     val nome: String,
     val tipo: String,
@@ -59,24 +66,24 @@ data class Document (
 )
 
 // Representação de um template guardado na base de dados
-data class Template (
+data class Template(
     val nome: String,
     val descricao: String,
     val path: String
 )
 
-data class EmailDetails (
+data class EmailDetails(
     val recipient: String,
     val msgBody: String,
     val subject: String
 )
 
-data class EmailSchedule (
+data class EmailSchedule(
     val email: EmailDetails,
     val period: Long
 )
 
-data class StageInfo (
+data class StageInfo(
     val id: String,
     val name: String
 )

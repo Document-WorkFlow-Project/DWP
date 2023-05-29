@@ -1,6 +1,8 @@
 package isel.ps.dwp
 
 import isel.ps.dwp.database.jdbi.configure
+import isel.ps.dwp.http.pipeline.AuthenticationInterceptor
+import isel.ps.dwp.http.pipeline.UserArgumentResolver
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.services.NotificationServices
 import org.jdbi.v3.core.Jdbi
@@ -13,6 +15,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -50,29 +55,26 @@ class DwpApplication {
 
 }
 
+@Configuration
+class PipelineConfigurer(
+    val authenticationInterceptor: AuthenticationInterceptor,
+    val userArgumentResolver: UserArgumentResolver,
+) : WebMvcConfigurer {
 
-//@Configuration
-//class PipelineConfigurer(
-//    val authenticationInterceptor: AuthenticationInterceptor,
-//    val userArgumentResolver: UserArgumentResolver,
-//) : WebMvcConfigurer {
-//
-//    override fun addInterceptors(registry: InterceptorRegistry) {
-//        registry
-//            .addInterceptor(authenticationInterceptor)
-//            .addPathPatterns("/docs/**")
-//            .addPathPatterns("/processes/**")
-//            .addPathPatterns("/roles/**")
-//            .addPathPatterns("/stages/**")
-//            .addPathPatterns("/templates/**")
-//    }
-//
-//
-//
-//    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-//        resolvers.add(userArgumentResolver)
-//    }
-//}
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry
+            .addInterceptor(authenticationInterceptor)
+            .addPathPatterns("/docs/**")
+            .addPathPatterns("/processes/**")
+            .addPathPatterns("/roles/**")
+            .addPathPatterns("/stages/**")
+            .addPathPatterns("/templates/**")
+    }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(userArgumentResolver)
+    }
+}
 
 fun main(args: Array<String>) {
     runApplication<DwpApplication>(*args)
