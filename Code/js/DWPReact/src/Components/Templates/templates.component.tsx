@@ -4,9 +4,10 @@ import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
 import processServices from "../../Services/Processes/process.service"
-import {NewStageModal, TemplateDetailsModal} from "./templateModals"
+import { NewStageModal, TemplateDetailsModal } from "./templateModals"
 import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
+import { TemplateUsersModal } from "./templateUsersModal"
 
 // TODO adicionar controlo de permissões de acesso a templates
 
@@ -37,11 +38,15 @@ export default function Templates() {
   const [stageError, setStageError] = useState(null)
 
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showUsersModal, setShowUsersModal] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
-      setAvailableTemplates(await processServices.availableTemplates())
-      setRoleGroups(await rolesService.availableRoles())
+      const templates = await processServices.availableTemplates()
+      if(Array.isArray(templates))
+        setAvailableTemplates(templates)
+
+      setRoleGroups(await rolesService.availableRoles())     
       setUsers(await usersService.usersList())
     }
     fetchData()
@@ -151,6 +156,7 @@ export default function Templates() {
                   {templateOptions()}
               </select>
               <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
+              <button onClick={() => {setShowUsersModal(true)}}>Utilizadores</button>
               <button onClick={() => {
                   processServices.deleteTemplate(selectedTemplate)
                   setAvailableTemplates(available => available.filter(name => name !== selectedTemplate))
@@ -200,6 +206,15 @@ export default function Templates() {
         </Droppable>
       </DragDropContext>
       
+      <div>
+        {showUsersModal && createPortal(
+          <TemplateUsersModal 
+            onClose={() => setShowUsersModal(false)}
+            selectedTemplate={selectedTemplate}
+          />,
+          document.body
+        )}
+      </div>
       <div>
         {showDetailsModal && createPortal(
           <TemplateDetailsModal 

@@ -21,8 +21,10 @@ class UserServices(
     @Qualifier("notificationsService")
     lateinit var notificationServices: NotificationsServicesInterface
 
-    override fun checkBearerToken(bearerToken: String): UserAuth? = transactionManager.run {
-        it.usersRepository.checkBearerToken(bearerToken)
+    override fun checkBearerToken(bearerToken: String): UserAuth {
+        return transactionManager.run {
+            it.usersRepository.checkBearerToken(bearerToken)
+        }
     }
 
     override fun usersList(): List<String> {
@@ -97,9 +99,9 @@ class UserServices(
         }
     }
 
-    override fun checkUser(email: String): User? {
+    override fun checkUser(email: String): User {
         return transactionManager.run {
             it.usersRepository.checkUser(email)
-        } ?: throw ExceptionControllerAdvice.UserNotFound("User not found. Incorrect email.")
+        }
     }
 }

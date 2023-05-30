@@ -37,8 +37,7 @@ class AuthorizationHeaderProcessor(
             cookies[name] = value
         }
         val tokenCookie = cookies["token"] ?: return null
-        val userAuth = usersService.checkBearerToken(tokenCookie)?: return null
-        return userAuth
+        return usersService.checkBearerToken(tokenCookie)
     }
 
     companion object {

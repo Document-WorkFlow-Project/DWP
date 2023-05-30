@@ -1,5 +1,6 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -13,11 +14,11 @@ class TemplatesController (
 ) {
 
     @GetMapping
-    fun availableTemplates(): ResponseEntity<*> {
+    fun availableTemplates(user: UserAuth): ResponseEntity<*> {
         return ResponseEntity
                 .status(200)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(templatesServices.availableTemplates())
+                .body(templatesServices.availableTemplates(user))
     }
 
     @PostMapping
@@ -27,6 +28,14 @@ class TemplatesController (
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
             .body("Template $name criado.")
+    }
+
+    @GetMapping("/{templateName}/users")
+    fun templateUsers(@PathVariable templateName: String): ResponseEntity<*> {
+        return ResponseEntity
+                .status(200)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(templatesServices.templateUsers(templateName))
     }
 
     @PutMapping("/{templateName}/{email}")
@@ -63,12 +72,5 @@ class TemplatesController (
             .contentType(MediaType.APPLICATION_JSON)
             .body("Template $templateName deleted")
     }
-
-    /* TODO create process should do this
-    @PostMapping("/{json}")
-    fun insertDataFromTemplate(@RequestBody template: ProcessTemplate){
-        val result = templatesServices.insertDataFromTemplate(template)
-    }
-     */
 
 }

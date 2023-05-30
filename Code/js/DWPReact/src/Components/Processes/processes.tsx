@@ -11,7 +11,9 @@ export const Processes = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            setPendingTasks(await processServices.pendingStages())
+            const tasks = await processServices.pendingStages()
+            if(Array.isArray(tasks))
+                setPendingTasks(tasks)
         }
         fetchData()
     }, [])

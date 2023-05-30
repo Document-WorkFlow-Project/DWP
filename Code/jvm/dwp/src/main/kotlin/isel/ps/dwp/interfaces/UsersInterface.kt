@@ -6,7 +6,7 @@ import isel.ps.dwp.model.UserDetailsWithRoles
 
 interface UsersInterface {
 
-    fun checkBearerToken(bearerToken: String): UserAuth?
+    fun checkBearerToken(bearerToken: String): UserAuth
 
     fun usersList(): List<String>
 
@@ -26,5 +26,5 @@ interface UsersInterface {
      * Atualizar perfil (nome, email, password) (função de administrador ou utilizador associado)
      */
     fun updateProfile(email: String, hashPassword: String, newPass: String)
-    fun checkUser(email: String): User?
+    fun checkUser(email: String): User
 }

@@ -3,6 +3,7 @@ package isel.ps.dwp.services
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.TemplatesInterface
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.templatesFolderPath
 import isel.ps.dwp.utils.deleteFromFilesystem
 import isel.ps.dwp.utils.saveInFilesystem
@@ -15,9 +16,15 @@ import java.nio.file.Paths
 @Service
 class TemplatesServices(private val transactionManager: TransactionManager): TemplatesInterface {
 
-    override fun availableTemplates(): List<String> {
+    override fun availableTemplates(user: UserAuth): List<String> {
         return transactionManager.run {
-            it.templatesRepository.availableTemplates()
+            it.templatesRepository.availableTemplates(user)
+        }
+    }
+
+    override fun templateUsers(templateName: String): List<String> {
+        return transactionManager.run {
+            it.templatesRepository.templateUsers(templateName)
         }
     }
 
@@ -41,6 +48,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
+            it.usersRepository.checkUser(email)
             it.templatesRepository.addUsersToTemplate(templateName, email)
         }
     }
@@ -52,11 +60,11 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
+            it.usersRepository.checkUser(email)
             it.templatesRepository.removeUserFromTemplate(templateName, email)
         }
     }
 
-    //TODO verificar se user tem acesso ao template
     fun getTemplate(templateName: String): ByteArray {
         val templateDetails = transactionManager.run {
             it.templatesRepository.templateDetails(templateName)

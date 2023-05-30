@@ -74,16 +74,12 @@ export default function App() {
                     {currentUser ? (
                         <div className="navbar-login-right">
                             <div className="navbar-profile">
-                                <a className="nav-item">
-                                    <Link to={"/profile"} className="nav-link">
-                                        {currentUser.nome}
-                                    </Link>
-                                </a>
-                                <a className="nav-item">
-                                    <button className="loginicon" onClick={async () => await AuthService.logout()}>
-                                        Logout
-                                    </button>
-                                </a>
+                                <Link to={"/profile"} className="nav-link">
+                                    {currentUser.nome}
+                                </Link>
+                                <button className="loginicon" onClick={async () => await AuthService.logout()}>
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     ) : (
@@ -112,7 +108,7 @@ export default function App() {
                 <Route path="/processes" element={<Processes/>}/>
                 <Route path="/newprocess" element={<NewProcess/>}/>
                 <Route path="/process/:id" element={<ProcessDetails/>}/>
-                <Route path="/stage/:id/:sign" element={<StageDetails/>}/>
+                <Route path="/stage/:id" element={<StageDetails/>}/>
                 <Route path="/templates" element={<Templates/>}/>
                 <Route path="/roles" element={<Roles/>}/>
                 <Route path="/admin" element={<Admin/>}/> {/* Added admin route */}

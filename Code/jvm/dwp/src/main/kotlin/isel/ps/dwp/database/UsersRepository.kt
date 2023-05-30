@@ -12,11 +12,11 @@ import java.util.*
 
 class UsersRepository(private val handle: Handle) : UsersInterface {
 
-    override fun checkUser(email: String): User? {
+    override fun checkUser(email: String): User {
         return handle.createQuery("SELECT * FROM utilizador WHERE email = :email")
             .bind("email", email)
             .mapTo(User::class.java)
-            .singleOrNull()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
     }
 
     override fun usersList(): List<String> {
@@ -25,19 +25,18 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .list()
     }
 
-    // TODO("Suppot Multiple Roles")
-    override fun checkBearerToken(bearerToken: String): UserAuth? {
+    // TODO("Support Multiple Roles")
+    override fun checkBearerToken(bearerToken: String): UserAuth {
         val email = handle.createQuery("select email from utilizador where authtoken = :token")
             .bind("token", bearerToken)
             .mapTo(String::class.java)
-            .singleOrNull()
+            .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
 
         val role = handle.createQuery("select papel from Utilizador_Papel where email_utilizador = :email")
             .bind("email", email)
             .mapTo(String::class.java)
-            .singleOrNull()
-        if (email == null) return null
-        return UserAuth(email, role!!)
+            .list()
+        return UserAuth(email, role)
     }
 
     override fun login(email: String, password: String): String {

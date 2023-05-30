@@ -4,7 +4,7 @@ import { useParams } from 'react-router';
 
 export const StageDetails = () => {
     
-    const { id, sign } = useParams();
+    const { id } = useParams();
     const [stageDetails, setStageDetails] = useState({})
 
     useEffect(() => {

@@ -147,5 +147,3 @@ class ProcessesController (
     }
 
 }
-
-//TODO pending processes não funciona se fornecer email

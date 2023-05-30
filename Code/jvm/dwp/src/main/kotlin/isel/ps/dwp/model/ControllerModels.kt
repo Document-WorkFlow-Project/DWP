@@ -17,5 +17,5 @@ data class ProcessModel(val nome: String, val id: String)
 // TODO("Support Multiple Roles")
 data class UserAuth(
         val email: String,
-        val role: String
+        val role: List<String>
 )

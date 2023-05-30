@@ -33,6 +33,37 @@ class TemplatesService {
             console.log(error)
         }
     }
+
+    async templateUsers(templateName) {
+        try {
+            const response = await axios.get(`${API_URL}/templates/${templateName}/users`, {withCredentials: true})
+            console.log(response.data)
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    async addUserToTemplate(templateName, user) {
+        try {
+            const response = await axios.put(`${API_URL}/templates/${templateName}/${user}`, {withCredentials: true})
+            console.log(response.data)
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    async removeUSerFromTemplate(templateName, user) {
+        try {
+            const response = await axios.delete(`${API_URL}/templates/${templateName}/${user}`, {withCredentials: true})
+            console.log(response.data)
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
     
     async saveTemplate(formData) {
         try {

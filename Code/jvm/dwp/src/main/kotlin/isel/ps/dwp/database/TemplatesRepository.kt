@@ -3,6 +3,7 @@ package isel.ps.dwp.database
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.TemplatesInterface
 import isel.ps.dwp.model.Template
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
@@ -18,14 +19,20 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template $templateName not found.")
     }
 
-    override fun availableTemplates(): List<String> {
-        //TODO get email from accessing user, and return available templates to this user
-
-        return handle.createQuery(
-                "select nome from template_processo"
-        )
+    override fun availableTemplates(user: UserAuth): List<String> {
+        return handle.createQuery("select nome_template from acesso_template where utilizador = :email")
+                .bind("email", user.email)
                 .mapTo(String::class.java)
                 .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
+    }
+
+    override fun templateUsers(templateName: String): List<String> {
+        return handle.createQuery(
+                "select email from acesso_template at join utilizador u on u.email = at.utilizador where nome_template = :templateName"
+        )
+                .bind("templateName", templateName)
+                .mapTo(String::class.java)
+                .list()
     }
 
     override fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String {
