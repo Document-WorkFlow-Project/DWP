@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import processServices from "../../Services/Processes/process.service"
+import processServices from "../../Services/process.service"
 import { Link } from "react-router-dom"
 
 
@@ -44,7 +44,7 @@ export const Processes = () => {
                         {pendingTasks.map((stage, index) => {
                             return (
                                 <p key={index}> 
-                                    <Link to={"/stage/" + stage.id + "/true"} >{stage.nome}</Link>
+                                    <Link to={"/stage/" + stage.id} >{stage.nome}</Link>
                                 </p>
                             )
                         })}

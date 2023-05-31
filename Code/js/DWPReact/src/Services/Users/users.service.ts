@@ -1,11 +1,10 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api/users'
+import { API_URL } from '../../utils';
 
 class UsersService {
     async usersList() {
         try {
-            const response = await axios.get(API_URL, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/users`, {withCredentials: true})
             return response.data
         }
         catch (error) {

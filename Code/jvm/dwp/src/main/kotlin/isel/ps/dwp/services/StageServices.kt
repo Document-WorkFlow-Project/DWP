@@ -122,16 +122,6 @@ class StageServices (
         }
     }
 
-    override fun viewStages(processId: String): List<Stage> {
-        transactionManager.run {
-            it.processesRepository.checkProcess(processId)
-        }
-
-        return transactionManager.run {
-            it.stagesRepository.viewStages(processId)
-        }
-    }
-
     override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
         return transactionManager.run {
             it.stagesRepository.pendingStages(userAuth, userEmail)
@@ -140,19 +130,17 @@ class StageServices (
 
     /** --------------------------- Comments -------------------------------**/
 
-    override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String {
-        userServices.checkUser(authorEmail)
+    override fun addComment(stageId: String, comment: String, user: UserAuth): String {
+        userServices.checkUser(user.email)
 
-        if (date.isBlank())
-            throw ExceptionControllerAdvice.ParameterIsBlank("date can't be blank.")
-        if (text.isBlank())
+        if (comment.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("text can't be blank.")
-        if (text.length > 150)
+        if (comment.length > 150)
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
             it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.addComment(id,stageId,date,text,authorEmail)
+            it.stagesRepository.addComment(stageId, comment, user)
         }
     }
 

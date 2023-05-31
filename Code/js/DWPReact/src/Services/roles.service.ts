@@ -1,12 +1,11 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api/roles'
+import { API_URL } from '../utils';
 
 class RolesService {
 
     async availableRoles() {
         try {
-            const response = await axios.get(API_URL, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/roles`, {withCredentials: true})
             return response.data
         }
         catch (error) {
@@ -16,7 +15,7 @@ class RolesService {
 
     async saveRole(role) {
         try {
-            const response = await axios.post(API_URL, role, {withCredentials: true})
+            const response = await axios.post(`${API_URL}/roles`, role, {withCredentials: true})
             console.log(response.data)
             window.location.href = "/roles"
         }
@@ -27,7 +26,7 @@ class RolesService {
 
     async deleteRole(roleName) {
         try {
-            const response = await axios.delete(API_URL + "/" + roleName, {withCredentials: true})
+            const response = await axios.delete(`${API_URL}/roles/${roleName}`, {withCredentials: true})
             console.log(response.data)
             window.location.href = "/roles"
         }
@@ -38,7 +37,7 @@ class RolesService {
 
     async roleDetails(roleName) {
         try {
-            const response = await axios.get(API_URL + "/" + roleName, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/roles/${roleName}`, {withCredentials: true})
             return response.data
         }
         catch (error) {
@@ -48,7 +47,7 @@ class RolesService {
 
     async roleUsers(roleName) {
         try {
-            const response = await axios.get(API_URL + `/${roleName}/users`, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/roles/${roleName}/users`, {withCredentials: true})
             return response.data
         }
         catch (error) {
@@ -58,8 +57,9 @@ class RolesService {
 
     async addRoleToUSer(roleName, email) {
         try {
-            const response = await axios.put(API_URL + `/${roleName}/${email}`, {withCredentials: true})
-            return response.data
+            const response = await axios.put(`${API_URL}/${roleName}/${email}`, {withCredentials: true})
+            console.log(response.data)
+            return response
         }
         catch (error) {
             console.log(error)
@@ -68,8 +68,8 @@ class RolesService {
 
     async removeRoleFromUser(roleName, email) {
         try {
-            const response = await axios.delete(API_URL + `/${roleName}/${email}`, {withCredentials: true})
-            return response.data
+            const response = await axios.delete(`${API_URL}/${roleName}/${email}`, {withCredentials: true})
+            return response
         }
         catch (error) {
             console.log(error)

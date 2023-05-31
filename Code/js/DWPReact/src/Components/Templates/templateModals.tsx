@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import processServices from "../../Services/Processes/process.service"
+import templatesService from "../../Services/templates.service"
 
 export function NewStageModal({ 
     onClose, 
@@ -137,7 +137,7 @@ export function TemplateDetailsModal({onClose, selectedTemplate}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const template = await processServices.getTemplate(selectedTemplate);
+            const template = await templatesService.getTemplate(selectedTemplate);
             setTemplateDetails(template)
         }
         fetchData()

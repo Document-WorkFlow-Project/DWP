@@ -1,7 +1,5 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import AuthService from "../../Services/Users/auth.service";
-import processServices from "../../Services/Processes/process.service";
-
 
 const Profile =  () => {
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
-import rolesService from "../../Services/Roles/roles.service"
+import rolesService from "../../Services/roles.service"
 import usersService from "../../Services/Users/users.service"
 
 export function RoleUsersModal({
     onClose,
     selectedRole
 }) {
+
+    //TODO impedir que um admin se remova a si próprio
 
     const [roleUsers, setRoleUsers] = useState([])
     const [availableUsers, setAvailableUsers] = useState([])
@@ -26,15 +28,19 @@ export function RoleUsersModal({
     const filteredUsers = availableUsers.filter(item => item.toLowerCase().includes(searchInput.toLowerCase()))
 
     const removeUserFromRole = async (user) => {
-        await rolesService.removeRoleFromUser(selectedRole, user)
-        setRoleUsers(roleUsers.filter(email => email !== user))
-        setAvailableUsers((prevUsers) => [...prevUsers, user])
+        const res = await rolesService.removeRoleFromUser(selectedRole, user)
+        if (res.status === 201) {
+            setRoleUsers(roleUsers.filter(email => email !== user))
+            setAvailableUsers((prevUsers) => [...prevUsers, user])
+        }
     }
 
     const addUserToRole = async (user) => {
-        await rolesService.addRoleToUSer(selectedRole, user)
-        setRoleUsers((prevUsers) => [...prevUsers, user])
-        setAvailableUsers(availableUsers.filter(email => email !== user))
+        const res = await rolesService.addRoleToUSer(selectedRole, user)
+        if (res.status === 201) {
+            setRoleUsers((prevUsers) => [...prevUsers, user])
+            setAvailableUsers(availableUsers.filter(email => email !== user))
+        }
     }
 
     return (

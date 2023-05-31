@@ -56,8 +56,6 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
         }
     }
 
-    //TODO quando é adicionado um admin, este deve ter acesso a todos os templates (atualizar acesso_template)
-    // verificar login e se user é admin
     override fun addRoleToUser(roleName: String, userEmail: String) {
         if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")

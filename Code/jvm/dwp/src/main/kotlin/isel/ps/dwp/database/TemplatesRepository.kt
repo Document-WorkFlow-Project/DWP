@@ -20,10 +20,16 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
     }
 
     override fun availableTemplates(user: UserAuth): List<String> {
-        return handle.createQuery("select nome_template from acesso_template where utilizador = :email")
-                .bind("email", user.email)
-                .mapTo(String::class.java)
-                .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
+        // Admin has access to all templates
+        return if (user.roles.contains("admin"))
+            handle.createQuery("select nome from template_processo")
+                    .mapTo(String::class.java)
+                    .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
+        else
+            handle.createQuery("select nome_template from acesso_template where utilizador = :email")
+                    .bind("email", user.email)
+                    .mapTo(String::class.java)
+                    .list() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Não existem templates disponiveis.")
     }
 
     override fun templateUsers(templateName: String): List<String> {
@@ -56,6 +62,7 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
     }
 
     fun templateDetails(templateName: String): Template {
+        //TODO ver se user que fez pedido tem acesso ao template
         return handle.createQuery("select * from template_processo where nome = :name")
                 .bind("name", templateName)
                 .mapTo(Template::class.java)

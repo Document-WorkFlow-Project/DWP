@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom'
 import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
-import processServices from "../../Services/Processes/process.service"
+import templatesService from "../../Services/templates.service";
 import { NewStageModal, TemplateDetailsModal } from "./templateModals"
-import rolesService from "../../Services/Roles/roles.service";
+import rolesService from "../../Services/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 
@@ -42,7 +42,7 @@ export default function Templates() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const templates = await processServices.availableTemplates()
+      const templates = await templatesService.availableTemplates()
       if(Array.isArray(templates))
         setAvailableTemplates(templates)
 
@@ -131,7 +131,7 @@ export default function Templates() {
     formData.append('description', templateDescription)
     formData.append('file', jsonBlob, template.name + ".json")
 
-    processServices.saveTemplate(formData)
+    templatesService.saveTemplate(formData)
   }
 
   function handleOnDragEnd(result) {
@@ -158,7 +158,7 @@ export default function Templates() {
               <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
               <button onClick={() => {setShowUsersModal(true)}}>Utilizadores</button>
               <button onClick={() => {
-                  processServices.deleteTemplate(selectedTemplate)
+                  templatesService.deleteTemplate(selectedTemplate)
                   setAvailableTemplates(available => available.filter(name => name !== selectedTemplate))
                 }}>Apagar template</button>
             </div>

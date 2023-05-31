@@ -8,8 +8,6 @@ interface StagesInterface {
 
     fun startNextPendingStage(stageId: String): String?
 
-    fun viewStages(processId : String): List<Stage>
-
     /**
      * Os responsáveis pela etapa devem assinar para o workflow avançar (true para aprovação e false para reprovação)
      * Se a etapa for reprovada, o processo é terminado
@@ -34,7 +32,7 @@ interface StagesInterface {
     /**
      * Adicionar comentário (função de administrador ou utilizador associado ao processo)
      */
-    fun addComment(id: String, stageId: String, date: String, text: String, authorEmail : String): String
+    fun addComment(stageId: String, comment: String, user: UserAuth): String
 
     /**
      * Remover comentário (função de administrador ou utilizador associado ao comentário)

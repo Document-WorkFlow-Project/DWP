@@ -238,13 +238,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return stageId
     }
 
-    override fun viewStages(processId: String): List<Stage> {
-        return handle.createQuery("SELECT * FROM etapa WHERE id_processo = :processId order by indice")
-            .bind("processId", processId)
-            .mapTo(Stage::class.java)
-            .list()
-    }
-
     override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
         val email = userEmail ?: userAuth.email
 
@@ -266,27 +259,28 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
 
     /** --------------------------- Comments -------------------------------**/
-    override fun addComment(id: String, stageId: String, date: String, text: String, authorEmail: String): String {
+    override fun addComment(stageId: String, comment: String, user: UserAuth): String {
+        val commentId = UUID.randomUUID().toString()
+
         handle.createUpdate("INSERT INTO Comentario (id, id_etapa, data, texto, remetente) VALUES (:id, :stageId, :date, :text, :authorEmail)")
-            .bind("id", id)
+            .bind("id", commentId)
             .bind("stageId", stageId)
-            .bind("date", date)
-            .bind("text", text)
-            .bind("authorEmail", authorEmail)
-            //  .bind("createdAt", now())
+            .bind("date", Timestamp(System.currentTimeMillis()))
+            .bind("text", comment)
+            .bind("authorEmail", user.email)
             .execute()
 
-        return id
+        return commentId
     }
 
     override fun deleteComment(commentId: String) {
         handle.createUpdate("DELETE FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
-
+            .execute()
     }
 
     override fun stageComments(stageId: String): List<Comment> {
-        return handle.createQuery("SELECT * FROM Comentario WHERE id_etapa = :stageId")
+        return handle.createQuery("SELECT * FROM Comentario WHERE id_etapa = :stageId order by data desc")
             .bind("stageId", stageId)
             .mapTo(Comment::class.java)
             .list()
@@ -299,7 +293,6 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
             .mapTo(Comment::class.java)
-            .list()
             .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comentário não encontrado.")
     }
 

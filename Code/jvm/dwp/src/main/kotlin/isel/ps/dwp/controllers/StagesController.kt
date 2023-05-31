@@ -1,5 +1,7 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.model.Comment
+import isel.ps.dwp.model.NewComment
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
@@ -32,12 +34,6 @@ class StagesController (
             .body("A Etapa foi aprovada=$approve com sucesso")
     }
 
-    @GetMapping("/{processId}")
-    fun viewStages(@PathVariable processId: String): ResponseEntity<List<*>> {
-        val stages = stageServices.viewStages(processId)
-        return ResponseEntity.ok(stages)
-    }
-
     // Etapa pendentes que um responsável tem que assinar
     @GetMapping("/pending")
     fun pendingStages(userEmail: String?, user: UserAuth): ResponseEntity<List<*>> {
@@ -51,15 +47,23 @@ class StagesController (
         return ResponseEntity.ok(users)
     }
 
+    /**
+     * --------------- Comments --------------------------
+     */
+
+    @GetMapping("/{stageId}/comments")
+    fun stageComments(@PathVariable stageId: String): ResponseEntity<List<Comment>> {
+        val comments = stageServices.stageComments(stageId)
+        return ResponseEntity.ok(comments)
+    }
+
     @PostMapping("/{stageId}/comments")
     fun addComment(
         @PathVariable stageId: String,
-        @RequestParam id: String,
-        @RequestParam date: String,
-        @RequestParam text: String,
-        @RequestParam authorEmail: String
+        @RequestBody comment: NewComment,
+        user: UserAuth
     ): ResponseEntity<Void> {
-        stageServices.addComment(id, stageId, date, text, authorEmail)
+        stageServices.addComment(stageId, comment.text, user)
         return ResponseEntity(HttpStatus.CREATED)
     }
 

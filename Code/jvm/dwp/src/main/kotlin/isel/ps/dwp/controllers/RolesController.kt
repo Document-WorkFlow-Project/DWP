@@ -70,7 +70,7 @@ class RolesController(
     fun removeRoleFromUser(@PathVariable roleName: String, @PathVariable userEmail: String): ResponseEntity<*> {
         val res = roleServices.removeRoleFromUser(roleName, userEmail)
         return ResponseEntity
-            .status(200)
+            .status(201)
             .contentType(MediaType.APPLICATION_JSON)
             .body(res)
     }

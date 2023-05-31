@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import rolesService from "../../Services/Roles/roles.service"
+import rolesService from "../../Services/roles.service"
 import { createPortal } from 'react-dom'
 import { RoleUsersModal } from "./roleUsersModal"
 

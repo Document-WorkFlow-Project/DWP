@@ -1,11 +1,10 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:3000/api/users/";
+import { API_URL } from "../../utils";
 
 class AuthService {
     //TODO: Tornar async await
     async login(email: string, password: string) {
-        return await axios.post(API_URL + "login", {
+        return await axios.post(`${API_URL}/users/login`, {
             email: email,
             password: password
         })
@@ -13,12 +12,13 @@ class AuthService {
                 if (response.data) {
                     console.log(response.data)
                     localStorage.setItem("user", JSON.stringify(response.data));
-                    await axios.get(API_URL + "info/" + email).then((response) => {
-                        console.log("data do info: " + response.data)
-                        localStorage.setItem("email", email);
-                        localStorage.setItem("nome", response.data.nome);
-                        localStorage.setItem("roles", response.data.roles);
-                    })
+                    await axios.get(`${API_URL}/users/info/${email}`)
+                        .then((response) => {
+                            console.log("data do info: " + response.data)
+                            localStorage.setItem("email", email);
+                            localStorage.setItem("nome", response.data.nome);
+                            localStorage.setItem("roles", response.data.roles);
+                        })
                 }
                 return response.data;
             });
@@ -29,14 +29,14 @@ class AuthService {
         localStorage.removeItem("email");
         localStorage.removeItem("nome");
         localStorage.removeItem("roles");
-        await axios.post(API_URL + "logout").then((response) => {
+        await axios.post(`${API_URL}/users/logout`).then((response) => {
             window.location.href = "/"
         });
     }
 
     register(email: string, name: string) {
         return axios
-            .post(API_URL + "register", {
+            .post(`${API_URL}/users/register`, {
                 email: email,
                 name: name
             });
@@ -44,7 +44,7 @@ class AuthService {
 
     async getUserDetails(email: string) {
         try {
-            const response = await axios.get(API_URL + "info/" + email);
+            const response = await axios.get(`${API_URL}/users/info/${email}`);
             return {
                 email: response.data.email,
                 nome: response.data.nome,

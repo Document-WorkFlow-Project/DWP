@@ -25,7 +25,6 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .list()
     }
 
-    // TODO("Support Multiple Roles")
     override fun checkBearerToken(bearerToken: String): UserAuth {
         val email = handle.createQuery("select email from utilizador where authtoken = :token")
             .bind("token", bearerToken)

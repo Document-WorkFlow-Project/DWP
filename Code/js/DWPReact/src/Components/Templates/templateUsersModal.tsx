@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import usersService from "../../Services/Users/users.service"
-import processServices from "../../Services/Processes/process.service"
+import templatesService from "../../Services/templates.service"
 
 export function TemplateUsersModal({
     onClose,
@@ -14,7 +14,7 @@ export function TemplateUsersModal({
 
     useEffect(() => {
         const fetchData = async () => {
-          const tUsers = await processServices.templateUsers(selectedTemplate)
+          const tUsers = await templatesService.templateUsers(selectedTemplate)
           if(Array.isArray(tUsers))
             setTemplateUsers(tUsers)
           
@@ -28,15 +28,21 @@ export function TemplateUsersModal({
     const filteredUsers = availableUsers.filter(item => item.toLowerCase().includes(searchInput.toLowerCase()))
 
     const removeUserFromTemplate = async (user) => {
-        await processServices.removeUSerFromTemplate(selectedTemplate, user)
-        setTemplateUsers(templateUsers.filter(email => email !== user))
-        setAvailableUsers((prevUsers) => [...prevUsers, user])
+        const res = await templatesService.removeUSerFromTemplate(selectedTemplate, user)
+        console.log(res.status)
+        if (res.status === 201) {
+            setTemplateUsers(templateUsers.filter(email => email !== user))
+            setAvailableUsers((prevUsers) => [...prevUsers, user])
+        }
     }
 
     const addUserToTemplate = async (user) => {
-        await processServices.addUserToTemplate(selectedTemplate, user)
-        setTemplateUsers((prevUsers) => [...prevUsers, user])
-        setAvailableUsers(availableUsers.filter(email => email !== user))
+        const res = await templatesService.addUserToTemplate(selectedTemplate, user)
+        console.log(res.status)
+        if (res.status === 201) {
+            setTemplateUsers((prevUsers) => [...prevUsers, user])
+            setAvailableUsers(availableUsers.filter(email => email !== user))
+        }
     }
 
     return (

@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react"
 import './processes.css'
-import processServices from "../../Services/Processes/process.service"
+import processServices from "../../Services/process.service"
 import { createPortal } from 'react-dom'
 import { TemplateDetailsModal } from "../Templates/templateModals"
+import templatesService from "../../Services/templates.service"
 
 export const NewProcess = () => {
 
@@ -19,7 +20,7 @@ export const NewProcess = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const templates = await processServices.availableTemplates()
+            const templates = await templatesService.availableTemplates()
             if(Array.isArray(templates))
                 setAvailableTemplates(templates)
         }
