@@ -4,11 +4,18 @@ import { useParams } from 'react-router';
 import stagesService from "../../Services/stages.service";
 import { Comments } from "../Comments/commentBox";
 import { convertTimestamp } from "../../utils";
+import { createPortal } from 'react-dom'
+import { SignaturesModal } from "./signaturesModal";
 
 
 export const StageDetails = () => {
     
     const { id } = useParams();
+    const email = localStorage.getItem("email");
+    
+    const [hasToSign, setHasToSign] = useState(false)
+    const [stageSignatures, setStageSignatures] = useState([])
+    const [showSignatureModal, setShowSignatureModal] = useState(false)
     const [stageDetails, setStageDetails] = useState({
         id: "",
         id_processo: "",
@@ -22,12 +29,19 @@ export const StageDetails = () => {
         prazo: 1
     })
 
+
     useEffect(() => {
         const fetchData = async () => {
             const stageDetails = await stagesService.stageDetails(id)
             
             if (typeof stageDetails === 'object')
                 setStageDetails(stageDetails)
+            
+            const signatures = await stagesService.stageSignatures(id)
+            setStageSignatures(signatures)
+            
+            if (signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null) !== undefined)
+                setHasToSign(true)
         }
         fetchData()
     }, [])
@@ -41,7 +55,9 @@ export const StageDetails = () => {
             return <a>Reprovado</a>
     }
 
-    //TODO assinaturas e apagar comentários
+    const signStage = async (value) => {
+        await stagesService.signStage(id, value)
+    }
 
     return (
         <div>
@@ -53,8 +69,26 @@ export const StageDetails = () => {
             <p><b>Data início: </b>{convertTimestamp(stageDetails.data_inicio)}</p>
             {stageDetails.data_fim && <p><b>Data fim: </b>{convertTimestamp(stageDetails.data_fim)}</p>}
             <p><b>Modo de assinatura: </b>{stageDetails.modo}</p>
+            <p><button onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
+
+            {hasToSign &&
+                <div>
+                    <button onClick={() => signStage(true)}>Aprovar etapa</button>
+                    <button onClick={() => signStage(false)}>Reprovar etapa</button>
+                </div>
+            }
             
             <Comments stageId={id}/>
+
+            <div>
+                {showSignatureModal && createPortal(
+                    <SignaturesModal 
+                        onClose={() => setShowSignatureModal(false)}
+                        signatures={stageSignatures}
+                    />,
+                    document.body
+                )}
+            </div>
         </div>
     )
 }

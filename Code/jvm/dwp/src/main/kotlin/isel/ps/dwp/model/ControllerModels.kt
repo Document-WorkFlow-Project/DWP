@@ -1,5 +1,7 @@
 package isel.ps.dwp.model
 
+import java.sql.Timestamp
+
 data class SignInModel(val email: String, val password: String)
 
 data class RegisterModel(val email: String, val name: String)
@@ -20,3 +22,5 @@ data class UserAuth(
 )
 
 data class NewComment(val text: String)
+
+data class Signature(val email_utilizador: String, val assinatura: Boolean?, val data_assinatura: Timestamp?)

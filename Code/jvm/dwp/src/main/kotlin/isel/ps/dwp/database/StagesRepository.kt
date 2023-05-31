@@ -157,6 +157,15 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
+    override fun stageSignatures(stageId: String): List<Signature> {
+        return handle.createQuery(
+            "select email_utilizador, assinatura, data_assinatura from utilizador_etapa where id_etapa = :stageId order by data_assinatura"
+        )
+            .bind("stageId", stageId)
+            .mapTo<Signature>()
+            .list()
+    }
+
     /**
      * Verificar se todos os responsáveis já assinaram de acordo com o modo selecionado.
      * Se sim, marcar etapa como completa e prosseguir para a etapa seguinte.

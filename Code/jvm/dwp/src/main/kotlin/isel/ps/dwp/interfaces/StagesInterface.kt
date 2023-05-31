@@ -15,6 +15,11 @@ interface StagesInterface {
     fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth)
 
     /**
+     * Retorna a lista de todas as assinaturas respetivas a uma etapa
+     */
+    fun stageSignatures(stageId: String): List<Signature>
+
+    /**
      * Obter lista de utilizadores associados a uma etapa (função de administrador ou utilizador associado à etapa)
      */
     fun stageUsers(stageId: String): List<UserDetails>

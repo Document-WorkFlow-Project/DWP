@@ -47,6 +47,12 @@ class StagesController (
         return ResponseEntity.ok(users)
     }
 
+    @GetMapping("/{stageId}/signatures")
+    fun stageSignatures(@PathVariable stageId: String): ResponseEntity<List<*>> {
+        val signatures = stageServices.stageSignatures(stageId)
+        return ResponseEntity.ok(signatures)
+    }
+
     /**
      * --------------- Comments --------------------------
      */

@@ -83,6 +83,13 @@ class StageServices (
         }
     }
 
+    override fun stageSignatures(stageId: String): List<Signature> {
+        return transactionManager.run {
+            it.stagesRepository.stageDetails(stageId)
+            it.stagesRepository.stageSignatures(stageId)
+        }
+    }
+
     /**
      * Inicia a próxima etapa pendente do processo associado
      * Notifica utilizadores resposáveis pela etapa e agendando notificações recorrentes
