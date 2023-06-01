@@ -33,6 +33,7 @@ class UsersController (
             .body(users)
     }
 
+    // TODO("Arranjar forma de este método passar pelo filtro de AUTHORIZATION pois só pode ser chamado por admins")
     @PostMapping("/register")
     fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {
         userServices.register(register.email, register.name)
