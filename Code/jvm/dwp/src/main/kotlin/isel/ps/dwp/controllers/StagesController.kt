@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/stages")
-class StagesController (
+class StagesController(
     private val stageServices: StageServices
 ) {
     /** --------------------------- Stages -------------------------------**/
@@ -81,7 +81,7 @@ class StagesController (
 
     @DeleteMapping("/comments/{commentId}")
     fun deleteComment(@PathVariable commentId: String, user: UserAuth): ResponseEntity<Void> {
-        stageServices.deleteComment(commentId)
+        stageServices.deleteComment(commentId, user)
         return ResponseEntity(HttpStatus.CREATED)
     }
 

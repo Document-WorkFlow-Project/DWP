@@ -296,7 +296,13 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return commentId
     }
 
-    override fun deleteComment(commentId: String) {
+    override fun deleteComment(commentId: String,user: UserAuth) {
+        handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId and remetente=:email")
+            .bind("commentId", commentId)
+            .bind("email", user.email)
+            .mapTo(Comment::class.java)
+            .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotYours("Comentário não é seu, portanto não o pode apagar.")
+
         handle.createUpdate("DELETE FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
             .execute()

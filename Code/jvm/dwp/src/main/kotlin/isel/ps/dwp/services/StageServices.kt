@@ -157,10 +157,10 @@ class StageServices (
         }
     }
 
-    override fun deleteComment(commentId: String) {
+    override fun deleteComment(commentId: String, user: UserAuth) {
         return transactionManager.run {
             it.stagesRepository.checkComment(commentId)
-            it.stagesRepository.deleteComment(commentId)
+            it.stagesRepository.deleteComment(commentId,user)
         }
     }
 
