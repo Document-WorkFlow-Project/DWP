@@ -1,9 +1,6 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.Document
-import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.ProcessModel
-import isel.ps.dwp.model.UserAuth
+import isel.ps.dwp.model.*
 import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
@@ -23,7 +20,7 @@ interface ProcessesInterface {
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)
      */
-    fun processStages(processId: String): List<String>
+    fun processStages(processId: String): List<StageModel>
 
     /**
     * Detalhes de um processo (função de utilizadores associados ao processo)

@@ -43,6 +43,10 @@ div.scroll-resp {
     border-radius: 12px;
 }
 
+.pending-stage {
+    background-color: rgba(0, 174, 255, 0.748);
+}
+
 .bg{
     position: fixed;
     top: 0;

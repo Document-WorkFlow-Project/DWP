@@ -47,6 +47,26 @@ class ProcessesService {
         }
     }
 
+    async processDetails(processId) {
+        try {
+            const response = await axios.get(`${API_URL}/processes/${processId}`, {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    async processStages(processId) {
+        try {
+            const response = await axios.get(`${API_URL}/processes/${processId}/stages`, {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
 }
 
 export default new ProcessesService();

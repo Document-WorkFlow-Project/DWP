@@ -2,10 +2,7 @@ package isel.ps.dwp.database
 
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.ProcessesInterface
-import isel.ps.dwp.model.Document
-import isel.ps.dwp.model.Process
-import isel.ps.dwp.model.ProcessModel
-import isel.ps.dwp.model.UserAuth
+import isel.ps.dwp.model.*
 import org.jdbi.v3.core.Handle
 import org.springframework.web.multipart.MultipartFile
 import java.sql.Timestamp
@@ -63,12 +60,12 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
-    override fun processStages(processId: String): List<String> {
+    override fun processStages(processId: String): List<StageModel> {
         return handle.createQuery(
-                "select id from etapa where id_processo = :processId order by indice"
+                "select nome, id, estado from etapa where id_processo = :processId order by indice"
         )
             .bind("processId", processId)
-            .mapTo(String::class.java)
+            .mapTo(StageModel::class.java)
             .list()
             .ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.") }
     }

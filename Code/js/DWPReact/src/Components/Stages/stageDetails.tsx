@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import { useParams } from 'react-router';
 import stagesService from "../../Services/stages.service";
 import { Comments } from "../Comments/commentBox";
-import { convertTimestamp } from "../../utils";
+import { convertTimestamp, estado } from "../../utils";
 import { createPortal } from 'react-dom'
 import { SignaturesModal } from "./signaturesModal";
 
@@ -23,12 +23,11 @@ export const StageDetails = () => {
         modo: "",
         nome: "",
         descricao: "",
-        data_inicio: "",
+        data_inicio: null,
         data_fim: null,
         estado: "PENDING",
         prazo: 1
     })
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,20 +39,11 @@ export const StageDetails = () => {
             const signatures = await stagesService.stageSignatures(id)
             setStageSignatures(signatures)
             
-            if (signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null) !== undefined)
+            if (signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null && stageDetails.data_inicio != null) !== undefined)
                 setHasToSign(true)
         }
         fetchData()
     }, [])
-
-    const estado = () => {
-        if (stageDetails.estado == "PENDING")
-            return <a>Pendente</a>
-        else if (stageDetails.estado == "APPROVED")
-            return <a>Aprovado</a>
-        else if (stageDetails.estado == "DISAPPROVED")
-            return <a>Reprovado</a>
-    }
 
     const signStage = async (value) => {
         await stagesService.signStage(id, value)
@@ -64,10 +54,15 @@ export const StageDetails = () => {
             <Link to={`/process/${stageDetails.id_processo}`}>Voltar ao processo</Link>
             <h2>{stageDetails.nome}</h2>
             <p><b>Descrição: </b>{stageDetails.descricao}</p>
-            <p><b>Estado: </b>{estado()}</p>
+            <p><b>Estado: </b><a>{estado(stageDetails.estado)}</a></p>
             <p><b>Prazo: </b>{stageDetails.prazo} dias</p>
-            <p><b>Data início: </b>{convertTimestamp(stageDetails.data_inicio)}</p>
-            {stageDetails.data_fim && <p><b>Data fim: </b>{convertTimestamp(stageDetails.data_fim)}</p>}
+            {stageDetails.data_inicio ? 
+                <p><b>Data de início: </b>{convertTimestamp(stageDetails.data_inicio)}</p>
+            : 
+                <p><b>Etapa ainda não começou.</b></p>
+            }
+                
+            {stageDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(stageDetails.data_fim)}</p>}
             <p><b>Modo de assinatura: </b>{stageDetails.modo}</p>
             <p><button onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
 

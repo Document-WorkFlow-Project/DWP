@@ -12,7 +12,7 @@ export const Processes = () => {
     useEffect(() => {
         const fetchData = async () => {
             const tasks = await processServices.pendingStages()
-            if(Array.isArray(tasks))
+            if (Array.isArray(tasks))
                 setPendingTasks(tasks)
         }
         fetchData()
@@ -26,7 +26,7 @@ export const Processes = () => {
             else if (selectedProccessType === "FINISHED")
                 processes = await processServices.finishedProcesses()
         
-            if(Array.isArray(processes))
+            if (Array.isArray(processes))
                 setProcesses(processes)
         }
         fetchData()

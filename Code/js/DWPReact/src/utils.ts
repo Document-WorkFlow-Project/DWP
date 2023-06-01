@@ -11,4 +11,13 @@ export function convertTimestamp(timestamp) {
     
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+
+export const estado = (value) => {
+    if (value == "PENDING")
+        return "Pendente"
+    else if (value == "APPROVED")
+        return "Aprovado"
+    else if (value == "DISAPPROVED")
+        return "Reprovado"
+}
   

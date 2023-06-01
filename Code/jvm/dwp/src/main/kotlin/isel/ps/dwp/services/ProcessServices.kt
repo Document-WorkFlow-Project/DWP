@@ -39,7 +39,7 @@ class ProcessServices(
         }
     }
 
-    override fun processStages(processId: String): List<String> {
+    override fun processStages(processId: String): List<StageModel> {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
