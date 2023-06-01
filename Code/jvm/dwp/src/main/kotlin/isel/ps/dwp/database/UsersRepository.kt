@@ -12,11 +12,11 @@ import java.util.*
 
 class UsersRepository(private val handle: Handle) : UsersInterface {
 
-    override fun checkUser(email: String): User {
+    override fun checkUser(email: String): User? {
         return handle.createQuery("SELECT * FROM utilizador WHERE email = :email")
             .bind("email", email)
             .mapTo(User::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
+            .singleOrNull()
     }
 
     override fun usersList(): List<String> {

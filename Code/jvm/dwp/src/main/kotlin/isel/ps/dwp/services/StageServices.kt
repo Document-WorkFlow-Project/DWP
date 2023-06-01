@@ -144,7 +144,7 @@ class StageServices (
     /** --------------------------- Comments -------------------------------**/
 
     override fun addComment(stageId: String, comment: String, user: UserAuth): String {
-        userServices.checkUser(user.email)
+        userServices.checkUser(user.email) ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
 
         if (comment.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("text can't be blank.")

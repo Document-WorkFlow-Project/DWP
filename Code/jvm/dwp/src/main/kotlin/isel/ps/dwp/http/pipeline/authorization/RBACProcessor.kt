@@ -12,7 +12,7 @@ class RBACProcessor(
 ) {
 
     fun isUserAdmin(user: UserAuth): Boolean {
-        return user.roles.contains("admin".uppercase())
+        return user.roles.contains("admin")
     }
 
     fun checkUserRoleIsAboveNeeded(user: UserAuth, role: String): Boolean {
