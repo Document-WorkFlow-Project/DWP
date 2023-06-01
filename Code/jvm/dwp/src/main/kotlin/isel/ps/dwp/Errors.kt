@@ -20,11 +20,13 @@ class ExceptionControllerAdvice {
     class DatabaseIsNotAvailable(message: String) : RuntimeException(message)
     class UserNotAuthorizedException(message: String) : RuntimeException(message)
     class NativeRequestDoesntExistException(message: String) : RuntimeException(message) {}
-    class StageNotFound(message: String) : RuntimeException(message){}
+    class StageNotFound(message: String) : RuntimeException(message) {}
 
-    class UserNotFound(message: String) : RuntimeException(message){}
+    class UserNotFound(message: String) : RuntimeException(message) {}
 
     class CommentNotFound(message: String) : RuntimeException(message) {}
+
+    class CommentNotYours(message: String) : RuntimeException(message) {}
 
 
     @ExceptionHandler(RuntimeException::class)
@@ -40,6 +42,7 @@ class ExceptionControllerAdvice {
 
             is DatabaseIsNotAvailable -> HttpStatus.INTERNAL_SERVER_ERROR
             is InvalidParameterException,
+            is CommentNotYours,
             is NativeRequestDoesntExistException -> HttpStatus.BAD_REQUEST
 
             is FailedAuthenticationException,

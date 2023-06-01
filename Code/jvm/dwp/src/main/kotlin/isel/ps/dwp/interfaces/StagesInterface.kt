@@ -44,7 +44,7 @@ interface StagesInterface {
     /**
      * Remover comentário (função de administrador ou utilizador associado ao comentário)
      */
-    fun deleteComment(commentId: String)
+    fun deleteComment(commentId: String, user: UserAuth)
 
     /**
      * Obter lista de comentários associados a uma etapa (função de administrador ou utilizador associado ao processo)
