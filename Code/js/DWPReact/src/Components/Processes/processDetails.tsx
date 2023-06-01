@@ -42,7 +42,7 @@ export const ProcessDetails = () => {
             if (Array.isArray(stages)){
                 setProcessStages(stages)
                 
-                const currentStageIndex = stages.findIndex((stage) => stage.estado === 'PENDING');
+                const currentStageIndex = stages.findIndex((stage) => stage.estado === 'PENDING' || stage.estado === 'DISAPPROVED');
                 
                 if (currentStageIndex === -1) 
                     setCurrentStage(stages.length - 1)
@@ -74,13 +74,19 @@ export const ProcessDetails = () => {
             <p><b>Data de início: </b>{convertTimestamp(processDetails.data_inicio)}</p>
             {processDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(processDetails.data_fim)}</p>}
             <p><b>Documentos: </b></p>
-            <div className="scroll">
-                {processDocs.names.map((name, index) => {
-                    return (<p key={index}>{name} </p>)})
-                }
-            </div>
-            <p><b>Tamanho: </b>{formatBytes(processDocs.size)}</p>
-            <p><button onClick={() => downloadDocs()}>Transferir documentos</button></p>
+            {processDocs.names.length > 0 ?
+                <div>
+                    <div className="scroll">
+                        {processDocs.names.map((name, index) => {
+                            return (<p key={index}>{name} </p>)})
+                        }
+                    </div>
+                    <p><b>Tamanho: </b>{formatBytes(processDocs.size)}</p>
+                    <p><button onClick={() => downloadDocs()}>Transferir documentos</button></p>
+                </div>
+                :
+                <p>Nenhum documento carregado.</p>
+            }
             <div>
                 {processStages.map((stage, index) => {
                     const className = index === currentStage ? 'pending-stage' : '';

@@ -135,6 +135,12 @@ class StageServices (
         }
     }
 
+    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+        return transactionManager.run {
+            it.stagesRepository.finishedStages(userAuth, userEmail)
+        }
+    }
+
     /** --------------------------- Comments -------------------------------**/
 
     override fun addComment(stageId: String, comment: String, user: UserAuth): String {

@@ -57,7 +57,7 @@ class RolesService {
 
     async addRoleToUSer(roleName, email) {
         try {
-            const response = await axios.put(`${API_URL}/${roleName}/${email}`, {withCredentials: true})
+            const response = await axios.put(`${API_URL}/roles/${roleName}/${email}`, {withCredentials: true})
             console.log(response.data)
             return response
         }
@@ -68,7 +68,7 @@ class RolesService {
 
     async removeRoleFromUser(roleName, email) {
         try {
-            const response = await axios.delete(`${API_URL}/${roleName}/${email}`, {withCredentials: true})
+            const response = await axios.delete(`${API_URL}/roles/${roleName}/${email}`, {withCredentials: true})
             return response
         }
         catch (error) {

@@ -41,6 +41,12 @@ class StagesController (
         return ResponseEntity.ok(stages)
     }
 
+    @GetMapping("/finished")
+    fun finishedStages(userEmail: String?, user: UserAuth): ResponseEntity<List<*>> {
+        val stages = stageServices.finishedStages(user, userEmail)
+        return ResponseEntity.ok(stages)
+    }
+
     @GetMapping("/{stageId}/users")
     fun stageResponsible(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
         val users = stageServices.stageUsers(stageId)

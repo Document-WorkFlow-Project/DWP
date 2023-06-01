@@ -29,6 +29,8 @@ interface StagesInterface {
      */
     fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo>
 
+    fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo>
+
     /**
      * Detalhes de uma etapa (função de utilizador associado ao processo)
      */
