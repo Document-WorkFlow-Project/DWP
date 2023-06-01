@@ -45,7 +45,8 @@ class ExceptionControllerAdvice {
             is CommentNotYours,
             is NativeRequestDoesntExistException -> HttpStatus.BAD_REQUEST
 
-            is FailedAuthenticationException,
+            is FailedAuthenticationException -> HttpStatus.UNAUTHORIZED
+
             is UserNotAuthorizedException -> HttpStatus.FORBIDDEN
 
             is ParameterIsBlank -> HttpStatus.BAD_REQUEST

@@ -1,4 +1,4 @@
-package isel.ps.dwp.http.pipeline
+package isel.ps.dwp.http.pipeline.authentication
 
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.UserServices

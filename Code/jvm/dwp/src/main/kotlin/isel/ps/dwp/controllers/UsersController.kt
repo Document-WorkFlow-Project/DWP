@@ -1,7 +1,9 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.http.pipeline.authorization.Admin
 import isel.ps.dwp.model.RegisterModel
 import isel.ps.dwp.model.SignInModel
+import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -16,6 +18,7 @@ class UsersController (
 ) {
 
     @GetMapping
+    @Admin
     fun apiUsers(): ResponseEntity<*> {
         val users = userServices.usersList()
         return ResponseEntity
@@ -34,7 +37,8 @@ class UsersController (
     }
 
     @PostMapping("/register")
-    fun register(@RequestBody register: RegisterModel): ResponseEntity<*> {
+    @Admin
+    fun register(@RequestBody register: RegisterModel, user: UserAuth): ResponseEntity<*> {
         userServices.register(register.email, register.name)
         return ResponseEntity
             .status(201)

@@ -1,5 +1,6 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.http.pipeline.authorization.Admin
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
@@ -22,7 +23,8 @@ class TemplatesController (
     }
 
     @PostMapping
-    fun newTemplate(@RequestParam("name") name: String, @RequestParam("description") description: String, @RequestParam("file") file: MultipartFile): ResponseEntity<*> {
+    @Admin
+    fun newTemplate(@RequestParam("name") name: String, @RequestParam("description") description: String, @RequestParam("file") file: MultipartFile, user: UserAuth): ResponseEntity<*> {
         templatesServices.addTemplate(name, description, file)
         return ResponseEntity
             .status(201)
@@ -31,7 +33,7 @@ class TemplatesController (
     }
 
     @GetMapping("/{templateName}/users")
-    fun templateUsers(@PathVariable templateName: String): ResponseEntity<*> {
+    fun templateUsers(@PathVariable templateName: String, user: UserAuth): ResponseEntity<*> {
         return ResponseEntity
                 .status(200)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -39,7 +41,8 @@ class TemplatesController (
     }
 
     @PutMapping("/{templateName}/{email}")
-    fun addUserToTemplate(@PathVariable templateName: String, @PathVariable email: String): ResponseEntity<*> {
+    @Admin
+    fun addUserToTemplate(@PathVariable templateName: String, @PathVariable email: String, user: UserAuth): ResponseEntity<*> {
         templatesServices.addUsersToTemplate(templateName, email)
         return ResponseEntity
             .status(201)
@@ -48,7 +51,8 @@ class TemplatesController (
     }
 
     @DeleteMapping("/{templateName}/{email}")
-    fun removeUserFromTemplate(@PathVariable templateName: String, @PathVariable email: String): ResponseEntity<*> {
+    @Admin
+    fun removeUserFromTemplate(@PathVariable templateName: String, @PathVariable email: String, user: UserAuth): ResponseEntity<*> {
         templatesServices.removeUserFromTemplate(templateName, email)
         return ResponseEntity
             .status(201)
@@ -57,7 +61,7 @@ class TemplatesController (
     }
 
     @GetMapping("/{templateName}")
-    fun getTemplate(@PathVariable templateName: String): ResponseEntity<*> {
+    fun getTemplate(@PathVariable templateName: String, user: UserAuth): ResponseEntity<*> {
         return ResponseEntity
                 .status(200)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +69,8 @@ class TemplatesController (
     }
 
     @DeleteMapping("/{templateName}")
-    fun deleteTemplate(@PathVariable templateName: String): ResponseEntity<*> {
+    @Admin
+    fun deleteTemplate(@PathVariable templateName: String, user: UserAuth): ResponseEntity<*> {
         templatesServices.deleteTemplate(templateName)
         return ResponseEntity
             .status(201)
