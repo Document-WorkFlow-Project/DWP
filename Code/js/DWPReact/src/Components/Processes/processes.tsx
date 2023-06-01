@@ -1,22 +1,29 @@
 import { useEffect, useState } from "react"
 import processServices from "../../Services/process.service"
 import { Link } from "react-router-dom"
+import { convertTimestamp, estado } from "../../utils"
 
 
 export const Processes = () => {
 
     const [pendingTasks, setPendingTasks] = useState([])
     const [processes, setProcesses] = useState([])
+    const [selectedTaskType, setSelectedTaskType] = useState("PENDING")
     const [selectedProccessType, setSelectedProccessType] = useState("PENDING")
 
     useEffect(() => {
         const fetchData = async () => {
-            const tasks = await processServices.pendingStages()
+            let tasks
+            if (selectedTaskType === "PENDING") 
+                tasks = await processServices.pendingStages()
+            else if (selectedTaskType === "FINISHED")
+                tasks = await processServices.finishedStages()
+
             if (Array.isArray(tasks))
                 setPendingTasks(tasks)
         }
         fetchData()
-    }, [])
+    }, [selectedTaskType])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,10 +39,16 @@ export const Processes = () => {
         fetchData()
     }, [selectedProccessType])
 
+    //TODO move values to tables
+
     return (
         <div>
             <p><button onClick={() => window.location.href = "/newprocess"}>Novo processo</button></p>
-            <h2>Tarefas pendentes</h2>
+            <h2>Tarefas</h2>
+            <select value={selectedTaskType} onChange={(e) => setSelectedTaskType(e.target.value)}>
+                <option value="PENDING">Pendentes</option>
+                <option value="FINISHED">Terminadas</option>
+            </select>
             <div>
                 {pendingTasks.length === 0 ?
                     <p>Nenhuma tarefa pendente</p>
@@ -44,7 +57,7 @@ export const Processes = () => {
                         {pendingTasks.map((stage, index) => {
                             return (
                                 <p key={index}> 
-                                    <Link to={"/stage/" + stage.id} >{stage.nome}</Link>
+                                    <Link to={"/stage/" + stage.id} >{stage.nome}</Link> <b> {estado(stage.estado)} - </b>{convertTimestamp(stage.data_inicio)}<b> - </b>{stage.data_fim && convertTimestamp(stage.data_fim)} <b>Processo: </b><Link to={"/process/" + stage.id_processo}>{stage.processo_nome}</Link>
                                 </p>
                             )
                         })}
@@ -64,7 +77,7 @@ export const Processes = () => {
                         {processes.map((process, index) => {
                             return (
                                 <p key={index}> 
-                                    <Link to={"/process/" + process.id} >{process.nome}</Link>
+                                    <Link to={"/process/" + process.id} >{process.nome}</Link> <b> {estado(process.estado)} - </b>{convertTimestamp(process.data_inicio)}<b> - </b>{process.data_fim && convertTimestamp(process.data_fim)}
                                 </p>
                             )
                         })}
