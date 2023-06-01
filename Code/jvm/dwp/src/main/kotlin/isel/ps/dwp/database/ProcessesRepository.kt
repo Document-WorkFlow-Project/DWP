@@ -11,13 +11,6 @@ import java.util.*
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    fun checkProcess(id: String): Process {
-        return handle.createQuery("SELECT * FROM processo WHERE id = :id")
-            .bind("id", id)
-            .mapTo(Process::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo não encontrado.")
-    }
-
     override fun getProcesses(type: String?): List<String> {
         //TODO email must be provided, to know the processes the user created, unless user is admin
         return if (type != null)
@@ -87,6 +80,25 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .mapTo(Document::class.java)
                 .list()
                 .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
+    }
+
+    override fun processDocsDetails(processId: String): ProcessDocInfo {
+        val sql = """SELECT d.nome, SUM(d.tamanho) AS total_size
+                     FROM documento_processo dp
+                     JOIN documento d ON dp.id_documento = d.id
+                     WHERE dp.id_processo = :processId
+                     GROUP BY d.nome
+                  """.trimIndent()
+
+        val result = handle.createQuery(sql)
+            .bind("processId", processId)
+            .map { rs, _ -> rs.getString("nome") to rs.getInt("total_size") }
+            .list()
+
+        val names = result.map { it.first }
+        val size = result.sumOf { it.second }
+
+        return ProcessDocInfo(names, size)
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {

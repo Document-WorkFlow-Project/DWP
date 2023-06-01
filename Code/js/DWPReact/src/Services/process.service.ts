@@ -57,6 +57,26 @@ class ProcessesService {
         }
     }
 
+    async processDocDetails(processId) {
+        try {
+            const response = await axios.get(`${API_URL}/processes/${processId}/docsInfo`, {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    async downloadDocs(processId) {
+        try {
+            const response = await axios.get(`${API_URL}/processes/${processId}/docs`, {withCredentials: true, responseType: 'blob'})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
     async processStages(processId) {
         try {
             const response = await axios.get(`${API_URL}/processes/${processId}/stages`, {withCredentials: true})

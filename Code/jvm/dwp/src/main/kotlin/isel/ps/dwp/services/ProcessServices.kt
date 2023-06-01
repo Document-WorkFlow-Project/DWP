@@ -63,6 +63,12 @@ class ProcessServices(
         }
     }
 
+    override fun processDocsDetails(processId: String): ProcessDocInfo {
+        return transactionManager.run {
+            it.processesRepository.processDocsDetails(processId)
+        }
+    }
+
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
         return transactionManager.run {
             // Create process

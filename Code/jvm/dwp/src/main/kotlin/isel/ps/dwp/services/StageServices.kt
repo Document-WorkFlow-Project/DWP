@@ -117,7 +117,7 @@ class StageServices (
 
     override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
         return transactionManager.run {
-            it.processesRepository.checkProcess(processId)
+            it.processesRepository.processDetails(processId)
             it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
         }
     }

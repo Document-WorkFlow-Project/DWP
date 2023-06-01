@@ -32,6 +32,8 @@ interface ProcessesInterface {
      */
     fun processDocs(processId: String): List<Document>
 
+    fun processDocsDetails(processId: String): ProcessDocInfo
+
     /**
      * Criar processo (função de administrador ou utilizador autorizado)
      */

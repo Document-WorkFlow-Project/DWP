@@ -69,7 +69,7 @@ class ProcessesController (
     }
 
     @GetMapping("/{processId}/docs")
-    fun processDocuments(@PathVariable processId: String, response: HttpServletResponse): ResponseEntity<out Any> {
+    fun downloadProcessDocuments(@PathVariable processId: String, response: HttpServletResponse): ResponseEntity<out Any> {
         val docDetailsList = processesServices.processDocs(processId)
 
         // Create temporary zip file to hold all the files
@@ -111,6 +111,15 @@ class ProcessesController (
             // Delete the temporary zip file
             zipFile.delete()
         }
+    }
+
+    @GetMapping("/{processId}/docsInfo")
+    fun processDocsDetails(@PathVariable processId: String): ResponseEntity<*> {
+        val details = processesServices.processDocsDetails(processId)
+        return ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(details)
     }
 
     @PostMapping

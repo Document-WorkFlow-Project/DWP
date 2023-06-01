@@ -26,3 +26,5 @@ data class NewComment(val text: String)
 data class Signature(val email_utilizador: String, val assinatura: Boolean?, val data_assinatura: Timestamp?)
 
 data class StageModel(val nome: String, val id: String, val estado: String)
+
+data class ProcessDocInfo(val names: List<String>, val size: Int)
