@@ -39,7 +39,7 @@ export const StageDetails = () => {
             const signatures = await stagesService.stageSignatures(id)
             setStageSignatures(signatures)
             
-            if (signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null && stageDetails.data_inicio != null) !== undefined)
+            if (stageDetails.data_inicio != null && signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null) !== undefined)
                 setHasToSign(true)
         }
         fetchData()
