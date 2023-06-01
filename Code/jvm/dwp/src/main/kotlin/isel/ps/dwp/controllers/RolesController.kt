@@ -1,7 +1,6 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.http.pipeline.Admin
+import isel.ps.dwp.http.pipeline.authorization.Admin
 import isel.ps.dwp.model.RoleModel
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.RoleServices

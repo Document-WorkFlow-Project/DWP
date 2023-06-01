@@ -1,6 +1,6 @@
 package isel.ps.dwp.controllers
 
-import isel.ps.dwp.http.pipeline.Admin
+import isel.ps.dwp.http.pipeline.authorization.Admin
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType

@@ -1,8 +1,9 @@
 package isel.ps.dwp
 
 import isel.ps.dwp.database.jdbi.configure
-import isel.ps.dwp.http.pipeline.AuthenticationInterceptor
-import isel.ps.dwp.http.pipeline.UserArgumentResolver
+import isel.ps.dwp.http.pipeline.authentication.AuthenticationInterceptor
+import isel.ps.dwp.http.pipeline.authorization.AuthorizationInterceptor
+import isel.ps.dwp.http.pipeline.authentication.UserArgumentResolver
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.services.NotificationServices
 import org.jdbi.v3.core.Jdbi
@@ -61,6 +62,7 @@ class DwpApplication {
 @Configuration
 class PipelineConfigurer(
     val authenticationInterceptor: AuthenticationInterceptor,
+    val authorizationInterceptor: AuthorizationInterceptor,
     val userArgumentResolver: UserArgumentResolver,
 ) : WebMvcConfigurer {
 
@@ -72,6 +74,18 @@ class PipelineConfigurer(
             .addPathPatterns("/roles/**")
             .addPathPatterns("/stages/**")
             .addPathPatterns("/templates/**")
+            .addPathPatterns("/users/register")
+            .order(1)
+
+        registry
+            .addInterceptor(authorizationInterceptor)
+            .addPathPatterns("/docs/**")
+            .addPathPatterns("/processes/**")
+            .addPathPatterns("/roles/**")
+            .addPathPatterns("/stages/**")
+            .addPathPatterns("/templates/**")
+            .addPathPatterns("/users/register")
+            .order(2)
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {

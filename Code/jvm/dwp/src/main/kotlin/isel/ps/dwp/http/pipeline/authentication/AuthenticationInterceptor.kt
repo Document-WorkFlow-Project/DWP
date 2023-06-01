@@ -1,4 +1,4 @@
-package isel.ps.dwp.http.pipeline
+package isel.ps.dwp.http.pipeline.authentication
 
 import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
@@ -15,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor
 @Component
 class AuthenticationInterceptor(
     private val authorizationHeaderProcessor: AuthorizationHeaderProcessor
-) : HandlerInterceptor {
+) : HandlerInterceptor{
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == UserAuth::class.java }
@@ -38,14 +37,6 @@ class AuthenticationInterceptor(
                 response.addHeader(NAME_WWW_AUTHENTICATE_HEADER, AuthorizationHeaderProcessor.SCHEME_BEARER)
                 false
             } else {
-
-                //Check if handler has Admin Annotation and if user is with ADMIN role else he's not authorized to proceed
-                if (handler.hasMethodAnnotation(Admin::class.java) && !user.roles.contains("admin".uppercase())) {
-                    response.status = 403
-                    response.contentType = MediaType.APPLICATION_PROBLEM_JSON.type
-                    return false
-                }
-
                 UserArgumentResolver.addUserTo(user, request)
                 true
             }
