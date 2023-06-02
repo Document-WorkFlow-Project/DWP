@@ -19,12 +19,12 @@ import java.util.zip.ZipOutputStream
 
 @RestController
 @RequestMapping("/processes")
-class ProcessesController (
+class ProcessesController(
     private val processesServices: ProcessServices
 ) {
 
     @GetMapping
-    fun userProcesses(@RequestParam type: String?): ResponseEntity<*> {
+    fun userProcesses(@RequestParam type: String?, user: UserAuth): ResponseEntity<*> {
         val processes = processesServices.getProcesses(type)
         return ResponseEntity
             .status(200)
@@ -51,7 +51,7 @@ class ProcessesController (
     }
 
     @GetMapping("/{processId}/stages")
-    fun processStages(@PathVariable processId: String): ResponseEntity<*> {
+    fun processStages(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
         val stages = processesServices.processStages(processId)
         return ResponseEntity
             .status(200)
@@ -60,16 +60,20 @@ class ProcessesController (
     }
 
     @GetMapping("/{processId}")
-    fun processDetails(@PathVariable processId: String): ResponseEntity<*> {
+    fun processDetails(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
         val details = processesServices.processDetails(processId)
         return ResponseEntity
-                .status(200)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(details)
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(details)
     }
 
     @GetMapping("/{processId}/docs")
-    fun downloadProcessDocuments(@PathVariable processId: String, response: HttpServletResponse): ResponseEntity<out Any> {
+    fun downloadProcessDocuments(
+        @PathVariable processId: String,
+        response: HttpServletResponse,
+        user: UserAuth
+    ): ResponseEntity<out Any> {
         val docDetailsList = processesServices.processDocs(processId)
 
         // Create temporary zip file to hold all the files
@@ -114,7 +118,7 @@ class ProcessesController (
     }
 
     @GetMapping("/{processId}/docsInfo")
-    fun processDocsDetails(@PathVariable processId: String): ResponseEntity<*> {
+    fun processDocsDetails(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
         val details = processesServices.processDocsDetails(processId)
         return ResponseEntity
             .status(200)
@@ -124,35 +128,35 @@ class ProcessesController (
 
     @PostMapping
     fun newProcess(
-            @RequestParam templateName: String,
-            @RequestParam name: String,
-            @RequestParam description: String,
-            @RequestParam("file") files: List<MultipartFile>,
-            user: UserAuth
+        @RequestParam templateName: String,
+        @RequestParam name: String,
+        @RequestParam description: String,
+        @RequestParam("file") files: List<MultipartFile>,
+        user: UserAuth
     ): ResponseEntity<*> {
         val processId = processesServices.newProcess(templateName, name, description, files, user)
         return ResponseEntity
-                .status(201)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(processId)
+            .status(201)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(processId)
     }
 
     @DeleteMapping("/{processId}")
-    fun deleteProcess(@PathVariable processId: String): ResponseEntity<*> {
+    fun deleteProcess(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
         processesServices.deleteProcess(processId)
         return ResponseEntity
-                .status(201)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Process $processId deleted")
+            .status(201)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("Process $processId deleted")
     }
 
     @PutMapping("/{processId}")
-    fun cancelProcess(@PathVariable processId: String): ResponseEntity<*> {
+    fun cancelProcess(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
         processesServices.cancelProcess(processId)
         return ResponseEntity
-                .status(201)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Process $processId cancelled")
+            .status(201)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("Process $processId cancelled")
     }
 
 }

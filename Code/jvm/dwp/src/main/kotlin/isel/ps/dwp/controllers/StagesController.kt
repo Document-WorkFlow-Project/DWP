@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/stages")
-class StagesController (
+class StagesController(
     private val stageServices: StageServices
 ) {
     /** --------------------------- Stages -------------------------------**/
     @GetMapping("/{stageId}")
-    fun stageDetails(@PathVariable stageId: String): ResponseEntity<*> {
+    fun stageDetails(@PathVariable stageId: String, user: UserAuth): ResponseEntity<*> {
         val stage = stageServices.stageDetails(stageId)
         return ResponseEntity.ok(stage)
     }
@@ -48,13 +48,13 @@ class StagesController (
     }
 
     @GetMapping("/{stageId}/users")
-    fun stageResponsible(@PathVariable stageId: String): ResponseEntity<List<*>> {
+    fun stageResponsible(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
         val users = stageServices.stageUsers(stageId)
         return ResponseEntity.ok(users)
     }
 
     @GetMapping("/{stageId}/signatures")
-    fun stageSignatures(@PathVariable stageId: String): ResponseEntity<List<*>> {
+    fun stageSignatures(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
         val signatures = stageServices.stageSignatures(stageId)
         return ResponseEntity.ok(signatures)
     }
@@ -64,7 +64,7 @@ class StagesController (
      */
 
     @GetMapping("/{stageId}/comments")
-    fun stageComments(@PathVariable stageId: String): ResponseEntity<List<Comment>> {
+    fun stageComments(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<Comment>> {
         val comments = stageServices.stageComments(stageId)
         return ResponseEntity.ok(comments)
     }
@@ -80,8 +80,8 @@ class StagesController (
     }
 
     @DeleteMapping("/comments/{commentId}")
-    fun deleteComment(@PathVariable commentId: String): ResponseEntity<Void> {
-        stageServices.deleteComment(commentId)
+    fun deleteComment(@PathVariable commentId: String, user: UserAuth): ResponseEntity<Void> {
+        stageServices.deleteComment(commentId, user)
         return ResponseEntity(HttpStatus.CREATED)
     }
 

@@ -99,9 +99,9 @@ class UserServices(
         }
     }
 
-    override fun checkUser(email: String): User {
+    override fun checkUser(email: String): User? {
         return transactionManager.run {
-            it.usersRepository.checkUser(email)
+            it.usersRepository.checkUser(email) ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
         }
     }
 }

@@ -48,7 +48,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
-            it.usersRepository.checkUser(email)
+            it.usersRepository.checkUser(email) ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
             it.templatesRepository.addUsersToTemplate(templateName, email)
         }
     }
@@ -60,7 +60,7 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
-            it.usersRepository.checkUser(email)
+            it.usersRepository.checkUser(email) ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
             it.templatesRepository.removeUserFromTemplate(templateName, email)
         }
     }
