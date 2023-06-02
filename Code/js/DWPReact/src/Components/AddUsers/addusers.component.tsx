@@ -10,6 +10,7 @@ import AuthService from "../../Services/Users/auth.service";
 import {toast, ToastContainer} from "react-toastify";
 import './addusers.component.css'
 import "react-toastify/dist/ReactToastify.css";
+import {useNavigate} from "react-router-dom";
 
 const required = (value) => {
     if (!value) {
@@ -52,6 +53,8 @@ const adduserscomponent: React.FC = () => {
     const [successful, setSuccessful] = useState(false);
     const [message, setMessage] = useState("");
 
+    const navigate = useNavigate();
+
     const onChangeUsername = (e) => {
         const username = e.target.value;
         setUsername(username);
@@ -75,15 +78,17 @@ const adduserscomponent: React.FC = () => {
         if (checkBtn.current.context._errors.length === 0) {
             await addusersService.registeruser(email, username).then(
                 (response) => {
-                    setMessage(response.data);
+                    console.log(response)
+                    setMessage(response);
                     setSuccessful(true);
-                    toast.success(response.data); // Show success toast
+                    toast.success(response); // Show success toast
                 },
                 (error) => {
+                    console.log(error)
                     const resMessage =
                         (error.response.data &&
                             error.response.data &&
-                            error.response.data) ||
+                            error.response.data.message) ||
                         error.message ||
                         error.toString();
 
@@ -139,12 +144,7 @@ const adduserscomponent: React.FC = () => {
 
                 {message && (
                     <div className="form-group">
-                        <div
-                            className={
-                                successful ? "alert alert-success" : "alert alert-danger"
-                            }
-                            role="alert"
-                        >
+                        <div className="alert alert-danger" role="alert">
                             {message}
                         </div>
                     </div>
