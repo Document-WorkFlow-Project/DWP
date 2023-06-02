@@ -12,7 +12,7 @@ class ExceptionControllerAdvice {
     class DocumentNotFoundException(message: String) : RuntimeException(message)
     class TemplateNotFoundException(message: String) : RuntimeException(message)
     class UserNotFoundException(message: String) : RuntimeException(message)
-    class InvalidParameterException(message: String) : RuntimeException(message)
+    class InvalidParameterException (message: String) : RuntimeException(message)
     class FailedAuthenticationException(message: String) : RuntimeException(message)
     class ParameterIsBlank(message: String) : RuntimeException(message)
     class DataTransferError(message: String) : RuntimeException(message)
