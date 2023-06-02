@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import usersService from "../../Services/Users/users.service"
-import templatesService from "../../Services/templates.service"
+import templatesService from "../../Services/Templates/templates.service"
 
 export function TemplateUsersModal({
     onClose,

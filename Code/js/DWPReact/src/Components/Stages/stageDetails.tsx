@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import {Link} from "react-router-dom";
 import { useParams } from 'react-router';
-import stagesService from "../../Services/stages.service";
+import stagesService from "../../Services/Stages/stages.service";
 import { Comments } from "../Comments/commentBox";
 import { convertTimestamp, estado } from "../../utils";
 import { createPortal } from 'react-dom'

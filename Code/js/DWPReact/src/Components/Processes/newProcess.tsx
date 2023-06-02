@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react"
 import './processes.css'
-import processServices from "../../Services/process.service"
+import processServices from "../../Services/Processes/process.service"
 import { createPortal } from 'react-dom'
 import { TemplateDetailsModal } from "../Templates/templateModals"
-import templatesService from "../../Services/templates.service"
+import templatesService from "../../Services/Templates/templates.service"
 
 export const NewProcess = () => {
 

@@ -1,29 +1,23 @@
-.show{
-    display: block;
-    transition: 800ms;
-    opacity: 1;
-}
-
-.show.active {
-    transform: translateY(100px) scale(0) rotateY(180deg);
-    opacity: 0;
-}
-
-/* App.css */
-
 /* Navbar styles */
 .navbar-container {
     background-color: #f1f1f1;
-    padding: 10px 0; /* Adjusted padding */
+    padding: 10px 0;
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Added align-items */
 }
 
 .navbar-brand {
     color: #333;
     text-decoration: none;
     padding: 10px;
-    margin-right: 10px; /* Added margin-right */
+    margin-right: 10px;
+    font-weight: bold; /* Added font-weight */
+    transition: color 0.3s ease; /* Added transition for smooth effect */
+}
+
+.navbar-brand:hover {
+    color: #555; /* Change the color on hover */
 }
 
 .navbar-login {
@@ -32,9 +26,8 @@
 }
 
 .navbar-login-right {
-    margin-left: auto; /* Added margin-left:auto to push the content to the right */
+    margin-left: auto;
 }
-
 
 .navbar-login button {
     background-color: transparent;
@@ -42,14 +35,18 @@
     color: #333;
     font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease; /* Added transition for smooth effect */
+}
+
+.navbar-login button:hover {
+    color: #555; /* Change the color on hover */
 }
 
 .navbar-profile {
     display: flex;
     align-items: center;
-    margin-left: 10px; /* Added margin-left for spacing */
+    margin-left: 10px;
 }
-
 
 /* Popup styles */
 .popup-container {
@@ -81,6 +78,11 @@
     position: absolute;
     top: 10px;
     right: 10px;
+    transition: color 0.3s ease; /* Added transition for smooth effect */
+}
+
+.close-button:hover {
+    color: #555; /* Change the color on hover */
 }
 
 .swap-button {
@@ -90,7 +92,9 @@
     text-decoration: underline;
     font-size: 14px;
     cursor: pointer;
+    transition: color 0.3s ease; /* Added transition for smooth effect */
 }
 
-/* Additional styles */
-/* Add any additional CSS styles you may have */
+.swap-button:hover {
+    color: #555; /* Change the color on hover */
+}

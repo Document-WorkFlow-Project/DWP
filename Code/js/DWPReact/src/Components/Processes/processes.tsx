@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import processServices from "../../Services/process.service"
+import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
 import { convertTimestamp, estado } from "../../utils"
 

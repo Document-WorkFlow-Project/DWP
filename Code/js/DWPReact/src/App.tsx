@@ -11,6 +11,8 @@ import Login from "./Components/LoginForm/login.component";
 import Profile from "./Components/Profile/profile.component";
 import {ProcessDetails} from "./Components/Processes/processDetails";
 import {StageDetails} from "./Components/Stages/stageDetails";
+import Admin from "./Components/Admin/admin.component";
+import AddUsers from "./Components/AddUsers/addusers.component";
 
 export default function App() {
 
@@ -62,11 +64,8 @@ export default function App() {
                     )}
                     {currentUser && currentUser.roles.includes("admin") && (
                         <div>
-                            <Link to={"/templates"} className="navbar-brand">
-                                Templates
-                            </Link>
-                            <Link to={"/roles"} className="navbar-brand">
-                                Papéis
+                            <Link to={"/admin"} className="navbar-brand">
+                                Administrador
                             </Link>
                         </div>
 
@@ -113,14 +112,11 @@ export default function App() {
                 <Route path="/roles" element={<Roles/>}/>
                 <Route path="/admin" element={<Admin/>}/> {/* Added admin route */}
                 <Route path="/profile" element={<Profile/>}/>
+                <Route path="/addusers" element={<AddUsers/>}/>
             </Routes>
 
         </div>
     );
 }
 
-function Admin() {
-    return <h1>Admin Page</h1>;
-    {/* Sample content for the admin route */
-    }
-}
+

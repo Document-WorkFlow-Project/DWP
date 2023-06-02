@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom'
 import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
-import templatesService from "../../Services/templates.service";
+import templatesService from "../../Services/Templates/templates.service";
 import { NewStageModal, TemplateDetailsModal } from "./templateModals"
-import rolesService from "../../Services/roles.service";
+import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 

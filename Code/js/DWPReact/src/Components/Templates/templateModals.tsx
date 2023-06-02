@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import templatesService from "../../Services/templates.service"
+import templatesService from "../../Services/Templates/templates.service"
 
 export function NewStageModal({ 
     onClose, 
