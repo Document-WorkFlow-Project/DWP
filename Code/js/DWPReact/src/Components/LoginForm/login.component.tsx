@@ -127,6 +127,15 @@ const Login = () => {
                         />
                     </div>
 
+                    <div className="form-group">
+                        <button className="btn btn-primary btn-block" disabled={loading}>
+                            {loading && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span>Login</span>
+                        </button>
+                    </div>
+
 
                     {message && (
                         <div className="form-group">
@@ -135,7 +144,7 @@ const Login = () => {
                             </div>
                         </div>
                     )}
-                    <CheckButton style={{ display: "none" }} ref={checkBtn} />
+                    <button style={{ display: "none" }} ref={checkBtn} />
                 </Form>
             </div>
         </div>
