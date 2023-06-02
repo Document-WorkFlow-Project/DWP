@@ -1,0 +1,19 @@
+
+.toastify-container {
+    width: 320px;
+}
+
+.toastify-content {
+    font-size: 16px;
+    padding: 16px;
+}
+
+.toastify-success {
+    background-color: #57c7a8;
+    color: #fff;
+}
+
+.toastify-error {
+    background-color: #e74c3c;
+    color: #fff;
+}

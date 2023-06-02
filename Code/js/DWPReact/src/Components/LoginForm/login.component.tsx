@@ -48,7 +48,6 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
-    const navigate = useNavigate();
 
     const onChangeEmail = (e) => {
         const email = e.target.value;
@@ -128,14 +127,6 @@ const Login = () => {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <button className="btn btn-primary btn-block" disabled={loading}>
-                            {loading && (
-                                <span className="spinner-border spinner-border-sm"></span>
-                            )}
-                            <span>Login</span>
-                        </button>
-                    </div>
 
                     {message && (
                         <div className="form-group">

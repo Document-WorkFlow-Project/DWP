@@ -7,6 +7,9 @@ import Input from "react-validation/build/input";
 import Form from "react-validation/build/form";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../../Services/Users/auth.service";
+import {toast, ToastContainer} from "react-toastify";
+import './addusers.component.css'
+import "react-toastify/dist/ReactToastify.css";
 
 const required = (value) => {
     if (!value) {
@@ -43,6 +46,7 @@ const adduserscomponent: React.FC = () => {
     const form = useRef();
     const checkBtn = useRef();
 
+    const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [successful, setSuccessful] = useState(false);
@@ -58,7 +62,7 @@ const adduserscomponent: React.FC = () => {
         setEmail(email);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         setMessage("");
@@ -69,23 +73,27 @@ const adduserscomponent: React.FC = () => {
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
-            addusersService.registeruser(username, email).then(
+            await addusersService.registeruser(email, username).then(
                 (response) => {
-                    setMessage(response.data.message);
+                    setMessage(response.data);
                     setSuccessful(true);
+                    toast.success(response.data); // Show success toast
                 },
                 (error) => {
                     const resMessage =
-                        (error.response &&
+                        (error.response.data &&
                             error.response.data &&
-                            error.response.data.message) ||
+                            error.response.data) ||
                         error.message ||
                         error.toString();
 
                     setMessage(resMessage);
                     setSuccessful(false);
+                    toast.error(resMessage);
                 }
             );
+        } else {
+            setLoading(false);
         }
     };
 
@@ -94,7 +102,7 @@ const adduserscomponent: React.FC = () => {
         <div>
             <h2>Adicionar Novo Utilizador</h2>
             <Form onSubmit={handleSubmit} ref={form}>
-                {!successful && (
+
                     <div>
                         <div>
                             <label htmlFor="username">Username</label>
@@ -118,11 +126,16 @@ const adduserscomponent: React.FC = () => {
                                 validations={[required, validEmail]}
                             />
                         </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary btn-block">Submit</button>
-                        </div>
                     </div>
-                )}
+
+                <div className="form-group">
+                    <button className="btn btn-primary btn-block" disabled={loading}>
+                        {loading && (
+                            <span className="spinner-border spinner-border-sm"></span>
+                        )}
+                        <span>Submit</span>
+                    </button>
+                </div>
 
                 {message && (
                     <div className="form-group">
@@ -138,6 +151,7 @@ const adduserscomponent: React.FC = () => {
                 )}
                 <CheckButton style={{ display: "none" }} ref={checkBtn} />
             </Form>
+            <ToastContainer /> {/* Add the toast container */}
         </div>
     );
 };

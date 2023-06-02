@@ -2,7 +2,6 @@ import axios from "axios";
 import { API_URL } from "../../utils";
 
 class AuthService {
-    //TODO: Tornar async await
     async login(email: string, password: string) {
         return await axios.post(`${API_URL}/users/login`, {
             email: email,
