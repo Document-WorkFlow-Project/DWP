@@ -48,6 +48,8 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
+    const navigate = useNavigate();
+
 
     const onChangeEmail = (e) => {
         const email = e.target.value;
@@ -144,7 +146,7 @@ const Login = () => {
                             </div>
                         </div>
                     )}
-                    <button style={{ display: "none" }} ref={checkBtn} />
+                    <CheckButton style={{ display: "none" }} ref={checkBtn} />
                 </Form>
             </div>
         </div>

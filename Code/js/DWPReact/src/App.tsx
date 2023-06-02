@@ -110,7 +110,7 @@ export default function App() {
                 <Route path="/stage/:id" element={<StageDetails/>}/>
                 <Route path="/templates" element={<Templates/>}/>
                 <Route path="/roles" element={<Roles/>}/>
-                <Route path="/admin" element={<Admin/>}/> {/* Added admin route */}
+                <Route path="/admin" element={<Admin/>}/>
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/addusers" element={<AddUsers/>}/>
             </Routes>
