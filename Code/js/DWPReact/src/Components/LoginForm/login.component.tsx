@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../../Services/Users/auth.service";
 import { isEmail } from "validator";
+import {toast, ToastContainer} from "react-toastify";
 
 
 
@@ -75,19 +76,19 @@ const Login = () => {
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
             await AuthService.login(email, password).then(
-                () => {
+                (response) => {
                     window.location.reload();
+                    toast.success(response);
                 },
                 (error) => {
+                    console.log(error)
                     const resMessage =
                         (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
+                            error.response.data ) ||
                         error.toString();
 
                     setLoading(false);
-                    setMessage(resMessage);
+                    toast.error(resMessage);
                 }
             );
         } else {
@@ -138,16 +139,9 @@ const Login = () => {
                         </button>
                     </div>
 
-
-                    {message && (
-                        <div className="form-group">
-                            <div className="alert alert-danger" role="alert">
-                                {message}
-                            </div>
-                        </div>
-                    )}
                     <CheckButton style={{ display: "none" }} ref={checkBtn} />
                 </Form>
+                <ToastContainer /> {/* Add the toast container */}
             </div>
         </div>
     );
