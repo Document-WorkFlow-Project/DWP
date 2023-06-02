@@ -87,9 +87,7 @@ const adduserscomponent: React.FC = () => {
                     console.log(error)
                     const resMessage =
                         (error.response.data &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
+                            error.response.data )||
                         error.toString();
 
                     setMessage(resMessage);
