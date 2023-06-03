@@ -10,13 +10,13 @@ class AuthService {
             .then(async (response) => {
                 if (response.data) {
                     console.log(response.data)
-                    localStorage.setItem("user", JSON.stringify(response.data));
+                    sessionStorage.setItem("user", JSON.stringify(response.data));
                     await axios.get(`${API_URL}/users/info/${email}`)
                         .then((response) => {
                             console.log("data do info: " + response.data)
-                            localStorage.setItem("email", email);
-                            localStorage.setItem("nome", response.data.nome);
-                            localStorage.setItem("roles", response.data.roles);
+                            sessionStorage.setItem("email", email);
+                            sessionStorage.setItem("nome", response.data.nome);
+                            sessionStorage.setItem("roles", response.data.roles);
                         })
                 }
                 return response.data;
@@ -24,10 +24,10 @@ class AuthService {
     }
 
     async logout() {
-        localStorage.removeItem("user")
-        localStorage.removeItem("email");
-        localStorage.removeItem("nome");
-        localStorage.removeItem("roles");
+        sessionStorage.removeItem("user")
+        sessionStorage.removeItem("email");
+        sessionStorage.removeItem("nome");
+        sessionStorage.removeItem("roles");
         await axios.post(`${API_URL}/users/logout`).then((response) => {
             window.location.href = "/"
         });
@@ -57,14 +57,14 @@ class AuthService {
     }
 
     getCurrentUserInfo() {
-        const email = localStorage.getItem("email");
-        const nome = localStorage.getItem("nome");
-        const roles = localStorage.getItem("roles");
+        const email = sessionStorage.getItem("email");
+        const nome = sessionStorage.getItem("nome");
+        const roles = sessionStorage.getItem("roles");
         return {email, nome, roles}
     }
 
     getCurrentUser() {
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) return {token: JSON.parse(userStr).token};
 
         return null;

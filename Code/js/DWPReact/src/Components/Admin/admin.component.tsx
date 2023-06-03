@@ -35,7 +35,7 @@ const Admin = () => {
                     </div>
                 </Link>
                 <Link to="/addusers" className="custom-card">
-                    <h3 className="custom-title">Adicionar Usuário</h3>
+                    <h3 className="custom-title">Adicionar Utilizador</h3>
                     <div className="custom-bar">
                         <div className="custom-emptybar"></div>
                         <div className="custom-filledbar"></div>
