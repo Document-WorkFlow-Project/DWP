@@ -1,6 +1,6 @@
 // MyFormComponent.tsx
 
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import addusersService from "../../Services/Users/addusers.service";
 import { isEmail } from "validator";
 import Input from "react-validation/build/input";
@@ -11,6 +11,7 @@ import {toast, ToastContainer} from "react-toastify";
 import './addusers.component.css'
 import "react-toastify/dist/ReactToastify.css";
 import {useNavigate} from "react-router-dom";
+import templatesService from "../../Services/Templates/templates.service";
 
 const required = (value) => {
     if (!value) {
@@ -44,6 +45,15 @@ const vusername = (value) => {
 
 
 const adduserscomponent: React.FC = () => {
+
+    useEffect(() => {
+        const email = sessionStorage.getItem('email');
+
+        if (!email) {
+            window.location.href = '/';
+        }
+    }, [])
+
     const form = useRef();
     const checkBtn = useRef();
 

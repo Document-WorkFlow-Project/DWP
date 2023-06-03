@@ -19,6 +19,11 @@ export const NewProcess = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false)
 
     useEffect(() => {
+        const email = sessionStorage.getItem('email');
+
+        if (!email) {
+            window.location.href = '/';
+        }
         const fetchData = async () => {
             const templates = await templatesService.availableTemplates()
             if(Array.isArray(templates))

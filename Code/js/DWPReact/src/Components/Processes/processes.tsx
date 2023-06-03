@@ -12,6 +12,11 @@ export const Processes = () => {
     const [selectedProccessType, setSelectedProccessType] = useState("PENDING")
 
     useEffect(() => {
+        const email = sessionStorage.getItem('email');
+
+        if (!email) {
+            window.location.href = '/';
+        }
         const fetchData = async () => {
             let tasks
             if (selectedTaskType === "PENDING") 

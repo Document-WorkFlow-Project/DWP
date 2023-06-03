@@ -16,6 +16,11 @@ export const Roles = () => {
     const [error, setError] = useState("")
 
     useEffect(() => {
+        const email = sessionStorage.getItem('email');
+
+        if (!email) {
+            window.location.href = '/';
+        }
         const fetchData = async () => {
           setAvailableRoles(await rolesService.availableRoles())
         }
