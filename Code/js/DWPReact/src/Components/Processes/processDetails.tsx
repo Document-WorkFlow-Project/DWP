@@ -64,6 +64,15 @@ export const ProcessDetails = () => {
         document.body.removeChild(link);
     }
 
+    const getClassName = (state) => {
+        if (state === "PENDING")
+            return 'pending-stage'
+        else if (state === "APPROVED")
+            return 'success-stage'
+        else if (state === "DISAPPROVED")
+            return 'failure-stage'
+    }
+
     return (
         <div>
             <h2>{processDetails.nome}</h2>
@@ -89,7 +98,7 @@ export const ProcessDetails = () => {
             }
             <div>
                 {processStages.map((stage, index) => {
-                    const className = index === currentStage ? 'pending-stage' : '';
+                    const className = index === currentStage ? getClassName(stage.estado) : '';
 
                     return (
                         <div key={index} className={`clipping-container ${className}`}>
