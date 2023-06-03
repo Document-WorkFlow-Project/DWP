@@ -47,6 +47,14 @@ div.scroll-resp {
     background-color: rgba(0, 174, 255, 0.748);
 }
 
+.success-stage {
+    background-color: rgba(0, 255, 55, 0.795);
+}
+
+.failure-stage {
+    background-color: rgba(228, 1, 1, 0.748);
+}
+
 .bg{
     position: fixed;
     top: 0;
