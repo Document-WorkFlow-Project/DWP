@@ -32,7 +32,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
         return handle.createQuery(
             "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and estado = 'PENDING' order by data_inicio"
+                "from processo where autor = :email and estado = 'PENDING' order by data_inicio desc"
         )
             .bind("email", email)
             .mapTo(ProcessModel::class.java)
@@ -47,7 +47,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
         return handle.createQuery(
             "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim"
+                "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim desc"
         )
             .bind("email", email)
             .mapTo(ProcessModel::class.java)

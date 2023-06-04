@@ -12,7 +12,7 @@ export const Processes = () => {
     const [selectedProccessType, setSelectedProccessType] = useState("PENDING")
 
     useEffect(() => {
-        const email = sessionStorage.getItem('email');
+        const email = localStorage.getItem('email');
 
         if (!email) {
             window.location.href = '/';
