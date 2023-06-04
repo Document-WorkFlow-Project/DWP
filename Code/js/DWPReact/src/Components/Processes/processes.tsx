@@ -54,18 +54,34 @@ export const Processes = () => {
                 <option value="PENDING">Pendentes</option>
                 <option value="FINISHED">Terminadas</option>
             </select>
+            <p></p>
             <div>
                 {pendingTasks.length === 0 ?
                     <p>Nenhuma tarefa pendente</p>
                 :
                     <div>
-                        {pendingTasks.map((stage, index) => {
-                            return (
-                                <p key={index}> 
-                                    <Link to={"/stage/" + stage.id} >{stage.nome}</Link> <b> {estado(stage.estado)} - </b>{convertTimestamp(stage.data_inicio)}<b> - </b>{stage.data_fim && convertTimestamp(stage.data_fim)} <b>Processo: </b><Link to={"/process/" + stage.id_processo}>{stage.processo_nome}</Link>
-                                </p>
-                            )
-                        })}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Etapa</th>
+                                    <th>Estado da Etapa</th>
+                                    <th>Data Início</th>
+                                    <th>Data Fim</th>
+                                    <th>Processo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pendingTasks.map((stage, index) => (
+                                    <tr key={index}>
+                                        <td><Link to={"/stage/" + stage.id}>{stage.nome}</Link></td>
+                                        <td>{estado(stage.estado)}</td>
+                                        <td>{convertTimestamp(stage.data_inicio)}</td>
+                                        <td>{stage.data_fim && convertTimestamp(stage.data_fim)}</td>
+                                        <td><Link to={"/process/" + stage.id_processo}>{stage.processo_nome}</Link></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 }
             </div>
@@ -74,18 +90,32 @@ export const Processes = () => {
                 <option value="PENDING">Pendentes</option>
                 <option value="FINISHED">Terminados</option>
             </select>
+            <p></p>
             <div>  
                 {processes.length === 0 ?
                     <p>Nenhum processo disponível</p>
                 :
                     <div>
-                        {processes.map((process, index) => {
-                            return (
-                                <p key={index}> 
-                                    <Link to={"/process/" + process.id} >{process.nome}</Link> <b> {estado(process.estado)} - </b>{convertTimestamp(process.data_inicio)}<b> - </b>{process.data_fim && convertTimestamp(process.data_fim)}
-                                </p>
-                            )
-                        })}
+                        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                            <thead>
+                                <tr>
+                                    <th>Processo</th>
+                                    <th>Estado do processo</th>
+                                    <th>Data Início</th>
+                                    <th>Data Fim</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {processes.map((process, index) => (
+                                    <tr key={index}>
+                                        <td><Link to={"/process/" + process.id}>{process.nome}</Link></td>
+                                        <td>{estado(process.estado)}</td>
+                                        <td>{convertTimestamp(process.data_inicio)}</td>
+                                        <td>{process.data_fim && convertTimestamp(process.data_fim)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 }
             </div>
