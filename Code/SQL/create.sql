@@ -1,7 +1,5 @@
 BEGIN TRANSACTION;
 
-CREATE DOMAIN email AS varchar(32) CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
-
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel(
     nome varchar(32) PRIMARY KEY,
@@ -10,7 +8,7 @@ CREATE TABLE IF NOT EXISTS Papel(
 
 --Utilizador(email, nome, authToken, password)
 CREATE TABLE IF NOT EXISTS Utilizador(
-    email email PRIMARY KEY,
+    email text PRIMARY KEY,
     nome varchar(32) NOT NULL,
     authToken text UNIQUE NOT NULL,
     pass text NOT NULL
@@ -24,7 +22,7 @@ CREATE TABLE IF NOT EXISTS template_processo(
 
 CREATE TABLE IF NOT EXISTS acesso_template(
     nome_template text,
-    utilizador email,
+    utilizador text,
     PRIMARY KEY (nome_template, utilizador),
     FOREIGN KEY (nome_template) REFERENCES template_processo(nome) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (utilizador) REFERENCES utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE
@@ -94,7 +92,7 @@ CREATE TABLE IF NOT EXISTS Documento_Processo(
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel(
     papel varchar(36) NOT NULL,
-    email_utilizador varchar(36) NOT NULL,
+    email_utilizador text NOT NULL,
     FOREIGN KEY (papel) REFERENCES Papel(nome) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (papel, email_utilizador)
@@ -102,7 +100,7 @@ CREATE TABLE IF NOT EXISTS Utilizador_Papel(
 
 -- Tabela que associa Utilizadores a Etapas
 CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
-    email_utilizador varchar(32) NOT NULL,
+    email_utilizador text NOT NULL,
     id_etapa text NOT NULL,
     assinatura boolean,
     data_assinatura timestamp,
@@ -111,6 +109,11 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)
 );
+	
+insert into utilizador values ('admin', 'Administrador principal', '9c91793b-7e45-4fc5-a25a-f4baa04fb356', 'c93ccd78b2076528346216b3b2f701e6');
+
+insert into papel values ('admin', 'Administrador');
+
+insert into utilizador_papel values ('admin', 'admin');
 
 COMMIT TRANSACTION;
-
