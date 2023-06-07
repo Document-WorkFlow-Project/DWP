@@ -9,8 +9,6 @@ import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 
-// TODO adicionar controlo de permissões de acesso a templates
-
 export default function Templates() {
 
   const [availableTemplates, setAvailableTemplates] = useState([])
@@ -41,11 +39,9 @@ export default function Templates() {
   const [showUsersModal, setShowUsersModal] = useState(false)
 
   useEffect(() => {
-    const email = sessionStorage.getItem('email');
-
-    if (!email) {
+    if (!localStorage.getItem('email'))
       window.location.href = '/';
-    }
+    
     const fetchData = async () => {
       const templates = await templatesService.availableTemplates()
       if(Array.isArray(templates))

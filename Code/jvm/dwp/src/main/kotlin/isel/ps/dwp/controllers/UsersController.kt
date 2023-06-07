@@ -60,7 +60,7 @@ class UsersController (
     fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<*> {
         val cookie = request.getHeader("Cookie")
         if (cookie != null) {
-            response.addHeader("Set-Cookie", "$cookie;Path=/;HttpOnly;Max-Age=0")
+            response.addHeader("Set-Cookie", "$cookie;Path=/;HttpOnly;Max-Age=-1")
         }
         return ResponseEntity
             .status(201)

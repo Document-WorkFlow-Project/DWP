@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS Documento_Processo cascade;
 DROP TABLE IF EXISTS Utilizador_Papel cascade;
 DROP TABLE IF EXISTS Utilizador_Etapa cascade;
-DROP TABLE IF EXISTS Utilizador_Processo cascade;
 DROP TABLE IF EXISTS Comentario cascade;
 DROP TABLE IF EXISTS Utilizador cascade;
 DROP TABLE IF EXISTS Etapa cascade;

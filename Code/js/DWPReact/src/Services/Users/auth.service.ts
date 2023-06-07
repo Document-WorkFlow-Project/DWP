@@ -2,25 +2,26 @@ import axios from "axios";
 import { API_URL } from "../../utils";
 
 class AuthService {
+    
     async login(email: string, password: string) {
-        return await axios.post(`${API_URL}/users/login`, {
+        const response = await axios.post(`${API_URL}/users/login`, {
             email: email,
             password: password
         })
-            .then(async (response) => {
-                if (response.data) {
-                    console.log(response.data)
-                    localStorage.setItem("user", JSON.stringify(response.data));
-                    await axios.get(`${API_URL}/users/info/${email}`)
-                        .then((response) => {
-                            console.log("data do info: " + response.data)
-                            localStorage.setItem("email", email);
-                            localStorage.setItem("nome", response.data.nome);
-                            localStorage.setItem("roles", response.data.roles);
-                        })
-                }
-                return response.data;
-            });
+        
+        if (response.data) {
+            console.log(response.data)
+            localStorage.setItem("user", JSON.stringify(response.data));
+            
+            const res = await axios.get(`${API_URL}/users/info/${email}`)
+                
+            console.log("data do info: " + res.data)
+            localStorage.setItem("email", email);
+            localStorage.setItem("nome", res.data.nome);
+            localStorage.setItem("roles", res.data.roles); 
+        }
+
+        return response.data;
     }
 
     async logout() {
@@ -28,32 +29,17 @@ class AuthService {
         localStorage.removeItem("email");
         localStorage.removeItem("nome");
         localStorage.removeItem("roles");
-        await axios.post(`${API_URL}/users/logout`).then((response) => {
-            window.location.href = "/"
-        });
+        
+        await axios.post(`${API_URL}/users/logout`)
+        window.location.href = "/"
     }
 
-    register(email: string, name: string) {
-        return axios
-            .post(`${API_URL}/users/register`, {
-                email: email,
-                name: name
-            });
-    }
-
-    async getUserDetails(email: string) {
-        try {
-            const response = await axios.get(`${API_URL}/users/info/${email}`);
-            return {
-                email: response.data.email,
-                nome: response.data.nome,
-                roles: response.data.roles
-            };
-        } catch (error) {
-            // Handle any errors that occur during the request
-            console.error(error);
-            return null; // or throw an error depending on your use case
-        }
+    async register(email: string, username: string) {
+        const response =  await axios.post(`${API_URL}/users/register`, {
+            email: email,
+            name: username
+        }, { withCredentials: true })
+        return response.data;
     }
 
     getCurrentUserInfo() {
@@ -70,6 +56,5 @@ class AuthService {
         return null;
     }
 }
-
 
 export default new AuthService();

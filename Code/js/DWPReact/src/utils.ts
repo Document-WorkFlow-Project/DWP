@@ -18,7 +18,7 @@ export const estado = (value) => {
     else if (value == "APPROVED")
         return "Aprovado"
     else if (value == "DISAPPROVED")
-        return "Reprovado"
+        return "Não aprovado"
 }
 
 export function formatBytes(bytes) {
@@ -31,5 +31,5 @@ export function formatBytes(bytes) {
     }
   
     return `${bytes.toFixed(2)} ${units[i]}`;
-  }
+}
   
