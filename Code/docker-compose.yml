@@ -1,0 +1,35 @@
+version: '0.1.0'
+
+services:
+
+  dwp-backend:
+    build:
+      context: ./jvm/dwp/
+      dockerfile: Dockerfile
+    environment:          # change the url based on your database values
+      DWP_DATABASE_URL: "jdbc:postgresql://dwp-database:5432/postgres?user=postgres&password=postgres"
+      SERVER_PORT: 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - dwp-database
+
+  dwp-database:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres      # Change to your credentials and preferred database
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    command:
+      postgres -D /var/lib/postgresql/data -c 'app.admin_email=example@gmail.com' # change first admin email
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+  dwp-frontend:
+    build:
+      context: ./js/DWPReact/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
