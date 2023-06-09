@@ -74,6 +74,7 @@ class PipelineConfigurer(
             .addPathPatterns("/roles/**")
             .addPathPatterns("/stages/**")
             .addPathPatterns("/templates/**")
+            .addPathPatterns("/users/list")
             .addPathPatterns("/users/register")
             .order(1)
 
@@ -84,6 +85,7 @@ class PipelineConfigurer(
             .addPathPatterns("/roles/**")
             .addPathPatterns("/stages/**")
             .addPathPatterns("/templates/**")
+            .addPathPatterns("/users/list")
             .addPathPatterns("/users/register")
             .order(2)
     }

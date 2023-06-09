@@ -17,7 +17,7 @@ class UsersController (
     private val userServices: UserServices
 ) {
 
-    @GetMapping
+    @GetMapping("/list")
     @Admin
     fun apiUsers(): ResponseEntity<*> {
         val users = userServices.usersList()
