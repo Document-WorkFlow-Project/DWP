@@ -11,10 +11,9 @@ import org.springframework.stereotype.Service
 @Service
 class StageServices (
     private val transactionManager: TransactionManager,
-    private val notificationServices: NotificationsServicesInterface
+    private val notificationServices: NotificationsServicesInterface,
+    private val userServices: UserServices
 ) : StagesInterface {
-
-    private val userServices: UserServices = UserServices(transactionManager)
 
     override fun stageDetails(stageId: String): Stage {
         return transactionManager.run {

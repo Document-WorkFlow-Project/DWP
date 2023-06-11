@@ -1,6 +1,5 @@
 package isel.ps.dwp.http.pipeline.authentication
 
-import isel.ps.dwp.DwpApplication
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.model.UserAuth
 import jakarta.servlet.http.HttpServletRequest

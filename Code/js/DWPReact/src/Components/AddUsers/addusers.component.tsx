@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useContext} from 'react';
 import { isEmail } from "validator";
 import Input from "react-validation/build/input";
 import Form from "react-validation/build/form";
@@ -8,6 +8,7 @@ import './addusers.component.css'
 import "react-toastify/dist/ReactToastify.css";
 import {useNavigate} from "react-router-dom";
 import authService from '../../Services/Users/auth.service';
+import { AuthContext } from '../../AuthProvider';
 
 const required = (value) => {
     if (!value) {
@@ -42,8 +43,10 @@ const vusername = (value) => {
 
 const adduserscomponent: React.FC = () => {
 
+    const { loggedUser } = useContext(AuthContext);
+
     useEffect(() => {
-        if (!localStorage.getItem('email'))
+        if (!loggedUser.email)
             window.location.href = '/';
     }, [])
 
@@ -85,6 +88,8 @@ const adduserscomponent: React.FC = () => {
                     setMessage(response);
                     setSuccessful(true);
                     toast.success(response); // Show success toast
+                    setUsername("")
+                    setEmail("")
                 },
                 (error) => {
                     console.log(error)
@@ -109,8 +114,8 @@ const adduserscomponent: React.FC = () => {
             <h2>Adicionar Novo Utilizador</h2>
             <Form onSubmit={handleSubmit} ref={form}>
                 <div>
-                    <div>
-                        <label htmlFor="username">Username</label>
+                    <p>
+                        <label htmlFor="username">Nome</label>
                         <Input
                             type="text"
                             className="form-control"
@@ -119,8 +124,8 @@ const adduserscomponent: React.FC = () => {
                             onChange={onChangeUsername}
                             validations={[required, vusername]}
                         />
-                    </div>
-                    <div>
+                    </p>
+                    <p>
                         <label htmlFor="email">Email</label>
                         <Input
                             type="text"
@@ -130,15 +135,12 @@ const adduserscomponent: React.FC = () => {
                             onChange={onChangeEmail}
                             validations={[required, validEmail]}
                         />
-                    </div>
-                </div>
-
-                <div className="form-group">
+                    </p>
                     <button className="btn btn-primary btn-block" disabled={loading}>
                         {loading && (
                             <span className="spinner-border spinner-border-sm"></span>
                         )}
-                        <span>Submit</span>
+                        <span>Adicionar utilizador</span>
                     </button>
                 </div>
 

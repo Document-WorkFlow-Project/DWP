@@ -17,9 +17,17 @@ class UsersController (
     private val userServices: UserServices
 ) {
 
+    @GetMapping("/auth")
+    fun checkAuth(user: UserAuth): ResponseEntity<*> {
+        return ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(user)
+    }
+
     @GetMapping("/list")
     @Admin
-    fun apiUsers(): ResponseEntity<*> {
+    fun apiUsers(user: UserAuth): ResponseEntity<*> {
         val users = userServices.usersList()
         return ResponseEntity
                 .status(200)
@@ -27,7 +35,7 @@ class UsersController (
                 .body(users)
     }
 
-    @GetMapping("/info/{email}")
+    @GetMapping("/{email}")
     fun getUserInfo(@PathVariable email: String): ResponseEntity<*> {
         val users = userServices.userDetails(email)
         return ResponseEntity

@@ -2,7 +2,6 @@ package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.model.UserDetailsWithRoles
 
 interface UsersInterface {
 
@@ -20,7 +19,7 @@ interface UsersInterface {
     /**
      * Detalhes de um utilizador
      */
-    fun userDetails(email: String): UserDetailsWithRoles
+    fun userDetails(email: String): UserAuth
 
     /**
      * Atualizar perfil (nome, email, password) (função de administrador ou utilizador associado)

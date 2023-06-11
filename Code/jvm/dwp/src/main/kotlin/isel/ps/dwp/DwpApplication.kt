@@ -2,13 +2,10 @@ package isel.ps.dwp
 
 import isel.ps.dwp.database.jdbi.configure
 import isel.ps.dwp.http.pipeline.authentication.AuthenticationInterceptor
-import isel.ps.dwp.http.pipeline.authorization.AuthorizationInterceptor
 import isel.ps.dwp.http.pipeline.authentication.UserArgumentResolver
-import isel.ps.dwp.interfaces.NotificationsServicesInterface
-import isel.ps.dwp.services.NotificationServices
+import isel.ps.dwp.http.pipeline.authorization.AuthorizationInterceptor
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -51,12 +48,6 @@ class DwpApplication {
         return ThreadPoolTaskScheduler()
     }
 
-    @Bean
-    @Qualifier("notificationsService")
-    fun notificationsService(): NotificationsServicesInterface {
-        return NotificationServices()
-    }
-
 }
 
 @Configuration
@@ -76,6 +67,7 @@ class PipelineConfigurer(
             .addPathPatterns("/templates/**")
             .addPathPatterns("/users/list")
             .addPathPatterns("/users/register")
+            .addPathPatterns("/users/auth")
             .order(1)
 
         registry

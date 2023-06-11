@@ -5,7 +5,7 @@ class UsersService {
     
     async usersList() {
         try {
-            const response = await axios.get(`${API_URL}/users`, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/users/list`, {withCredentials: true})
             return response.data
         }
         catch (error) {
@@ -15,12 +15,8 @@ class UsersService {
 
     async getUserDetails(email: string) {
         try {
-            const response = await axios.get(`${API_URL}/users/info/${email}`);
-            return {
-                email: response.data.email,
-                nome: response.data.nome,
-                roles: response.data.roles
-            };
+            const response = await axios.get(`${API_URL}/users/${email}`);
+            return response.data
         } catch (error) {
             // Handle any errors that occur during the request
             console.error(error);

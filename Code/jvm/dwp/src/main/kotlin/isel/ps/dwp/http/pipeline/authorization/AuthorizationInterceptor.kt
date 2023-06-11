@@ -1,7 +1,6 @@
 package isel.ps.dwp.http.pipeline.authorization
 
 import isel.ps.dwp.http.pipeline.authentication.AuthenticationInterceptor
-import isel.ps.dwp.http.pipeline.authentication.AuthorizationHeaderProcessor
 import isel.ps.dwp.http.pipeline.authentication.UserArgumentResolver
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

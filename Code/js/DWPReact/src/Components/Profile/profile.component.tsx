@@ -1,35 +1,30 @@
-import {useEffect, useState} from "react";
-import AuthService from "../../Services/Users/auth.service";
+import {useContext} from "react";
+import { AuthContext } from "../../AuthProvider";
 
 const Profile =  () => {
 
-    const [info, setInfo] = useState({nome:"",email:"",roles:""})
-
-    useEffect( () => {
-
-        const fetchInfo = async () => {
-            setInfo(AuthService.getCurrentUserInfo())
-        }
-
-        fetchInfo()
-    }, [])
+    const { loggedUser } = useContext(AuthContext);
 
     return (
         <div className="container">
             <header className="jumbotron">
                 <h3>
-                    Perfil de <strong>{info.nome}</strong>
+                    Perfil de <strong>{loggedUser.nome}</strong>
                 </h3>
             </header>
             <p>
-                <strong>Email:</strong> {info.email}
+                <strong>Email:</strong> {loggedUser.email}
             </p>
             <strong>Papeis:</strong>
-            <ul>
-                {info.roles.split(',').map((role, index) => (
-                    <li key={index}>{role.trim()}</li>
-                ))}
-            </ul>
+            {loggedUser.roles > 0 ?
+                <ul>
+                    {loggedUser.roles.map((role, index) => (
+                        <li key={index}>{role.trim()}</li>
+                    ))}
+                </ul>
+            :
+                <p className="error">Nenhum papel atribuído.</p>
+            }
         </div>
     );
 };

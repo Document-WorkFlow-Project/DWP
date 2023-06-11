@@ -7,19 +7,13 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.model.UserDetailsWithRoles
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class UserServices(
-        private val transactionManager: TransactionManager
+        private val transactionManager: TransactionManager,
+        private val notificationServices: NotificationsServicesInterface
 ): UsersInterface {
-
-    @Autowired
-    @Qualifier("notificationsService")
-    lateinit var notificationServices: NotificationsServicesInterface
 
     override fun checkBearerToken(bearerToken: String): UserAuth {
         return transactionManager.run {
@@ -75,7 +69,7 @@ class UserServices(
         }
     }
 
-    override fun userDetails(email: String): UserDetailsWithRoles {
+    override fun userDetails(email: String): UserAuth {
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
 

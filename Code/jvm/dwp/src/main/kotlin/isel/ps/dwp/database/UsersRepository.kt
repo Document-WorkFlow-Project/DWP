@@ -4,7 +4,7 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.model.UserDetailsWithRoles
+import isel.ps.dwp.model.UserDetails
 import org.jdbi.v3.core.Handle
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -26,16 +26,17 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
     }
 
     override fun checkBearerToken(bearerToken: String): UserAuth {
-        val email = handle.createQuery("select email from utilizador where authtoken = :token")
+        val userDetails = handle.createQuery("select nome, email from utilizador where authtoken = :token")
             .bind("token", bearerToken)
-            .mapTo(String::class.java)
+            .mapTo(UserDetails::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
 
-        val role = handle.createQuery("select papel from Utilizador_Papel where email_utilizador = :email")
-            .bind("email", email)
+        val roles = handle.createQuery("select papel from Utilizador_Papel where email_utilizador = :email")
+            .bind("email", userDetails.email)
             .mapTo(String::class.java)
             .list()
-        return UserAuth(email, role)
+
+        return UserAuth(userDetails.email, userDetails.nome, roles)
     }
 
     override fun login(email: String, password: String): String {
@@ -91,11 +92,18 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
             .execute()
     }
 
-    override fun userDetails(email: String): UserDetailsWithRoles {
-        return handle.createQuery("SELECT u.email, u.nome, string_agg(up.papel, ', ') AS roles FROM utilizador u LEFT JOIN Utilizador_Papel up ON u.email = up.email_utilizador WHERE u.email = :email GROUP BY u.email, u.nome;")
+    override fun userDetails(email: String): UserAuth {
+        val name = handle.createQuery("select nome from utilizador where email = :email")
             .bind("email", email)
-            .mapTo(UserDetailsWithRoles::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFoundException("User not found")
+            .mapTo(String::class.java)
+            .singleOrNull() ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
+
+        val roles = handle.createQuery("select papel from Utilizador_Papel where email_utilizador = :email")
+            .bind("email", email)
+            .mapTo(String::class.java)
+            .list()
+
+        return UserAuth(email, name, roles)
     }
 
     override fun updateProfile(email: String, hashPassword: String, newPass: String) {

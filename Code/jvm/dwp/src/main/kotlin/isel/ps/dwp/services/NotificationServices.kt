@@ -3,7 +3,6 @@ package isel.ps.dwp.services
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.notificationsSwitch
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -14,16 +13,13 @@ import java.util.*
 import java.util.concurrent.ScheduledFuture
 
 @Service
-class NotificationServices: NotificationsServicesInterface {
-
-    @Autowired
-    lateinit var javaMailSender: JavaMailSender
+class NotificationServices(
+    private val javaMailSender: JavaMailSender,
+    private val taskScheduler: TaskScheduler
+): NotificationsServicesInterface {
 
     @Value("\${spring.mail.username}")
     private val sender: String? = null
-
-    @Autowired
-    lateinit var taskScheduler: TaskScheduler
 
     private var scheduledTasks: MutableMap<String, ScheduledFuture<*>?> = mutableMapOf()
 

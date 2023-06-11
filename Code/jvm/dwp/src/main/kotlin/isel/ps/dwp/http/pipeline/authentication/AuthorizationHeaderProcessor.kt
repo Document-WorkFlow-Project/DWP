@@ -11,18 +11,15 @@ class AuthorizationHeaderProcessor(
 ) {
 
     fun process(authorizationValue: String?): UserAuth? {
-        if (authorizationValue == null) {
+        if (authorizationValue == null)
             return null
-        }
+
         val parts = authorizationValue.trim().split(" ")
-        if (parts.size != 2) {
+
+        if (parts.size != 2 || parts[0].lowercase() != SCHEME_BEARER)
             return null
-        }
-        if (parts[0].lowercase() != SCHEME_BEARER) {
-            return null
-        }
-        val userAuth = usersService.checkBearerToken(parts[1])?: return null
-        return userAuth
+
+        return usersService.checkBearerToken(parts[1])
     }
 
     fun processCookie(authorizationValue: String?): UserAuth? {
