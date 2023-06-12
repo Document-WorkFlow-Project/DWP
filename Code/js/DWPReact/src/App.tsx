@@ -5,7 +5,7 @@ import {NewProcess} from "./Components/Processes/newProcess";
 import {Processes} from "./Components/Processes/processes";
 import {Roles} from "./Components/Roles/roles.component";
 import "./App.css";
-import {useEffect, useState, useContext} from "react";
+import {useState, useContext} from "react";
 import AuthService from "./Services/Users/auth.service";
 import Login from "./Components/LoginForm/login.component";
 import Profile from "./Components/Profile/profile.component";

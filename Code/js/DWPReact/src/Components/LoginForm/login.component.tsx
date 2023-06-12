@@ -1,44 +1,10 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../../Services/Users/auth.service";
-import { isEmail } from "validator";
 import {toast, ToastContainer} from "react-toastify";
-
-
-
-const required = (value) => {
-    if (!value) {
-        return (
-            <div className="invalid-feedback d-block">
-                This field is required!
-            </div>
-        );
-    }
-};
-
-
-const validEmail = (value) => {
-    if (!isEmail(value)) {
-        return (
-            <div className="invalid-feedback d-block">
-                This is not a valid email.
-            </div>
-        );
-    }
-};
-
-const vpassword = (value) => {
-    if (value.length < 6 || value.length > 40) {
-        return (
-            <div className="invalid-feedback d-block">
-                The password must be between 6 and 40 characters.
-            </div>
-        );
-    }
-};
+import { vpassword, validEmail, required } from "../../utils";
 
 const Login = () => {
     const form = useRef();
@@ -47,10 +13,6 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
-
-    const navigate = useNavigate();
-
 
     const onChangeEmail = (e) => {
         const email = e.target.value;
@@ -65,13 +27,10 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        setMessage("");
         setLoading(true);
-
 
         // @ts-ignore
         form.current.validateAll();
-
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
