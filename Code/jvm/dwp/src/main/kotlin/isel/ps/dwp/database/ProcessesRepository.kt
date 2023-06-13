@@ -12,7 +12,6 @@ import java.util.*
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     override fun getProcesses(userAuth: UserAuth, type: String?): List<String> {
-        //TODO email must be provided, to know the processes the user created, unless user is admin
         if (userAuth.roles.contains("admin")) {
             return if (type != null) handle.createQuery("select id from processo where template_processo = :type")
                 .bind("type", type).mapTo(String::class.java).list()
@@ -21,16 +20,12 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
                 .mapTo(String::class.java).list()
 
         } else {
-            // Se é utilizador normal vê os processos em que participa + aqueles que acabaram e ele era o autor
+            // Se é utilizador normal vê os processos em que participa pelo type
+            val userProcessesByType = userProcessesByType(userAuth.email, type)
+            val userAuthoredProcessesByType = userProcessesAuthoredByType(userAuth.email, type)
 
-            // TODO
-//            val userProcesses = userProcessesByType(userAuth.email, type)
-//            val userAuthoredProcessesPending = userProcessesAuthoredByType(userAuth.email)
-//
-//            return (userProcessesPending + userAuthoredProcessesPending).toSet().toList()
-
+            return (userProcessesByType + userAuthoredProcessesByType).toSet().toList()
         }
-        return emptyList()
     }
 
     // Retorna lista de processos pendentes do user que fez o pedido
@@ -286,6 +281,54 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .bind("userEmail", userEmail)
             .mapTo(ProcessModel::class.java)
             .list() ?: throw ExceptionControllerAdvice.ProcessNotFound("O Utilizador não é Autor de nenhum Processo")
+    }
+
+    private fun userProcessesByType(email: String, type: String?): List<String> {
+        val sql: String
+        if (type != null) {
+            sql = """"SELECT DISTINCT p.id
+             FROM Processo p
+             INNER JOIN Etapa e ON p.id = e.id_processo
+             INNER JOIN Utilizador_Etapa ue ON e.id = ue.id_etapa
+             WHERE ue.email_utilizador = :userEmail AND p.template_processo = :type;""".trimIndent()
+            return handle.createQuery(sql)
+                .bind("userEmail", email)
+                .bind("type", type)
+                .mapTo(String::class.java)
+                .list()
+                ?: throw ExceptionControllerAdvice.ProcessNotFound("O Utilizador não está em nenhum Processo do $type")
+        } else {
+            sql = """"SELECT DISTINCT p.id
+             FROM Processo p
+             INNER JOIN Etapa e ON p.id = e.id_processo
+             INNER JOIN Utilizador_Etapa ue ON e.id = ue.id_etapa
+             WHERE ue.email_utilizador = :userEmail""".trimIndent()
+            return handle.createQuery(sql)
+                .bind("userEmail", email)
+                .mapTo(String::class.java)
+                .list()
+                ?: throw ExceptionControllerAdvice.ProcessNotFound("O Utilizador não está em nenhum Processo")
+        }
+    }
+
+    private fun userProcessesAuthoredByType(email: String, type: String?): List<String> {
+        val sql: String
+        if (type == null) {
+            sql = """select id from processo where autor = :email""".trimIndent()
+            return handle.createQuery(sql)
+                .bind("email", email)
+                .mapTo(String::class.java)
+                .list()
+                ?: throw ExceptionControllerAdvice.ProcessNotFound("O Utilizador não é Autor de nenhum Processo")
+        } else {
+            sql = """select id from processo where autor = :email AND template_processo = :type;""".trimIndent()
+            return handle.createQuery(sql)
+                .bind("email", email)
+                .bind("type", type)
+                .mapTo(String::class.java)
+                .list()
+                ?: throw ExceptionControllerAdvice.ProcessNotFound("O Utilizador não está em nenhum Processo do $type")
+        }
     }
 
 }
