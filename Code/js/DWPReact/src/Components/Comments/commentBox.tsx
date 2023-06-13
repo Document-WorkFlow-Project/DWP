@@ -14,7 +14,7 @@ export function Comments ({stageId}) {
             try {
             comts = await commentsService.stageComments(stageId)
             } catch (error) {
-               toast.error(error.message)
+               toast.error("Error Posting Comment. Please Refresh ...")
             }
             setCommments(comts)
         }
