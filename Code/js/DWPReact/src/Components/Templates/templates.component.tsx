@@ -9,6 +9,7 @@ import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 import { AuthContext } from "../../AuthProvider";
+import {toast} from "react-toastify";
 
 export default function Templates() {
 
@@ -48,16 +49,33 @@ export default function Templates() {
       window.location.href = '/';
     
     const fetchData = async () => {
-      const templates = await templatesService.availableTemplates()
-      if(Array.isArray(templates)){
-        setAvailableTemplates(templates)
 
-        if (templates.length > 0)
-          setSelectedTemplate(templates[0])
+      try {
+        const templates = await templatesService.availableTemplates()
+          setAvailableTemplates(templates)
+
+          if (templates.length > 0)
+            setSelectedTemplate(templates[0])
+
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
       }
 
-      setRoleGroups(await rolesService.availableRoles())   
-      setUsers(await usersService.usersList())
+      try {
+        setRoleGroups(await rolesService.availableRoles())
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
+        else toast.error("There are no Roles. Please contact an Admin")
+      }
+
+      try {
+        setUsers(await usersService.usersList())
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
+      }
     }
     
     fetchData()
