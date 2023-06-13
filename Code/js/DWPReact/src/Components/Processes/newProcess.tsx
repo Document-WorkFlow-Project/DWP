@@ -35,7 +35,9 @@ export const NewProcess = () => {
 
     }, [])
 
-
+    useEffect(() => {
+        setSelectedTemplate(availableTemplates[0])
+    }, [availableTemplates])
 
     function templateOptions() {
         let options = []
