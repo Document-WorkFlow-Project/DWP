@@ -10,6 +10,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -21,6 +22,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -32,6 +34,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -42,6 +45,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -52,6 +56,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -63,6 +68,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -73,6 +79,7 @@ class RolesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 }
