@@ -1,7 +1,20 @@
 import './admin.component.css';
 import { Link } from 'react-router-dom';
+import {useContext, useEffect} from "react";
+import { AuthContext } from '../../AuthProvider';
 
 const Admin = () => {
+
+    const { loggedUser } = useContext(AuthContext);
+
+
+
+    useEffect( () => {
+        if(!loggedUser.email||!loggedUser.roles.includes("admin")){
+            window.location.href="/"
+        }
+    }, [])
+
     return (
         <div>
             <head>

@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
     }
 
     const [loggedUser, setLoggedUser] = useState(loggedOut);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -27,10 +28,17 @@ export function AuthProvider({ children }) {
                 console.log(error)
                 setLoggedUser(loggedOut);
             }
+
+            setLoading(false);
         };
 
         checkAuth();
     }, []);
+
+    // Prevent rendering of children until we're done loading
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <AuthContext.Provider value={{ loggedUser }}>

@@ -22,7 +22,8 @@ export const NewProcess = () => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email) 
+
+        if (!loggedUser.email)
            window.location.href = '/';
 
         const fetchData = async () => {
@@ -31,11 +32,10 @@ export const NewProcess = () => {
                 setAvailableTemplates(templates)
         }
         fetchData()
+
     }, [])
 
-    useEffect(() => {
-        setSelectedTemplate(availableTemplates[0])
-    }, [availableTemplates])
+
 
     function templateOptions() {
         let options = []
@@ -45,23 +45,23 @@ export const NewProcess = () => {
         })
 
         return options;
-    }  
+    }
 
     function DragDropFiles() {
 
         const [dragActive, setDragActive] = useState(false)
         const inputRef = useRef(null)
-        
+
         const handleDrag = function(e) {
             e.preventDefault()
             e.stopPropagation()
-            
+
             if (e.type === "dragenter" || e.type === "dragover")
                 setDragActive(true)
             else if (e.type === "dragleave")
                 setDragActive(false)
         }
-        
+
         const handleDrop = function(e) {
             e.preventDefault()
             e.stopPropagation()
@@ -72,12 +72,12 @@ export const NewProcess = () => {
                 setUploadedDocs((prevDocs) => [...prevDocs, ...files])
             }
         }
-        
+
         const handleChange = function (e) {
             e.preventDefault()
 
             inputRef.current.click()
-        
+
             if (e.target.files && e.target.files.length > 0) {
                 const files = Array.from(e.target.files)
                 setUploadedDocs((prevDocs) => [...prevDocs, ...files])
@@ -90,12 +90,12 @@ export const NewProcess = () => {
 
         const handleSubmit = function(e) {
             e.preventDefault()
-            
+
             if (processName === "" || processDescription === "") {
                 setError("Nome e/ou descrição do processo em falta.")
                 return
             }
-    
+
             if (uploadedDocs.length === 0){
                 setError("Nenhum documento carregado.")
                 return
@@ -107,10 +107,10 @@ export const NewProcess = () => {
             formData.append('description', processDescription)
 
             uploadedDocs.forEach((file) => formData.append('file', file))
-    
+
             processServices.createProcess(formData)
         }
-        
+
         return (
             <form id="form-file-upload" onDragEnter={handleDrag} onSubmit={handleSubmit}>
                 <input ref={inputRef} type="file" id="input-file-upload" multiple={true} onChange={handleChange} />
@@ -131,7 +131,7 @@ export const NewProcess = () => {
                         ) : (
                             <p>Nenhum documento carregado</p>
                         )}
-                    </div> 
+                    </div>
                 </label>
                 { dragActive && <div id="drag-file-element" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div> }
                 <p></p>
@@ -146,26 +146,26 @@ export const NewProcess = () => {
 
             { availableTemplates.length === 0 ?
                 <p className="error">Não existem templates disponíveis.</p>
-            : 
-                <div>  
+            :
+                <div>
                         <label><b>Template: </b>
                             <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                                 {templateOptions()}
                             </select>
                             <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
                         </label>
-                    
+
                         <p><b>Nome: </b></p>
                         <input className="name-input" type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/>
                         <p><b>Descrição: </b></p>
                         <textarea className="description-area" value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
                         <p className="error">{error}</p>
-                        
+
                         <DragDropFiles/>
 
                         <div>
                             {showDetailsModal && createPortal(
-                                <TemplateDetailsModal 
+                                <TemplateDetailsModal
                                     onClose={() => setShowDetailsModal(false)}
                                     selectedTemplate={selectedTemplate}
                                 />,

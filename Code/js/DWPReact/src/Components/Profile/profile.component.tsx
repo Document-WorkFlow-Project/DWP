@@ -1,9 +1,15 @@
-import {useContext} from "react";
+import {useContext, useEffect} from "react";
 import { AuthContext } from "../../AuthProvider";
 
 const Profile =  () => {
 
     const { loggedUser } = useContext(AuthContext);
+
+
+    useEffect( () => {
+        console.log(loggedUser.roles)
+    }, [])
+
 
     return (
         <div className="container">
@@ -16,7 +22,7 @@ const Profile =  () => {
                 <strong>Email:</strong> {loggedUser.email}
             </p>
             <strong>Papeis:</strong>
-            {loggedUser.roles > 0 ?
+            {loggedUser.roles.length > 0 ?
                 <ul>
                     {loggedUser.roles.map((role, index) => (
                         <li key={index}>{role.trim()}</li>
