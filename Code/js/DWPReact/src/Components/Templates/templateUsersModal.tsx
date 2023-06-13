@@ -4,8 +4,11 @@ import templatesService from "../../Services/Templates/templates.service"
 
 export function TemplateUsersModal({
     onClose,
+    loggedUser,
     selectedTemplate
 }) {
+
+    //TODO suporte para adicionar grupos de utilizadores
 
     const [templateUsers, setTemplateUsers] = useState([])
     const [availableUsers, setAvailableUsers] = useState([])
@@ -20,7 +23,7 @@ export function TemplateUsersModal({
           
           const users = await usersService.usersList()
           if(Array.isArray(users))
-            setAvailableUsers(users.filter(user => !tUsers.includes(user)))
+            setAvailableUsers(users.filter(user => !tUsers.includes(user) && user !== loggedUser.email))
         }
         fetchData()
     }, [])

@@ -41,25 +41,27 @@ export default function Templates() {
 
   const { loggedUser } = useContext(AuthContext);
 
+  //TODO add groups to template access
+
   useEffect(() => {
     if (!loggedUser.email)
       window.location.href = '/';
     
     const fetchData = async () => {
       const templates = await templatesService.availableTemplates()
-      if(Array.isArray(templates))
+      if(Array.isArray(templates)){
         setAvailableTemplates(templates)
 
-      setRoleGroups(await rolesService.availableRoles())     
+        if (templates.length > 0)
+          setSelectedTemplate(templates[0])
+      }
+
+      setRoleGroups(await rolesService.availableRoles())   
       setUsers(await usersService.usersList())
     }
+    
     fetchData()
   }, [])
-  
-  useEffect(() => {
-    if (availableTemplates.length > 0)
-      setSelectedTemplate(availableTemplates[0])
-  }, [availableTemplates])
 
   function templateOptions() {
     let options = []
@@ -214,6 +216,7 @@ export default function Templates() {
         {showUsersModal && createPortal(
           <TemplateUsersModal 
             onClose={() => setShowUsersModal(false)}
+            loggedUser={loggedUser}
             selectedTemplate={selectedTemplate}
           />,
           document.body
