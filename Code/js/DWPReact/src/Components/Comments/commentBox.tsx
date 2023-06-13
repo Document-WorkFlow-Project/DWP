@@ -12,11 +12,12 @@ export function Comments ({stageId}) {
         const fetchData = async () => {
             let comts
             try {
-            comts = await commentsService.stageComments(stageId)
+                comts = await commentsService.stageComments(stageId)
+                setCommments(comts)
             } catch (error) {
                toast.error("Error Posting Comment. Please Refresh ...")
             }
-            setCommments(comts)
+
         }
         fetchData()
     }, [])

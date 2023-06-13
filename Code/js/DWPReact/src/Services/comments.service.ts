@@ -10,6 +10,7 @@ class CommentsService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
     
@@ -31,6 +32,7 @@ class CommentsService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
