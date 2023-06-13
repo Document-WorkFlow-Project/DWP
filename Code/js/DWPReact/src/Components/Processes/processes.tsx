@@ -33,7 +33,7 @@ export const Processes = () => {
 
         } catch (error) {
             let code = error.response.status
-            if (code != 404) toast.error(error.message)
+            if (code != 404) toast.error("Error getting Stages, please Refresh ...")
         }
     }
 
@@ -53,7 +53,7 @@ export const Processes = () => {
 
             } catch (error) {
                 let code = error.response.status
-                if (code != 404) toast.error(error.message)
+                if (code != 404) toast.error("Error getting Processes, please Refresh ...")
             }
         }
         fetchData()

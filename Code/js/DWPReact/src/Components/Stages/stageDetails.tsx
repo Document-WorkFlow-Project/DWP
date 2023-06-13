@@ -49,7 +49,7 @@ export const StageDetails = () => {
                     setHasToSign(true)
             } catch (error) {
                 let code = error.response.status
-                if (code != 404) toast.error(error.message)
+                if (code != 404) toast.error("Something Wrong Happened. Please Refresh ...")
             }
         }
         fetchData()
