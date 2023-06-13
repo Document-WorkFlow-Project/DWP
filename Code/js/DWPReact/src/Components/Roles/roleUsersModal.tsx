@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react"
 import rolesService from "../../Services/Roles/roles.service"
 import usersService from "../../Services/Users/users.service"
 import { AuthContext } from "../../AuthProvider"
+import {toast} from "react-toastify";
 
 export function RoleUsersModal({
     onClose,
@@ -19,11 +20,16 @@ export function RoleUsersModal({
             window.location.href = '/';
 
         const fetchData = async () => {
-          const rUsers = await rolesService.roleUsers(selectedRole)
-          setRoleUsers(rUsers)
-          
-          const users = await usersService.usersList()
-          setAvailableUsers(users.filter(user => !rUsers.includes(user)))
+            try{
+              const rUsers = await rolesService.roleUsers(selectedRole)
+              setRoleUsers(rUsers)
+
+              const users = await usersService.usersList()
+              setAvailableUsers(users.filter(user => !rUsers.includes(user)))
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error("Error getting Users and Roles Information, please Refresh ...")
+            }
         }
         fetchData()
     }, [])
