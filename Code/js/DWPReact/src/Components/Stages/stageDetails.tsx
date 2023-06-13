@@ -7,6 +7,7 @@ import { convertTimestamp, estado } from "../../utils";
 import { createPortal } from 'react-dom'
 import { SignaturesModal } from "./signaturesModal";
 import { AuthContext } from "../../AuthProvider";
+import {toast} from "react-toastify";
 
 
 export const StageDetails = () => {
@@ -35,23 +36,31 @@ export const StageDetails = () => {
         const fetchData = async () => {
             if (!loggedUser.email)
                 window.location.href = '/';
+            try {
+                const stageDetails = await stagesService.stageDetails(id)
 
-            const stageDetails = await stagesService.stageDetails(id)
-            
-            if (typeof stageDetails === 'object')
-                setStageDetails(stageDetails)
-            
-            const signatures = await stagesService.stageSignatures(id)
-            setStageSignatures(signatures)
-            
-            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
-                setHasToSign(true)
+                if (typeof stageDetails === 'object')
+                    setStageDetails(stageDetails)
+
+                const signatures = await stagesService.stageSignatures(id)
+                setStageSignatures(signatures)
+
+                if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
+                    setHasToSign(true)
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error(error.message)
+            }
         }
         fetchData()
     }, [])
 
     const signStage = async (value) => {
-        await stagesService.signStage(id, value)
+        try {
+            await stagesService.signStage(id, value)
+        } catch (error) {
+            toast.error(error.message)
+        }
     }
 
     return (

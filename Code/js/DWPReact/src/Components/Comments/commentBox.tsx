@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import commentsService from "../../Services/comments.service"
 import { convertTimestamp } from "../../utils"
+import {toast} from "react-toastify";
 
 export function Comments ({stageId}) {
 
@@ -9,7 +10,12 @@ export function Comments ({stageId}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const comts = await commentsService.stageComments(stageId)
+            let comts
+            try {
+            comts = await commentsService.stageComments(stageId)
+            } catch (error) {
+               toast.error(error.message)
+            }
             setCommments(comts)
         }
         fetchData()

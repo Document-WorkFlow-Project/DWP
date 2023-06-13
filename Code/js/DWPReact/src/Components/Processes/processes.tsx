@@ -20,44 +20,44 @@ export const Processes = () => {
             window.location.href = '/';
     }, [])
 
-    useEffect(() => {        
+    useEffect(() => {
         const fetchData = async () => {
+        try {
             let tasks
-            if (selectedTaskType === "PENDING") 
+            if (selectedTaskType === "PENDING")
                 tasks = await processServices.pendingStages()
             else if (selectedTaskType === "FINISHED")
                 tasks = await processServices.finishedStages()
-            console.log(tasks)
-            if (Array.isArray(tasks))
-                setPendingTasks(tasks)
+
+            setPendingTasks(tasks)
+
+        } catch (error) {
+            let code = error.response.status
+            if (code != 404) toast.error(error.message)
         }
+    }
 
         fetchData()
     }, [selectedTaskType])
 
     useEffect(() => {
         const fetchData = async () => {
-            let processes
-            if (selectedProccessType === "PENDING")
-                try {
+            try {
+                let processes
+                if (selectedProccessType === "PENDING")
                     processes = await processServices.pendingProcesses()
-                } catch (error) {
-                let code = error.response.status
-                    if(code==404) toast.error("Nenhum processo pendente")
-                    else toast.error(error.message)
-                }
-            else if (selectedProccessType === "FINISHED"){
-                try {
+                else if (selectedProccessType === "FINISHED")
                     processes = await processServices.finishedProcesses()
-                } catch (error) {
-                    toast.error("Nenhum processo terminado")
-                }
-            }
-            if (processes.response == 200)
+
                 setProcesses(processes)
 
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error(error.message)
+            }
         }
         fetchData()
+
     }, [selectedProccessType])
 
     return (
