@@ -15,12 +15,10 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         if (userAuth.roles.contains("admin")) {
             return if (type != null) handle.createQuery("select id from processo where template_processo = :type")
                 .bind("type", type).mapTo(String::class.java).list()
-            else handle.createQuery("select id from processo where autor = :email")
-                .bind("email", "") //TODO email must be provided
+            else handle.createQuery("select id from processo")
                 .mapTo(String::class.java).list()
-
         } else {
-            // Se é utilizador normal vê os processos em que participa pelo type
+            // Se é utilizador normal vê os processos em que participa ou que criou pelo type
             val userProcessesByType = userProcessesByType(userAuth.email, type)
             val userAuthoredProcessesByType = userProcessesAuthoredByType(userAuth.email, type)
 
