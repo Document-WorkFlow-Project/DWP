@@ -3,6 +3,7 @@ import rolesService from "../../Services/Roles/roles.service"
 import { createPortal } from 'react-dom'
 import { RoleUsersModal } from "./roleUsersModal"
 import { AuthContext } from "../../AuthProvider"
+import {toast} from "react-toastify";
 
 export const Roles = () => {
 
@@ -23,7 +24,13 @@ export const Roles = () => {
             window.location.href = '/';
         
         const fetchData = async () => {
-          setAvailableRoles(await rolesService.availableRoles())
+            try {
+                setAvailableRoles(await rolesService.availableRoles())
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
+                else toast.error("There are no Roles. Please contact an Admin")
+            }
         }
         fetchData()
     }, [])
@@ -36,7 +43,12 @@ export const Roles = () => {
     useEffect(() => {
         if (availableRoles.length > 0) {
             const fetchDetails = async () => {
-                setSelectedRoleDetails(await rolesService.roleDetails(selectedRole))
+                try {
+                    setSelectedRoleDetails(await rolesService.roleDetails(selectedRole))
+                } catch (error) {
+                    let code = error.response.status
+                    if (code != 404) toast.error("Error Getting Role Details. Please Refresh ...")
+                }
             }
             fetchDetails()
         }
