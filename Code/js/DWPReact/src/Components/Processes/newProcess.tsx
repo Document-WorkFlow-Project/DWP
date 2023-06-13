@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useContext } from "react"
 import './processes.css'
 import processServices from "../../Services/Processes/process.service"
 import { createPortal } from 'react-dom'
 import { TemplateDetailsModal } from "../Templates/templateModals"
 import templatesService from "../../Services/Templates/templates.service"
+import { AuthContext } from '../../AuthProvider';
 
 export const NewProcess = () => {
 
@@ -18,8 +19,10 @@ export const NewProcess = () => {
 
     const [showDetailsModal, setShowDetailsModal] = useState(false)
 
+    const { loggedUser } = useContext(AuthContext);
+
     useEffect(() => {
-        if (!localStorage.getItem('email')) 
+        if (loggedUser.email === null) 
             window.location.href = '/';
 
         const fetchData = async () => {

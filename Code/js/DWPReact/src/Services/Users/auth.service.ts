@@ -1,6 +1,5 @@
 import axios from "axios";
 import { API_URL } from "../../utils";
-import usersService from "./users.service";
 
 class AuthService {
     
