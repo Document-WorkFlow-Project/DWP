@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import {Link} from "react-router-dom";
 import { useParams } from 'react-router';
 import stagesService from "../../Services/Stages/stages.service";
@@ -6,12 +6,12 @@ import { Comments } from "../Comments/commentBox";
 import { convertTimestamp, estado } from "../../utils";
 import { createPortal } from 'react-dom'
 import { SignaturesModal } from "./signaturesModal";
+import { AuthContext } from "../../AuthProvider";
 
 
 export const StageDetails = () => {
     
     const { id } = useParams();
-    const email = localStorage.getItem("email");
     
     const [hasToSign, setHasToSign] = useState(false)
     const [stageSignatures, setStageSignatures] = useState([])
@@ -29,8 +29,13 @@ export const StageDetails = () => {
         prazo: 1
     })
 
+    const { loggedUser } = useContext(AuthContext);
+
     useEffect(() => {
         const fetchData = async () => {
+            if (!loggedUser.email)
+                window.location.href = '/';
+
             const stageDetails = await stagesService.stageDetails(id)
             
             if (typeof stageDetails === 'object')
@@ -39,7 +44,7 @@ export const StageDetails = () => {
             const signatures = await stagesService.stageSignatures(id)
             setStageSignatures(signatures)
             
-            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === email && obj.assinatura === null) !== undefined)
+            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
                 setHasToSign(true)
         }
         fetchData()

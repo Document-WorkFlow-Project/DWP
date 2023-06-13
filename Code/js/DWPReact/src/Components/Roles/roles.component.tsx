@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import rolesService from "../../Services/Roles/roles.service"
 import { createPortal } from 'react-dom'
 import { RoleUsersModal } from "./roleUsersModal"
+import { AuthContext } from "../../AuthProvider"
 
 export const Roles = () => {
 
@@ -15,12 +16,12 @@ export const Roles = () => {
     const [showModal, setShowModal] = useState(false)
     const [error, setError] = useState("")
 
-    useEffect(() => {
-        const email = sessionStorage.getItem('email');
+    const { loggedUser } = useContext(AuthContext);
 
-        if (!email) {
+    useEffect(() => {
+        if (!loggedUser.email)
             window.location.href = '/';
-        }
+        
         const fetchData = async () => {
           setAvailableRoles(await rolesService.availableRoles())
         }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import { createPortal } from 'react-dom'
 import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
@@ -8,6 +8,7 @@ import { NewStageModal, TemplateDetailsModal } from "./templateModals"
 import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
+import { AuthContext } from "../../AuthProvider";
 
 export default function Templates() {
 
@@ -38,8 +39,10 @@ export default function Templates() {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showUsersModal, setShowUsersModal] = useState(false)
 
+  const { loggedUser } = useContext(AuthContext);
+
   useEffect(() => {
-    if (!localStorage.getItem('email'))
+    if (!loggedUser.email)
       window.location.href = '/';
     
     const fetchData = async () => {

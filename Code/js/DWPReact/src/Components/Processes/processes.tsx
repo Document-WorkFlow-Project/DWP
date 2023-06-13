@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
 import { convertTimestamp, estado } from "../../utils"
+import { AuthContext } from "../../AuthProvider"
 
 
 export const Processes = () => {
@@ -11,12 +12,14 @@ export const Processes = () => {
     const [selectedTaskType, setSelectedTaskType] = useState("PENDING")
     const [selectedProccessType, setSelectedProccessType] = useState("PENDING")
 
-    useEffect(() => {
-        const email = localStorage.getItem('email');
+    const { loggedUser } = useContext(AuthContext);
 
-        if (!email) {
+    useEffect(() => {
+        if (!loggedUser.email)
             window.location.href = '/';
-        }
+    }, [])
+
+    useEffect(() => {        
         const fetchData = async () => {
             let tasks
             if (selectedTaskType === "PENDING") 
@@ -27,6 +30,7 @@ export const Processes = () => {
             if (Array.isArray(tasks))
                 setPendingTasks(tasks)
         }
+
         fetchData()
     }, [selectedTaskType])
 
@@ -43,8 +47,6 @@ export const Processes = () => {
         }
         fetchData()
     }, [selectedProccessType])
-
-    //TODO move values to tables
 
     return (
         <div>

@@ -22,8 +22,8 @@ export const NewProcess = () => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (loggedUser.email === null) 
-            window.location.href = '/';
+        if (!loggedUser.email) 
+           window.location.href = '/';
 
         const fetchData = async () => {
             const templates = await templatesService.availableTemplates()

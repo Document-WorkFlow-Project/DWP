@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import rolesService from "../../Services/Roles/roles.service"
 import usersService from "../../Services/Users/users.service"
+import { AuthContext } from "../../AuthProvider"
 
 export function RoleUsersModal({
     onClose,
@@ -11,7 +12,12 @@ export function RoleUsersModal({
 
     const [searchInput, setSearchInput] = useState("")
 
+    const { loggedUser } = useContext(AuthContext);
+
     useEffect(() => {
+        if (!loggedUser.email)
+            window.location.href = '/';
+
         const fetchData = async () => {
           const rUsers = await rolesService.roleUsers(selectedRole)
           setRoleUsers(rUsers)
@@ -43,9 +49,7 @@ export function RoleUsersModal({
                 <p><b>Utilizadores: </b></p>
                 <div className="responsible-container">
                     {roleUsers.map((user, index) => {
-                        const currentUser = localStorage.getItem("email");
-                        
-                        if (selectedRole === "admin" && user === currentUser)
+                        if (selectedRole === "admin" && user === loggedUser.email)
                             return (<p key={index}> {user} </p>)
                         else
                             return (<p key={index}> {user} <button onClick={() => removeUserFromRole(user)}>x</button></p>)
