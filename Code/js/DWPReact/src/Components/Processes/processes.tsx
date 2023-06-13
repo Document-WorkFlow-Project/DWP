@@ -3,6 +3,7 @@ import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
 import { convertTimestamp, estado } from "../../utils"
 import { AuthContext } from "../../AuthProvider"
+import {toast, ToastContainer} from 'react-toastify';
 
 
 export const Processes = () => {
@@ -26,7 +27,7 @@ export const Processes = () => {
                 tasks = await processServices.pendingStages()
             else if (selectedTaskType === "FINISHED")
                 tasks = await processServices.finishedStages()
-
+            console.log(tasks)
             if (Array.isArray(tasks))
                 setPendingTasks(tasks)
         }
@@ -37,13 +38,24 @@ export const Processes = () => {
     useEffect(() => {
         const fetchData = async () => {
             let processes
-            if (selectedProccessType === "PENDING") 
-                processes = await processServices.pendingProcesses()
-            else if (selectedProccessType === "FINISHED")
-                processes = await processServices.finishedProcesses()
-        
-            if (Array.isArray(processes))
+            if (selectedProccessType === "PENDING")
+                try {
+                    processes = await processServices.pendingProcesses()
+                } catch (error) {
+                let code = error.response.status
+                    if(code==404) toast.error("Nenhum processo pendente")
+                    else toast.error(error.message)
+                }
+            else if (selectedProccessType === "FINISHED"){
+                try {
+                    processes = await processServices.finishedProcesses()
+                } catch (error) {
+                    toast.error("Nenhum processo terminado")
+                }
+            }
+            if (processes.response == 200)
                 setProcesses(processes)
+
         }
         fetchData()
     }, [selectedProccessType])

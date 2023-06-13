@@ -14,6 +14,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -24,6 +25,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     } 
 
@@ -34,6 +36,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     } 
 
@@ -43,7 +46,7 @@ class ProcessesService {
             return response.data
         }
         catch (error) {
-            console.log(error)
+            throw(error)
         }
     }
 
@@ -53,7 +56,7 @@ class ProcessesService {
             return response.data
         }
         catch (error) {
-            console.log(error)
+            throw error
         }
     }
 
@@ -64,6 +67,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -74,6 +78,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -84,6 +89,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -94,6 +100,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 

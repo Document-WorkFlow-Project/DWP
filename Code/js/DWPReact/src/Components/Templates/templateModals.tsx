@@ -141,6 +141,8 @@ export function TemplateDetailsModal({onClose, selectedTemplate}) {
             setTemplateDetails(template)
         }
         fetchData()
+
+        console.log(templateDetails)
     }, [])
 
     return (
