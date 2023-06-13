@@ -11,13 +11,13 @@ import java.util.*
 
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
-    override fun getProcesses(type: String?): List<String> {
+    override fun getProcesses(userAuth: UserAuth, type: String?): List<String> {
         //TODO email must be provided, to know the processes the user created, unless user is admin
         return if (type != null)
             handle.createQuery("select id from processo where template_processo = :type")
-            .bind("type", type)
-            .mapTo(String::class.java)
-            .list()
+                .bind("type", type)
+                .mapTo(String::class.java)
+                .list()
         else
             handle.createQuery("select id from processo where autor = :email")
                 .bind("email", "") //TODO email must be provided
@@ -32,7 +32,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
         return handle.createQuery(
             "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and estado = 'PENDING' order by data_inicio desc"
+                    "from processo where autor = :email and estado = 'PENDING' order by data_inicio desc"
         )
             .bind("email", email)
             .mapTo(ProcessModel::class.java)
@@ -47,7 +47,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
         return handle.createQuery(
             "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim desc"
+                    "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim desc"
         )
             .bind("email", email)
             .mapTo(ProcessModel::class.java)
@@ -55,9 +55,9 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
-    override fun processStages(processId: String): List<StageModel> {
+    override fun processStages(userAuth: UserAuth, processId: String): List<StageModel> {
         return handle.createQuery(
-                "select nome, id, estado from etapa where id_processo = :processId order by indice"
+            "select nome, id, estado from etapa where id_processo = :processId order by indice"
         )
             .bind("processId", processId)
             .mapTo(StageModel::class.java)
@@ -65,26 +65,26 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .ifEmpty { throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.") }
     }
 
-    override fun processDetails(processId: String): Process {
+    override fun processDetails(userAuth: UserAuth, processId: String): Process {
         return handle.createQuery("select * from processo where id = :processId")
             .bind("processId", processId)
             .mapTo(Process::class.java)
             .firstOrNull() ?: throw ExceptionControllerAdvice.ProcessNotFound("Processo $processId não encontrado.")
     }
 
-    override fun processDocs(processId: String): List<Document> {
+    override fun processDocs(userAuth: UserAuth, processId: String): List<Document> {
         return handle.createQuery(
             "select id, nome, tipo, tamanho, localizacao " +
-                "from documento d join documento_processo dp on d.id = dp.id_documento " +
-                "where dp.id_processo = :processId"
+                    "from documento d join documento_processo dp on d.id = dp.id_documento " +
+                    "where dp.id_processo = :processId"
         )
-                .bind("processId", processId)
-                .mapTo(Document::class.java)
-                .list()
-                .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
+            .bind("processId", processId)
+            .mapTo(Document::class.java)
+            .list()
+            .ifEmpty { throw ExceptionControllerAdvice.DocumentNotFoundException("Nenhum documento encontrado para o processo $processId") }
     }
 
-    override fun processDocsDetails(processId: String): ProcessDocInfo {
+    override fun processDocsDetails(userAuth: UserAuth, processId: String): ProcessDocInfo {
         val sql = """SELECT d.nome, SUM(d.tamanho) AS total_size
                      FROM documento_processo dp
                      JOIN documento d ON dp.id_documento = d.id
@@ -103,32 +103,38 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         return ProcessDocInfo(names, size)
     }
 
-    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
+    override fun newProcess(
+        templateName: String,
+        name: String,
+        description: String,
+        files: List<MultipartFile>,
+        userAuth: UserAuth
+    ): String {
         val uuid = UUID.randomUUID().toString()
         val userEmail = userAuth.email
 
         handle.createUpdate(
-                "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"
+            "insert into processo(id, nome, autor, descricao, data_inicio, estado, template_processo) values (:uuid,:name,:author,:description,:startDate, 'PENDING', :template)"
         )
-                .bind("uuid", uuid)
-                .bind("name", name)
-                .bind("author", userEmail)
-                .bind("description", description)
-                .bind("startDate", Timestamp(System.currentTimeMillis()))
-                .bind("template", templateName)
-                .execute()
+            .bind("uuid", uuid)
+            .bind("name", name)
+            .bind("author", userEmail)
+            .bind("description", description)
+            .bind("startDate", Timestamp(System.currentTimeMillis()))
+            .bind("template", templateName)
+            .execute()
 
         return uuid
     }
 
-    fun associateDocToProcess(docId: String, processId: String) {
+    fun associateDocToProcess(userAuth: UserAuth, docId: String, processId: String) {
         handle.createUpdate("insert into documento_processo values (:docId, :processId)")
             .bind("docId", docId)
             .bind("processId", processId)
             .execute()
     }
 
-    override fun deleteProcess(processId: String) {
+    override fun deleteProcess(userAuth: UserAuth, processId: String) {
         handle.createUpdate(
             "delete from processo where id = :processId"
         )
@@ -136,7 +142,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .execute()
     }
 
-    override fun cancelProcess(processId: String) {
+    override fun cancelProcess(userAuth: UserAuth, processId: String) {
         handle.createUpdate(
             "update processo set estado = 'CANCELLED' where id = :processId"
         )

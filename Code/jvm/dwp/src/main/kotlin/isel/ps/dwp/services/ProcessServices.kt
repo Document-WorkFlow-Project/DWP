@@ -21,9 +21,9 @@ class ProcessServices(
 
     private val objectMapper: ObjectMapper = ObjectMapper()
 
-    override fun getProcesses(type: String?): List<String> {
+    override fun getProcesses(userAuth: UserAuth,type: String?): List<String> {
         return transactionManager.run {
-            it.processesRepository.getProcesses(type)
+            it.processesRepository.getProcesses(userAuth,type)
         }
     }
 
@@ -39,33 +39,33 @@ class ProcessServices(
         }
     }
 
-    override fun processStages(processId: String): List<StageModel> {
+    override fun processStages(userAuth: UserAuth,processId: String): List<StageModel> {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         return transactionManager.run {
-            it.processesRepository.processStages(processId)
+            it.processesRepository.processStages(userAuth,processId)
         }
     }
 
-    override fun processDetails(processId: String): Process {
+    override fun processDetails(userAuth: UserAuth,processId: String): Process {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         return transactionManager.run {
-            it.processesRepository.processDetails(processId)
+            it.processesRepository.processDetails(userAuth,processId)
         }
     }
 
-    override fun processDocs(processId: String): List<Document> {
+    override fun processDocs(userAuth: UserAuth,processId: String): List<Document> {
         return transactionManager.run {
-            it.processesRepository.processDocs(processId)
+            it.processesRepository.processDocs(userAuth,processId)
         }
     }
 
-    override fun processDocsDetails(processId: String): ProcessDocInfo {
+    override fun processDocsDetails(userAuth: UserAuth,processId: String): ProcessDocInfo {
         return transactionManager.run {
-            it.processesRepository.processDocsDetails(processId)
+            it.processesRepository.processDocsDetails(userAuth,processId)
         }
     }
 
@@ -82,7 +82,7 @@ class ProcessServices(
                 saveInFilesystem(file, "$uploadsFolderPath/$docId-${file.originalFilename}")
 
                 it.documentsRepository.saveDocReference(file, docId)
-                it.processesRepository.associateDocToProcess(docId, processId)
+                it.processesRepository.associateDocToProcess(userAuth,docId, processId)
             }
 
             // Get template stages to be initialized
@@ -115,21 +115,21 @@ class ProcessServices(
         }
     }
 
-    override fun deleteProcess(processId: String) {
+    override fun deleteProcess(userAuth: UserAuth,processId: String) {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         transactionManager.run {
-            it.processesRepository.deleteProcess(processId)
+            it.processesRepository.deleteProcess(userAuth,processId)
         }
     }
 
-    override fun cancelProcess(processId: String) {
+    override fun cancelProcess(userAuth: UserAuth,processId: String) {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         transactionManager.run {
-            it.processesRepository.cancelProcess(processId)
+            it.processesRepository.cancelProcess(userAuth,processId)
         }
     }
 

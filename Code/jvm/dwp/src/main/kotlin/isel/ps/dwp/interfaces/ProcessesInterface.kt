@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile
 
 interface ProcessesInterface {
 
-    fun getProcesses(type: String?): List<String>
+    fun getProcesses(userAuth: UserAuth, type: String?): List<String>
 
     /**
      * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)
@@ -20,33 +20,39 @@ interface ProcessesInterface {
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)
      */
-    fun processStages(processId: String): List<StageModel>
+    fun processStages(userAuth: UserAuth, processId: String): List<StageModel>
 
     /**
-    * Detalhes de um processo (função de utilizadores associados ao processo)
+     * Detalhes de um processo (função de utilizadores associados ao processo)
      */
-    fun processDetails(processId: String): Process
+    fun processDetails(userAuth: UserAuth, processId: String): Process
 
     /**
      * Retorna os detalhes de todos os documentos associados a um processo
      */
-    fun processDocs(processId: String): List<Document>
+    fun processDocs(userAuth: UserAuth, processId: String): List<Document>
 
-    fun processDocsDetails(processId: String): ProcessDocInfo
+    fun processDocsDetails(userAuth: UserAuth, processId: String): ProcessDocInfo
 
     /**
      * Criar processo (função de administrador ou utilizador autorizado)
      */
-    fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String
+    fun newProcess(
+        templateName: String,
+        name: String,
+        description: String,
+        files: List<MultipartFile>,
+        userAuth: UserAuth
+    ): String
 
     /**
      * Remover processo (função de administrador ou utilizador autorizado)
      */
-    fun deleteProcess(processId: String)
+    fun deleteProcess(userAuth: UserAuth, processId: String)
 
     /**
      * Cancelar processo (função de administrador ou utilizador que criou processo)
      */
-    fun cancelProcess(processId: String)
+    fun cancelProcess(userAuth: UserAuth, processId: String)
 
 }
