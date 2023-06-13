@@ -32,13 +32,15 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         if (templateFile.contentType != "application/json")
             throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
 
+        // Save template file description in database
+        transactionManager.run {
+            it.templatesRepository.addTemplate(templateName, templateDescription, templateFile)
+        }
+
         // Save template file in filesystem
         saveInFilesystem(templateFile, "$templatesFolderPath/${templateFile.originalFilename}")
 
-        // Save template file description in database
-        return transactionManager.run {
-            it.templatesRepository.addTemplate(templateName, templateDescription, templateFile)
-        }
+        return templateName
     }
 
     override fun addUsersToTemplate(templateName: String, email: String) {
