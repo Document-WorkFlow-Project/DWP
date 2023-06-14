@@ -12,8 +12,8 @@ import java.util.*
 class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     override fun getProcesses(userAuth: UserAuth, type: String?): List<String> {
-        if (userAuth.roles.contains("admin")) {
-            return if (type != null) handle.createQuery("select id from processo where template_processo = :type")
+        return if (userAuth.roles.contains("admin")) {
+            if (type != null) handle.createQuery("select id from processo where template_processo = :type")
                 .bind("type", type).mapTo(String::class.java).list()
             else handle.createQuery("select id from processo")
                 .mapTo(String::class.java).list()
@@ -22,7 +22,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             val userProcessesByType = userProcessesByType(userAuth.email, type)
             val userAuthoredProcessesByType = userProcessesAuthoredByType(userAuth.email, type)
 
-            return (userProcessesByType + userAuthoredProcessesByType).toSet().toList()
+            (userProcessesByType + userAuthoredProcessesByType).toSet().toList()
         }
     }
 
