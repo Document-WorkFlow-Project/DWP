@@ -105,7 +105,7 @@ class ProcessServices(
                     }
                 }
 
-                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration)
+                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration,userAuth)
                 // Start the first stage
                 if (index == 0)
                     stageServices.startNextPendingStage(stageId)
