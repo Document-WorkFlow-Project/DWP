@@ -112,5 +112,10 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
     PRIMARY KEY (email_utilizador, id_etapa)
 );
 
+insert into papel values ('admin', 'Administrador');
+-- initial admin password = admin1234
+INSERT INTO utilizador VALUES ('david.robalo@hotmail.com', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
+INSERT INTO utilizador_papel VALUES ('admin', 'david.robalo@hotmail.com');
+
 COMMIT TRANSACTION;
 
