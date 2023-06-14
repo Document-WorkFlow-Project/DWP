@@ -8,6 +8,8 @@ import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.*
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.IsolationLevel
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -70,7 +72,7 @@ class ProcessServices(
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             // Create process
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
