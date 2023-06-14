@@ -17,7 +17,7 @@ class StagesController(
     /** --------------------------- Stages -------------------------------**/
     @GetMapping("/{stageId}")
     fun stageDetails(@PathVariable stageId: String, user: UserAuth): ResponseEntity<*> {
-        val stage = stageServices.stageDetails(stageId)
+        val stage = stageServices.stageDetails(stageId,user)
         return ResponseEntity.ok(stage)
     }
 
@@ -49,13 +49,13 @@ class StagesController(
 
     @GetMapping("/{stageId}/users")
     fun stageResponsible(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
-        val users = stageServices.stageUsers(stageId)
+        val users = stageServices.stageUsers(stageId,user)
         return ResponseEntity.ok(users)
     }
 
     @GetMapping("/{stageId}/signatures")
     fun stageSignatures(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
-        val signatures = stageServices.stageSignatures(stageId)
+        val signatures = stageServices.stageSignatures(stageId,user)
         return ResponseEntity.ok(signatures)
     }
 
@@ -65,7 +65,7 @@ class StagesController(
 
     @GetMapping("/{stageId}/comments")
     fun stageComments(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<Comment>> {
-        val comments = stageServices.stageComments(stageId)
+        val comments = stageServices.stageComments(stageId,user)
         return ResponseEntity.ok(comments)
     }
 
