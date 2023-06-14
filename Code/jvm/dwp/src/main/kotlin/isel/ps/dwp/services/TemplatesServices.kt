@@ -85,11 +85,11 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
             it.templatesRepository.findTemplatePathByName(templateName)
         }
 
-        // Delete template file from filesystem
-        deleteFromFilesystem(templatePath)
-
         transactionManager.run {
             it.templatesRepository.deleteTemplate(templateName)
         }
+
+        // Delete template file from filesystem
+        deleteFromFilesystem(templatePath)
     }
 }

@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS Processo(
     estado varchar(32) NOT NULL,
     template_processo varchar(32) NOT NULL,
     CONSTRAINT estado CHECK (estado IN ('PENDING', 'APPROVED', 'DISAPPROVED')),
-    FOREIGN KEY (template_processo) REFERENCES template_processo(nome) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (template_processo) REFERENCES template_processo(nome),
     FOREIGN KEY (autor) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -111,6 +111,11 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)
 );
+
+
+insert into papel values ('admin', 'Administrador');
+INSERT INTO utilizador VALUES ('david.robalo@hotmail.com', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
+INSERT INTO utilizador_papel VALUES ('admin', 'david.robalo@hotmail.com');
 
 COMMIT TRANSACTION;
 
