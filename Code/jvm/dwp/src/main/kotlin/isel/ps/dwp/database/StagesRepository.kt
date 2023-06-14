@@ -15,7 +15,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Retorna os detalhes de uma etapa
      */
-    override fun stageDetails(stageId: String): Stage {
+    override fun stageDetails(stageId: String, userAuth: UserAuth): Stage {
+        if (!userAuth.roles.contains("admin") && !isUserInStage(
+                stageId, userAuth.email
+            )
+        ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
         return handle.createQuery("SELECT * FROM Etapa WHERE id = :stageId")
             .bind("stageId", stageId)
             .mapTo(Stage::class.java)
@@ -34,9 +38,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
     private fun processEnded(processId: String): Boolean {
         return handle.createQuery("select estado from processo where id = :processId")
-                .bind("processId", processId)
-                .mapTo<String>()
-                .first() != "PENDING"
+            .bind("processId", processId)
+            .mapTo<String>()
+            .first() != "PENDING"
     }
 
     /**
@@ -100,7 +104,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Retorna a lista de ids de todas as notificações agendadas
      */
-    fun getStageNotifications(stageId: String, email: String?): List<String> {
+    fun getStageNotifications(stageId: String, email: String?, userAuth: UserAuth): List<String> {
         return if (email == null) {
             // Retornar o id de todas as notificações ativas associadas a esta etapa
             handle.createQuery("select id_notificacao from utilizador_etapa where id_etapa = :stageId")
@@ -118,10 +122,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
+        if (!isUserInStage(
+                stageId,
+                userAuth.email
+            )
+        ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está associado à etapa")
+
         if (handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
                 .bind("email", userAuth.email)
                 .mapTo<Boolean>()
-                .singleOrNull() != null)
+                .singleOrNull() != null
+        )
             throw ExceptionControllerAdvice.InvalidParameterException("O utilizador já participou nesta etapa.")
 
         val processId = findProcessFromStage(stageId)
@@ -157,7 +168,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
-    override fun stageSignatures(stageId: String): List<Signature> {
+    override fun stageSignatures(stageId: String, userAuth: UserAuth): List<Signature> {
+        if (!userAuth.roles.contains("admin") && !isUserInStage(
+                stageId, userAuth.email
+            )
+        ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
         return handle.createQuery(
             "select email_utilizador, assinatura, data_assinatura from utilizador_etapa where id_etapa = :stageId order by data_assinatura"
         )
@@ -220,7 +235,8 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         description: String,
         mode: String,
         responsible: List<String>,
-        duration: Int
+        duration: Int,
+        userAuth: UserAuth
     ): String {
         val stageId = UUID.randomUUID().toString()
 
@@ -252,8 +268,8 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         return handle.createQuery(
             "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.estado " +
-                "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
-                "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') order by e.data_inicio desc"
+                    "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
+                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') order by e.data_inicio desc"
         )
             .bind("email", email)
             .mapTo(StageInfo::class.java)
@@ -261,19 +277,25 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     }
 
     override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+        // TODO("Vale a pena checkar se o User pertence ao que?")
         val email = userEmail ?: userAuth.email
 
         return handle.createQuery(
             "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.estado " +
-                "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
-                "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) order by e.data_fim desc"
+                    "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
+                    "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) order by e.data_fim desc"
         )
             .bind("email", email)
             .mapTo(StageInfo::class.java)
             .list()
     }
 
-    override fun stageUsers(stageId: String): List<UserDetails> {
+    override fun stageUsers(stageId: String, userAuth: UserAuth): List<UserDetails> {
+        if (!userAuth.roles.contains("admin") && !isUserInStage(
+                stageId, userAuth.email
+            )
+        ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+
         return handle.createQuery("SELECT Utilizador.email, Utilizador.nome FROM Utilizador JOIN Utilizador_Etapa ON Utilizador.email = Utilizador_Etapa.email_utilizador JOIN Etapa ON Etapa.id = Utilizador_Etapa.id_etapa WHERE Etapa.id = :stageId")
             .bind("stageId", stageId)
             .mapTo(UserDetails::class.java)
@@ -283,6 +305,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
     /** --------------------------- Comments -------------------------------**/
     override fun addComment(stageId: String, comment: String, user: UserAuth): String {
+        if (!user.roles.contains("admin") && !isUserInStage(
+                stageId, user.email
+            )
+        ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
         val commentId = UUID.randomUUID().toString()
 
         handle.createUpdate("INSERT INTO Comentario (id, id_etapa, data, texto, remetente) VALUES (:id, :stageId, :date, :text, :authorEmail)")
@@ -296,19 +322,21 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return commentId
     }
 
-    override fun deleteComment(commentId: String,user: UserAuth) {
-        handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId and remetente=:email")
-            .bind("commentId", commentId)
-            .bind("email", user.email)
-            .mapTo(Comment::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotYours("Comentário não é seu, portanto não o pode apagar.")
-
+    override fun deleteComment(commentId: String, user: UserAuth) {
+        if (!user.roles.contains("admin")) {
+            handle.createQuery("SELECT * FROM Comentario WHERE id = :commentId and remetente=:email")
+                .bind("commentId", commentId)
+                .bind("email", user.email)
+                .mapTo(Comment::class.java)
+                .singleOrNull()
+                ?: throw ExceptionControllerAdvice.CommentNotYours("Comentário não é seu, portanto não o pode apagar.")
+        }
         handle.createUpdate("DELETE FROM Comentario WHERE id = :commentId")
             .bind("commentId", commentId)
             .execute()
     }
 
-    override fun stageComments(stageId: String): List<Comment> {
+    override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
         return handle.createQuery("SELECT * FROM Comentario WHERE id_etapa = :stageId order by data desc")
             .bind("stageId", stageId)
             .mapTo(Comment::class.java)
@@ -324,5 +352,33 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             .mapTo(Comment::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comentário não encontrado.")
     }
+
+    private fun isUserInStage(stageId: String, userEmail: String): Boolean {
+        val sql = """SELECT CASE
+                WHEN COUNT(*) > 0 THEN 'True'
+        ELSE 'False'
+        END AS IsUserInStage
+        FROM Utilizador_Etapa
+                WHERE email_utilizador = :userEmail AND id_etapa = :stageId;""".trimIndent()
+
+        // Execute the query, assuming handle is a Handle instance.
+        val result =
+            handle.createQuery(sql)
+                .bind("userEmail", userEmail)
+                .bind("stageId", stageId)
+                .mapTo(String::class.java)
+                .firstOrNull()
+                ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("O Utilizador não está na etapa")
+
+        // Convert result to Boolean and return.
+        return result.toBoolean()
+    }
+
+    fun userAdminOrInStage(stageId: String, userAuth: UserAuth): Boolean {
+        return !userAuth.roles.contains("admin") && !isUserInStage(
+            stageId, userAuth.email
+        )
+    }
+
 
 }
