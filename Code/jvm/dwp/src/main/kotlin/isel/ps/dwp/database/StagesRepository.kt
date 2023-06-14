@@ -193,8 +193,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         } else if (mode == "Majority") {
             // Se mais de metade das assinaturas já estiverem preenchidas, o workflow pode prosseguir
             if (handle.createQuery(
-                    "with counted_values as (select assinatura, count(*) as total_count, count(*) filter (where assinatura is not null) as non_null_count from utilizador_etapa where id = :stageId)" +
-                            "select non_null_count > total_count / 2 from counted_values"
+                    "with counted_values as (" +
+                            "select count(*) as total_count, count(assinatura) as non_null_count " +
+                            "from utilizador_etapa " +
+                            "where id_etapa = :stageId )" +
+                        "select non_null_count > total_count / 2 " +
+                            "from counted_values"
                 )
                     .bind("stageId", stageId)
                     .mapTo<Boolean>()
