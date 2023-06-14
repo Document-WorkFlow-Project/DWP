@@ -9,6 +9,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -19,6 +20,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -29,6 +31,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -40,6 +43,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -51,6 +55,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -62,6 +67,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
     
@@ -76,6 +82,7 @@ class TemplatesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 }

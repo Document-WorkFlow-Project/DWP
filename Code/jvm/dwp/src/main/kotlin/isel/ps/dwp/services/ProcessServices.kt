@@ -74,6 +74,36 @@ class ProcessServices(
             // Create process
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
+            // Get template stages to be initialized
+            val templateDetails = it.templatesRepository.templateDetails(templateName)
+            val template = objectMapper.readValue<ProcessTemplate>(File(templateDetails.path))
+
+            // Create process stages
+            template.stages.forEachIndexed { index, stage ->
+
+                // Translate stage responsible into emails, using a hash set to avoid duplicates
+                val responsibleSet = HashSet<String>()
+
+                stage.responsible.forEach { resp ->
+                    // A responsible can be a single email
+                    if (resp.contains('@'))
+                        responsibleSet.add(resp)
+                    // Or a role, a group of emails
+                    else {
+                        val emails = it.rolesRepository.getRoleUsers(resp)
+                        if (emails.isEmpty())
+                            throw ExceptionControllerAdvice.UserNotFound("Não existem utilizadores para o papel $resp.")
+
+                        responsibleSet.addAll(emails)
+                    }
+                }
+
+                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration)
+                // Start the first stage
+                if (index == 0)
+                    stageServices.startNextPendingStage(stageId)
+            }
+
             // Save uploaded files associated to this process
             files.forEach{ file ->
                 val docId = UUID.randomUUID().toString()
@@ -83,32 +113,6 @@ class ProcessServices(
 
                 it.documentsRepository.saveDocReference(file, docId)
                 it.processesRepository.associateDocToProcess(userAuth,docId, processId)
-            }
-
-            // Get template stages to be initialized
-            val templateDetails = it.templatesRepository.templateDetails(templateName)
-            val template = objectMapper.readValue<ProcessTemplate>(File(templateDetails.path))
-
-            // Create process stages
-            template.stages.forEachIndexed { index, stage ->
-
-                // Translate groups into email, using a hash set to avoid duplicates
-                val responsibleSet = HashSet<String>()
-                stage.responsible.forEach { resp ->
-                    // A responsible can be a single email
-                    if (resp.contains('@'))
-                        responsibleSet.add(resp)
-                    // Or a role, a group of emails
-                    else {
-                        val emails = it.rolesRepository.getRoleUsers(resp)
-                        responsibleSet.addAll(emails)
-                    }
-                }
-
-                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration,userAuth)
-                // Start the first stage
-                if (index == 0)
-                    stageServices.startNextPendingStage(stageId)
             }
 
             processId

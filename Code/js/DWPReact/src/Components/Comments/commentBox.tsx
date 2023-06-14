@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import commentsService from "../../Services/comments.service"
 import { convertTimestamp } from "../../utils"
+import {toast} from "react-toastify";
 
 export function Comments ({stageId}) {
 
@@ -9,8 +10,14 @@ export function Comments ({stageId}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const comts = await commentsService.stageComments(stageId)
-            setCommments(comts)
+            let comts
+            try {
+                comts = await commentsService.stageComments(stageId)
+                setCommments(comts)
+            } catch (error) {
+               toast.error("Error Posting Comment. Please Refresh ...")
+            }
+
         }
         fetchData()
     }, [])

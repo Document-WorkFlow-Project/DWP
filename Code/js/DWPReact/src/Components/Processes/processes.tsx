@@ -3,6 +3,7 @@ import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
 import { convertTimestamp, estado } from "../../utils"
 import { AuthContext } from "../../AuthProvider"
+import {toast, ToastContainer} from 'react-toastify';
 
 
 export const Processes = () => {
@@ -19,33 +20,44 @@ export const Processes = () => {
             window.location.href = '/';
     }, [])
 
-    useEffect(() => {        
+    useEffect(() => {
         const fetchData = async () => {
+        try {
             let tasks
-            if (selectedTaskType === "PENDING") 
+            if (selectedTaskType === "PENDING")
                 tasks = await processServices.pendingStages()
             else if (selectedTaskType === "FINISHED")
                 tasks = await processServices.finishedStages()
 
-            if (Array.isArray(tasks))
-                setPendingTasks(tasks)
+            setPendingTasks(tasks)
+
+        } catch (error) {
+            let code = error.response.status
+            if (code != 404) toast.error("Error getting Stages, please Refresh ...")
         }
+    }
 
         fetchData()
     }, [selectedTaskType])
 
     useEffect(() => {
         const fetchData = async () => {
-            let processes
-            if (selectedProccessType === "PENDING") 
-                processes = await processServices.pendingProcesses()
-            else if (selectedProccessType === "FINISHED")
-                processes = await processServices.finishedProcesses()
-        
-            if (Array.isArray(processes))
+            try {
+                let processes
+                if (selectedProccessType === "PENDING")
+                    processes = await processServices.pendingProcesses()
+                else if (selectedProccessType === "FINISHED")
+                    processes = await processServices.finishedProcesses()
+
                 setProcesses(processes)
+
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error("Error getting Processes, please Refresh ...")
+            }
         }
         fetchData()
+
     }, [selectedProccessType])
 
     return (

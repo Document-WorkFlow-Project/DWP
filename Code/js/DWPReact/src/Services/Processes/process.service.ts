@@ -14,6 +14,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -24,16 +25,18 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     } 
 
-    async finishedStages() {
+    async   finishedStages() {
         try {
             const response = await axios.get(`${API_URL}/stages/finished`, {withCredentials: true})
             return response.data
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     } 
 
@@ -44,6 +47,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -54,6 +58,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -64,6 +69,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -74,6 +80,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -84,6 +91,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 
@@ -94,6 +102,7 @@ class ProcessesService {
         }
         catch (error) {
             console.log(error)
+            throw(error)
         }
     }
 

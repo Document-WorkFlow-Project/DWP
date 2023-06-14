@@ -28,14 +28,16 @@ export const NewProcess = () => {
 
         const fetchData = async () => {
             const templates = await templatesService.availableTemplates()
-            if(Array.isArray(templates))
+            if(Array.isArray(templates)) {
                 setAvailableTemplates(templates)
+                
+                if(templates.length > 0)
+                    setSelectedTemplate(templates[0])
+            }
         }
         fetchData()
 
     }, [])
-
-
 
     function templateOptions() {
         let options = []

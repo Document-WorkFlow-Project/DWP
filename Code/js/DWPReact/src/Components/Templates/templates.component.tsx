@@ -9,6 +9,7 @@ import rolesService from "../../Services/Roles/roles.service";
 import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 import { AuthContext } from "../../AuthProvider";
+import {toast} from "react-toastify";
 
 export default function Templates() {
 
@@ -41,25 +42,44 @@ export default function Templates() {
 
   const { loggedUser } = useContext(AuthContext);
 
+  //TODO add groups to template access
+
   useEffect(() => {
     if (!loggedUser.email)
       window.location.href = '/';
     
     const fetchData = async () => {
-      const templates = await templatesService.availableTemplates()
-      if(Array.isArray(templates))
-        setAvailableTemplates(templates)
 
-      setRoleGroups(await rolesService.availableRoles())     
-      setUsers(await usersService.usersList())
+      try {
+        const templates = await templatesService.availableTemplates()
+          setAvailableTemplates(templates)
+
+          if (templates.length > 0)
+            setSelectedTemplate(templates[0])
+
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
+      }
+
+      try {
+        setRoleGroups(await rolesService.availableRoles())
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
+        else toast.error("There are no Roles. Please contact an Admin")
+      }
+
+      try {
+        setUsers(await usersService.usersList())
+      } catch (error) {
+        let code = error.response.status
+        if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
+      }
     }
+    
     fetchData()
   }, [])
-  
-  useEffect(() => {
-    if (availableTemplates.length > 0)
-      setSelectedTemplate(availableTemplates[0])
-  }, [availableTemplates])
 
   function templateOptions() {
     let options = []
@@ -214,6 +234,7 @@ export default function Templates() {
         {showUsersModal && createPortal(
           <TemplateUsersModal 
             onClose={() => setShowUsersModal(false)}
+            loggedUser={loggedUser}
             selectedTemplate={selectedTemplate}
           />,
           document.body

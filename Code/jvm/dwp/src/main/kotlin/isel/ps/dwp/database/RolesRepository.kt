@@ -31,7 +31,7 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
         )
             .bind("roleName", roleName)
             .mapTo(Role::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Papel não existe.")
+            .singleOrNull() ?: throw ExceptionControllerAdvice.InvalidParameterException("Papel $roleName não existe.")
     }
 
     override fun getRoles(): List<String> {

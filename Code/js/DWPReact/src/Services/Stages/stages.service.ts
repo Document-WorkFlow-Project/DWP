@@ -10,6 +10,7 @@ class StagesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
     
@@ -20,6 +21,7 @@ class StagesService {
         }
         catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -30,7 +32,7 @@ class StagesService {
         }
         catch (error) {
             console.log(error)
-            return []
+            throw error
         }
     }
 
