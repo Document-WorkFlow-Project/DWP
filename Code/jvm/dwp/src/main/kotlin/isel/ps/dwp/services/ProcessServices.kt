@@ -16,10 +16,9 @@ import java.util.*
 @Service
 class ProcessServices(
         private val transactionManager: TransactionManager,
-        private val stageServices: StageServices
+        private val stageServices: StageServices,
+        private val objectMapper: ObjectMapper
 ): ProcessesInterface {
-
-    private val objectMapper: ObjectMapper = ObjectMapper()
 
     override fun getProcesses(type: String?): List<String> {
         return transactionManager.run {
@@ -75,11 +74,11 @@ class ProcessServices(
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
             // Get template stages to be initialized
-            val templateDetails = it.templatesRepository.templateDetails(templateName)
-            val template = objectMapper.readValue<ProcessTemplate>(File(templateDetails.path))
+            val templateDetails = it.templatesRepository.getTemplate(templateName)
+            val stages = objectMapper.readValue<List<StageTemplate>>(templateDetails.etapas)
 
             // Create process stages
-            template.stages.forEachIndexed { index, stage ->
+            stages.forEachIndexed { index, stage ->
 
                 // Translate stage responsible into emails, using a hash set to avoid duplicates
                 val responsibleSet = HashSet<String>()

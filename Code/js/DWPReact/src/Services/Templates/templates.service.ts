@@ -71,12 +71,9 @@ class TemplatesService {
         }
     }
     
-    async saveTemplate(formData) {
+    async saveTemplate(templateJson) {
         try {
-            const response = await axios.post(`${API_URL}/templates`, formData, {
-                withCredentials: true, 
-                headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` }
-            })
+            const response = await axios.post(`${API_URL}/templates`, templateJson, { withCredentials: true })
             console.log(response)
             window.location.href = "/newprocess"
         }

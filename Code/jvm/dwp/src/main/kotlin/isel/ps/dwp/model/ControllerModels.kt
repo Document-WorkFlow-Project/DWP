@@ -31,3 +31,9 @@ data class Signature(val email_utilizador: String, val assinatura: Boolean?, val
 data class StageModel(val nome: String, val id: String, val estado: String)
 
 data class ProcessDocInfo(val names: List<String>, val size: Int)
+
+data class TemplateResponse(
+        val name: String,
+        val description: String,
+        val stages: List<StageTemplate>
+)

@@ -4,20 +4,9 @@ import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.interfaces.TemplatesInterface
 import isel.ps.dwp.model.Template
 import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.templatesFolderPath
 import org.jdbi.v3.core.Handle
-import org.springframework.web.multipart.MultipartFile
 
 class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
-
-    fun findTemplatePathByName(templateName: String): String {
-        return handle.createQuery(
-            "select path from template_processo where nome = :name"
-        )
-            .bind("name", templateName)
-            .mapTo(String::class.java)
-            .singleOrNull() ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Template $templateName not found.")
-    }
 
     override fun availableTemplates(user: UserAuth): List<String> {
         // Admin has access to all templates
@@ -41,9 +30,7 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
                 .list()
     }
 
-    override fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String {
-        val filePath = "$templatesFolderPath/${templateFile.originalFilename}"
-
+    fun addTemplate(templateName: String, templateDescription: String, stages: String) {
         if (handle.createQuery("select * from template_processo where nome = :nome")
                 .bind("nome", templateName)
                 .mapTo(String::class.java)
@@ -51,18 +38,15 @@ class TemplatesRepository(private val handle: Handle) : TemplatesInterface {
             throw ExceptionControllerAdvice.InvalidParameterException("Template $templateName já existe.")
 
         handle.createUpdate(
-            "insert into template_processo (nome, descricao, path) values (:name, :description, :path)"
+            "insert into template_processo (nome, descricao, etapas) values (:name, :description, cast(:etapas as json))"
         )
             .bind("name", templateName)
             .bind("description", templateDescription)
-            .bind("path", filePath)
+            .bind("etapas", stages)
             .execute()
-
-        return templateName
     }
 
-    fun templateDetails(templateName: String): Template {
-        //TODO ver se user que fez pedido tem acesso ao template
+    fun getTemplate(templateName: String): Template {
         return handle.createQuery("select * from template_processo where nome = :name")
                 .bind("name", templateName)
                 .mapTo(Template::class.java)
