@@ -96,7 +96,7 @@ export const Roles = () => {
                         </select>
                     </label>
                     <button onClick={() => {setShowModal(true)}}>Utilizadores</button>
-                    <button onClick={() => {rolesService.deleteRole(selectedRole)}}>Apagar papel</button>
+                    {selectedRole !== "admin" && <button onClick={() => {rolesService.deleteRole(selectedRole)}}>Apagar papel</button>}
                     <p><b>Descrição: </b></p>
                     <div className="">
                         {selectedRoleDetails.descricao}

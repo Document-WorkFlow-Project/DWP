@@ -145,17 +145,7 @@ export default function Templates() {
       stages: stages
     }
 
-    const templateJson = JSON.stringify(template)
-    console.log(templateJson)
-    
-    const formData = new FormData()
-    const jsonBlob = new Blob([templateJson], { type: 'application/json' })
-
-    formData.append('name', templateName)
-    formData.append('description', templateDescription)
-    formData.append('file', jsonBlob, template.name + ".json")
-
-    templatesService.saveTemplate(formData)
+    templatesService.saveTemplate(template)
   }
 
   function handleOnDragEnd(result) {

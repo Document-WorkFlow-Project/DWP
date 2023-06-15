@@ -36,7 +36,7 @@ const Login = () => {
         if (checkBtn.current.context._errors.length === 0) {
             await AuthService.login(email, password).then(
                 (response) => {
-                    window.location.reload();
+                    window.location.href = "processes"
                     toast.success(response);
                 },
                 (error) => {

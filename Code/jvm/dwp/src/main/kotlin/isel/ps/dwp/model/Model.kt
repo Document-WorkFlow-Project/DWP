@@ -62,7 +62,7 @@ data class Document(
 data class Template(
     val nome: String,
     val descricao: String,
-    val path: String
+    val etapas: String
 )
 
 data class EmailDetails(

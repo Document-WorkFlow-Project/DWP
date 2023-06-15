@@ -37,7 +37,6 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .bind("email", email)
             .mapTo(ProcessModel::class.java)
             .list()
-            .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
     // Retorna lista de processos terminados do user que fez o pedido
@@ -52,7 +51,6 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
             .bind("email", email)
             .mapTo(ProcessModel::class.java)
             .list()
-            .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
     }
 
     override fun processStages(processId: String): List<StageModel> {

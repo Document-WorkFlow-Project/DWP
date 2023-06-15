@@ -1,12 +1,12 @@
 package isel.ps.dwp.controllers
 
 import isel.ps.dwp.http.pipeline.authorization.Admin
+import isel.ps.dwp.model.ProcessTemplate
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.TemplatesServices
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/templates")
@@ -24,12 +24,12 @@ class TemplatesController (
 
     @PostMapping
     @Admin
-    fun newTemplate(@RequestParam("name") name: String, @RequestParam("description") description: String, @RequestParam("file") file: MultipartFile, user: UserAuth): ResponseEntity<*> {
-        templatesServices.addTemplate(name, description, file)
+    fun newTemplate(@RequestBody template: ProcessTemplate, user: UserAuth): ResponseEntity<*> {
+        templatesServices.addTemplate(template)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
-            .body("Template $name criado.")
+            .body("Template ${template.name} criado.")
     }
 
     @GetMapping("/{templateName}/users")
@@ -62,10 +62,11 @@ class TemplatesController (
 
     @GetMapping("/{templateName}")
     fun getTemplate(@PathVariable templateName: String, user: UserAuth): ResponseEntity<*> {
+        val template = templatesServices.getTemplate(templateName, user)
         return ResponseEntity
                 .status(200)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(templatesServices.getTemplate(templateName))
+                .body(template)
     }
 
     @DeleteMapping("/{templateName}")
