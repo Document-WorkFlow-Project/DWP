@@ -23,19 +23,19 @@ class ProcessServices(
 ): ProcessesInterface {
 
     override fun getProcesses(type: String?): List<String> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.getProcesses(type)
         }
     }
 
     override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.pendingProcesses(userAuth, userEmail)
         }
     }
 
     override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.finishedProcesses(userAuth, userEmail)
         }
     }
@@ -44,7 +44,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processStages(processId)
         }
     }
@@ -53,19 +53,19 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDetails(processId)
         }
     }
 
     override fun processDocs(processId: String): List<Document> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDocs(processId)
         }
     }
 
     override fun processDocsDetails(processId: String): ProcessDocInfo {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDocsDetails(processId)
         }
     }
@@ -124,7 +124,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.processesRepository.deleteProcess(processId)
         }
     }
@@ -133,7 +133,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.processesRepository.cancelProcess(processId)
         }
     }
