@@ -15,7 +15,7 @@ class JdbiTransactionManager(
         }
 
     override fun <R> run(block: (Transaction) -> R): R =
-        jdbi.inTransaction<R, Exception>(TransactionIsolationLevel.READ_COMMITTED) { handle ->
+        jdbi.inTransaction<R, Exception> { handle ->
             val transaction = JdbiTransaction(handle)
             block(transaction)
 
