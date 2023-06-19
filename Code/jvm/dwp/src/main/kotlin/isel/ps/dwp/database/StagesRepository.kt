@@ -25,10 +25,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Retorna a próxima etapa pendente de um processo ou null caso não existam mais etapas pendentes
      */
-    private fun nextPendingStage(processId: String): String? {
-        return handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
+    private fun nextPendingStage(processId: String): StageInfo? {
+        return handle.createQuery("select id, prazo from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
             .bind("processId", processId)
-            .mapTo<String>()
+            .mapTo<StageInfo>()
             .firstOrNull()
     }
 
@@ -43,7 +43,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
-    override fun startNextPendingStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): StageInfo? {
         val processId = findProcessFromStage(stageId)
 
         if (processEnded(processId))
@@ -63,7 +63,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
             .bind("startDate", Timestamp(System.currentTimeMillis()))
-            .bind("stageId", nextStage)
+            .bind("stageId", nextStage.id)
             .execute()
 
         return nextStage
@@ -72,10 +72,15 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Guarda id de notificação na base de dados
      */
-    fun addNotificationId(userEmail: String, notificationId: String, stageId: String) {
-        handle.createUpdate("UPDATE utilizador_etapa SET id_notificacao = :notificationId WHERE id_etapa = :stageId and email_utilizador = :email")
+    fun addNotificationId(userEmail: String, notificationId: String, stageId: String, startNotificationDate: Timestamp) {
+        handle.createUpdate(
+            "UPDATE utilizador_etapa " +
+                    "SET id_notificacao = :notificationId, data_inicio_notif = :startDate " +
+                    "WHERE id_etapa = :stageId and email_utilizador = :email "
+        )
             .bind("notificationId", notificationId)
             .bind("stageId", stageId)
+            .bind("startDate", startNotificationDate)
             .bind("email", userEmail)
             .execute()
     }
@@ -117,6 +122,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
+    fun getAllActiveStageNotifications(): List<StageNotification> {
+        return handle.createQuery(
+            "SELECT ue.id_notificacao, ue.data_inicio_notif, ue.email_utilizador, ue.id_etapa " +
+                    "FROM utilizador_etapa ue " +
+                    "join etapa e on ue.id_etapa = e.id " +
+                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null and e.estado = 'PENDING')"
+        )
+            .mapTo<StageNotification>()
+            .list()
+    }
+
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         if (handle.createQuery("select assinatura from utilizador_etapa where email_utilizador = :email")
                 .bind("email", userAuth.email)
@@ -129,7 +145,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         if (processEnded(processId))
             throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
 
-        if (nextPendingStage(processId) != stageId)
+        val nextPendingStage = nextPendingStage(processId) ?: throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
+
+        if (nextPendingStage.id != stageId)
             throw ExceptionControllerAdvice.InvalidParameterException("Esta não é a etapa currente, ainda não pode assinar.")
 
         val date = Timestamp(System.currentTimeMillis())
@@ -251,7 +269,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return stageId
     }
 
-    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageDetails> {
         val email = userEmail ?: userAuth.email
 
         return handle.createQuery(
@@ -260,11 +278,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') order by e.data_inicio desc"
         )
             .bind("email", email)
-            .mapTo(StageInfo::class.java)
+            .mapTo(StageDetails::class.java)
             .list()
     }
 
-    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageDetails> {
         val email = userEmail ?: userAuth.email
 
         return handle.createQuery(
@@ -273,7 +291,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) order by e.data_fim desc"
         )
             .bind("email", email)
-            .mapTo(StageInfo::class.java)
+            .mapTo(StageDetails::class.java)
             .list()
     }
 

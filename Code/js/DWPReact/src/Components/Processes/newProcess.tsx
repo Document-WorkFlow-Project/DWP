@@ -147,7 +147,7 @@ export const NewProcess = () => {
             <h2>Novo processo</h2>
 
             { availableTemplates.length === 0 ?
-                <p className="error">Não tem acesso a nenhum template.</p>
+                <p className="error">Não existem templates disponíveis.</p>
             :
                 <div>
                         <label><b>Template: </b>

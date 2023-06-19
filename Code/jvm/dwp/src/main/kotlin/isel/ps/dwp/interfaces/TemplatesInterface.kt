@@ -1,9 +1,6 @@
 package isel.ps.dwp.interfaces
 
-import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.model.Template
 import isel.ps.dwp.model.UserAuth
-import org.springframework.web.multipart.MultipartFile
 
 interface TemplatesInterface {
 

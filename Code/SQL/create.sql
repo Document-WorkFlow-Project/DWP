@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
     assinatura boolean,
     data_assinatura timestamp,
     id_notificacao text,
+    data_inicio_notif timestamp,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)
