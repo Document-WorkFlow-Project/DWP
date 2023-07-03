@@ -45,9 +45,11 @@ class NotificationServices(
             // Calcular delay entre data agendada e a data currente
             var delayMillis = notification.data_inicio_notif.time - System.currentTimeMillis()
 
-            // Se já foi ultrapassada a data agendada a notificação tem efeito imediato
-            // TODO opcional: guardar data da ultima notificacao enviada para calcular um delay mais correto
-            if (delayMillis < 0) delayMillis = 0
+            // Se já foi ultrapassada a data agendada a notificação tem efeito no próxima data esperada de acordo com NOTIFICATION_FREQUENCY
+            if (delayMillis < 0) {
+                val missedPeriods = (-delayMillis / Duration.ofDays(NOTIFICATION_FREQUENCY).toMillis()) + 1
+                delayMillis += Duration.ofDays(missedPeriods * NOTIFICATION_FREQUENCY).toMillis()
+            }
 
             val delay = Duration.ofMillis(delayMillis)
 
