@@ -57,9 +57,12 @@ class UsersController (
     @PostMapping("/login")
     fun login(@RequestBody signIn: SignInModel): ResponseEntity<*> {
         val uuid = userServices.login(signIn.email, signIn.password)
+        // Cookie com validade de 24h
+        val expirationTime = 24 * 60 * 60
+
         return ResponseEntity
             .status(201)
-            .header("Set-Cookie", "token=${uuid};Path=/;HttpOnly")
+            .header("Set-Cookie", "token=${uuid};max-age=$expirationTime;Path=/;HttpOnly")
             .contentType(MediaType.APPLICATION_JSON)
             .body("Login feito com Sucesso")
     }
@@ -67,9 +70,9 @@ class UsersController (
     @PostMapping("/logout")
     fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<*> {
         val cookie = request.getHeader("Cookie")
-        if (cookie != null) {
+        if (cookie != null)
             response.addHeader("Set-Cookie", "$cookie;Path=/;HttpOnly;Max-Age=-1")
-        }
+
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
