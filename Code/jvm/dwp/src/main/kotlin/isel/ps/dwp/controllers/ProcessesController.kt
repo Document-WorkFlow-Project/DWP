@@ -1,5 +1,6 @@
 package isel.ps.dwp.controllers
 
+import isel.ps.dwp.model.State
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.ProcessServices
 import jakarta.servlet.http.HttpServletResponse
@@ -33,8 +34,8 @@ class ProcessesController(
     }
 
     @GetMapping("/pending")
-    fun pendingProcesses(@RequestBody email: String?, user: UserAuth): ResponseEntity<*> {
-        val pending = processesServices.pendingProcesses(user, email)
+    fun pendingProcesses(@RequestBody email: String?, @RequestParam limit: Int?, @RequestParam skip: Int?, user: UserAuth): ResponseEntity<*> {
+        val pending = processesServices.processesOfState(State.PENDING, user, limit, skip, email)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -42,8 +43,8 @@ class ProcessesController(
     }
 
     @GetMapping("/finished")
-    fun finishedProcesses(@RequestBody email: String?, user: UserAuth): ResponseEntity<*> {
-        val finished = processesServices.finishedProcesses(user, email)
+    fun finishedProcesses(@RequestBody email: String?, @RequestParam limit: Int?, @RequestParam skip: Int?, user: UserAuth): ResponseEntity<*> {
+        val finished = processesServices.processesOfState(State.FINISHED, user, limit, skip, email)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)

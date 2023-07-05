@@ -25,15 +25,15 @@ class ProcessServices(
         }
     }
 
-    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
+    override fun processesOfState(
+        state: State,
+        userAuth: UserAuth,
+        limit: Int?,
+        skip: Int?,
+        userEmail: String?
+    ): ProcessPage {
         return transactionManager.run {
-            it.processesRepository.pendingProcesses(userAuth, userEmail)
-        }
-    }
-
-    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        return transactionManager.run {
-            it.processesRepository.finishedProcesses(userAuth, userEmail)
+            it.processesRepository.processesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
 

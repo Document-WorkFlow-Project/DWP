@@ -10,6 +10,20 @@ data class UserDetails(val nome: String, val email: String)
 
 data class RoleModel(val name: String, val description: String)
 
+data class ProcessPage(
+        val hasPrevious: Boolean,
+        val hasNext: Boolean,
+        val list: List<ProcessModel>
+)
+
+data class TaskPage(
+        val hasPrevious: Boolean,
+        val hasNext: Boolean,
+        val list: List<StageDetails>
+)
+
+enum class State { PENDING, FINISHED }
+
 data class ProcessModel(
         val nome: String,
         val id: String,

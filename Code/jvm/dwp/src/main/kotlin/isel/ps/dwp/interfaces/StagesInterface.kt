@@ -25,11 +25,9 @@ interface StagesInterface {
     fun stageUsers(stageId: String): List<UserDetails>
 
     /**
-     * Obter lista de etapas pendentes que o utilizador necessita de assinar (função de administrador ou utilizador associado à etapa)
+     * Obter lista de etapas pendentes ou terminadas (função de administrador ou utilizador associado à etapa)
      */
-    fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageDetails>
-
-    fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageDetails>
+    fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage
 
     /**
      * Detalhes de uma etapa (função de utilizador associado ao processo)

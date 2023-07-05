@@ -27,30 +27,42 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     // Retorna lista de processos pendentes do user que fez o pedido
     // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
-    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
+    override fun processesOfState(
+        state: State,
+        userAuth: UserAuth,
+        limit: Int?,
+        skip: Int?,
+        userEmail: String?
+    ): ProcessPage {
         val email = userEmail ?: userAuth.email
 
-        return handle.createQuery(
+        val queryLimit = limit?.plus(1) ?: Int.MAX_VALUE
+
+        val query = if (state == State.PENDING)
             "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and estado = 'PENDING' order by data_inicio desc"
-        )
+                    "from processo where autor = :email and estado = 'PENDING' " +
+                    "order by data_inicio desc limit :limit offset :offset"
+        else
+            "select id, nome, data_inicio, data_fim, estado " +
+                    "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') " +
+                    "order by data_fim desc limit :limit offset :offset"
+
+        val list = handle.createQuery(query)
             .bind("email", email)
+            .bind("limit", queryLimit)
+            .bind("offset", skip)
             .mapTo(ProcessModel::class.java)
             .list()
-    }
 
-    // Retorna lista de processos terminados do user que fez o pedido
-    // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
-    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        val email = userEmail ?: userAuth.email
+        // Check if there is a previous page
+        val hasPreviousPage = skip?.let { it > 0 } ?: false
 
-        return handle.createQuery(
-            "select id, nome, data_inicio, data_fim, estado " +
-                "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim desc"
-        )
-            .bind("email", email)
-            .mapTo(ProcessModel::class.java)
-            .list()
+        // Check if there is a next page
+        val hasNextPage = list.size == queryLimit
+
+        val pageList = list.take(limit ?: list.size)
+
+        return ProcessPage(hasPreviousPage, hasNextPage, pageList)
     }
 
     override fun processStages(processId: String): List<StageModel> {

@@ -3,13 +3,24 @@ import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
 import { convertTimestamp, estado } from "../../utils"
 import { AuthContext } from "../../AuthProvider"
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
+import stagesService from "../../Services/Stages/stages.service"
 
 
 export const Processes = () => {
 
-    const [pendingTasks, setPendingTasks] = useState([])
-    const [processes, setProcesses] = useState([])
+    const pageObj = {
+        "hasPrevious": false,
+        "hasNext": false,
+        "list": []
+    }
+
+    const [currentTaskPage, setCurrentTaskPage] = useState(0)
+    const [pendingTasks, setPendingTasks] = useState(pageObj)
+    
+    const [currentProcessPage, setCurrentProcessPage] = useState(0)
+    const [processes, setProcesses] = useState(pageObj)
+    
     const [selectedTaskType, setSelectedTaskType] = useState("PENDING")
     const [selectedProccessType, setSelectedProccessType] = useState("PENDING")
 
@@ -22,32 +33,32 @@ export const Processes = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-        try {
-            let tasks
-            if (selectedTaskType === "PENDING")
-                tasks = await processServices.pendingStages()
-            else if (selectedTaskType === "FINISHED")
-                tasks = await processServices.finishedStages()
+            try {
+                let tasks
+                if (selectedTaskType === "PENDING")
+                    tasks = await stagesService.pendingStages(currentTaskPage)
+                else if (selectedTaskType === "FINISHED")
+                    tasks = await stagesService.finishedStages(currentTaskPage)
 
-            setPendingTasks(tasks)
+                setPendingTasks(tasks)
 
-        } catch (error) {
-            let code = error.response.status
-            if (code != 404) toast.error("Error getting Stages, please Refresh ...")
+            } catch (error) {
+                let code = error.response.status
+                if (code != 404) toast.error("Error getting Stages, please Refresh ...")
+            }
         }
-    }
 
         fetchData()
-    }, [selectedTaskType])
+    }, [selectedTaskType, currentTaskPage])
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 let processes
                 if (selectedProccessType === "PENDING")
-                    processes = await processServices.pendingProcesses()
+                    processes = await processServices.pendingProcesses(currentProcessPage)
                 else if (selectedProccessType === "FINISHED")
-                    processes = await processServices.finishedProcesses()
+                    processes = await processServices.finishedProcesses(currentProcessPage)
 
                 setProcesses(processes)
 
@@ -58,7 +69,7 @@ export const Processes = () => {
         }
         fetchData()
 
-    }, [selectedProccessType])
+    }, [selectedProccessType, currentProcessPage])
 
     return (
         <div>
@@ -70,7 +81,7 @@ export const Processes = () => {
             </select>
             <p></p>
             <div>
-                {pendingTasks.length === 0 ?
+                {pendingTasks.list.length === 0 ?
                     <p>Nenhuma tarefa pendente</p>
                 :
                     <div>
@@ -85,7 +96,7 @@ export const Processes = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {pendingTasks.map((stage, index) => (
+                                {pendingTasks.list.map((stage, index) => (
                                     <tr key={index}>
                                         <td><Link to={"/stage/" + stage.id}>{stage.nome}</Link></td>
                                         <td>{estado(stage.estado)}</td>
@@ -96,6 +107,10 @@ export const Processes = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <p>
+                            <button onClick={() => setCurrentTaskPage(curr => curr - 1)} disabled={!pendingTasks.hasPrevious}>Página anterior</button>
+                            <button onClick={() => setCurrentTaskPage(curr => curr + 1)} disabled={!pendingTasks.hasPrevious}>Página seguinte</button>
+                        </p>
                     </div>
                 }
             </div>
@@ -106,7 +121,7 @@ export const Processes = () => {
             </select>
             <p></p>
             <div>  
-                {processes.length === 0 ?
+                {processes.list.length === 0 ?
                     <p>Nenhum processo disponível</p>
                 :
                     <div>
@@ -120,7 +135,7 @@ export const Processes = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {processes.map((process, index) => (
+                                {processes.list.map((process, index) => (
                                     <tr key={index}>
                                         <td><Link to={"/process/" + process.id}>{process.nome}</Link></td>
                                         <td>{estado(process.estado)}</td>
@@ -130,6 +145,10 @@ export const Processes = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <p>
+                            <button onClick={() => setCurrentProcessPage(curr => curr - 1)} disabled={!processes.hasPrevious}>Página anterior</button>
+                            <button onClick={() => setCurrentProcessPage(curr => curr + 1)} disabled={!processes.hasNext}>Página seguinte</button>
+                        </p>
                     </div>
                 }
             </div>

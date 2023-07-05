@@ -8,14 +8,9 @@ interface ProcessesInterface {
     fun getProcesses(type: String?): List<String>
 
     /**
-     * Obter lista de processos pendentes (função de administrador ou utilizador associado ao processo)
+     * Obter lista de processos pendentes ou terminados (função de administrador ou utilizador associado ao processo)
      */
-    fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel>
-
-    /**
-     * Obter lista de processos terminados (função de administrador ou utilizador associado ao processo)
-     */
-    fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel>
+    fun processesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): ProcessPage
 
     /**
      * Obter a lista de etapas associadas a um processo (função de administrador ou utilizador associado ao processo)

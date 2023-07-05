@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { API_URL } from '../../utils';
 
+const itemsPerPage = 5
+
 class ProcessesService {
 
     async createProcess(formData) {   
@@ -18,31 +20,9 @@ class ProcessesService {
         }
     }
 
-    async pendingStages() {
+    async pendingProcesses(page) {
         try {
-            const response = await axios.get(`${API_URL}/stages/pending`, {withCredentials: true})
-            return response.data
-        }
-        catch (error) {
-            console.log(error)
-            throw(error)
-        }
-    } 
-
-    async   finishedStages() {
-        try {
-            const response = await axios.get(`${API_URL}/stages/finished`, {withCredentials: true})
-            return response.data
-        }
-        catch (error) {
-            console.log(error)
-            throw(error)
-        }
-    } 
-
-    async pendingProcesses() {
-        try {
-            const response = await axios.get(`${API_URL}/processes/pending`, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/processes/pending?limit=${itemsPerPage}&skip=${page * itemsPerPage}`, {withCredentials: true})
             return response.data
         }
         catch (error) {
@@ -51,9 +31,9 @@ class ProcessesService {
         }
     }
 
-    async finishedProcesses() {
+    async finishedProcesses(page) {
         try {
-            const response = await axios.get(`${API_URL}/processes/finished`, {withCredentials: true})
+            const response = await axios.get(`${API_URL}/processes/finished?limit=${itemsPerPage}&skip=${page * itemsPerPage}`, {withCredentials: true})
             return response.data
         }
         catch (error) {

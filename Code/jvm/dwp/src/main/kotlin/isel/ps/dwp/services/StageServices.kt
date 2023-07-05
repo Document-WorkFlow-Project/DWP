@@ -126,15 +126,9 @@ class StageServices (
         }
     }
 
-    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageDetails> {
+    override fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage {
         return transactionManager.run {
-            it.stagesRepository.pendingStages(userAuth, userEmail)
-        }
-    }
-
-    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageDetails> {
-        return transactionManager.run {
-            it.stagesRepository.finishedStages(userAuth, userEmail)
+            it.stagesRepository.stagesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
 
