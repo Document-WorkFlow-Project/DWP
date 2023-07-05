@@ -106,18 +106,18 @@ class UsersRepository(private val handle: Handle) : UsersInterface {
         return UserAuth(email, name, roles)
     }
 
-    override fun updateProfile(email: String, hashPassword: String, newPass: String) {
-        handle.createQuery("select authtoken from utilizador where email = :email and pass = :hashpassword")
+    override fun updateCredentials(email: String, oldPass: String, newPass: String) {
+        handle.createQuery("select authtoken from utilizador where email = :email and pass = :password")
             .bind("email", email)
-            .bind("password", hashPassword.md5())
-            .mapTo(User::class.java)
+            .bind("password", oldPass.md5())
+            .mapTo(String::class.java)
             .singleOrNull() ?: throw ExceptionControllerAdvice.FailedAuthenticationException("Password incorreta.")
 
         handle.createUpdate(
             "update utilizador set pass = :newPass where email = :email"
         )
             .bind("email", email)
-            .bind("password", newPass.md5())
+            .bind("newPass", newPass.md5())
             .execute()
     }
 

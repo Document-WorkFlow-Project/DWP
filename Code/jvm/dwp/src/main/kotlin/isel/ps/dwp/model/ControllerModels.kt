@@ -6,6 +6,8 @@ data class SignInModel(val email: String, val password: String)
 
 data class RegisterModel(val email: String, val name: String)
 
+data class UpdateCredentialsModel(val password: String, val newPassword: String)
+
 data class UserDetails(val nome: String, val email: String)
 
 data class RoleModel(val name: String, val description: String)
@@ -50,4 +52,9 @@ data class TemplateResponse(
         val name: String,
         val description: String,
         val stages: List<StageTemplate>
+)
+
+data class TemplateWStatus(
+        val nome: String,
+        val ativo: Boolean
 )

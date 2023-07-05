@@ -24,6 +24,7 @@ interface UsersInterface {
     /**
      * Atualizar perfil (nome, email, password) (função de administrador ou utilizador associado)
      */
-    fun updateProfile(email: String, hashPassword: String, newPass: String)
+    fun updateCredentials(email: String, oldPass: String, newPass: String)
+
     fun checkUser(email: String): User?
 }

@@ -61,28 +61,26 @@ const adduserscomponent: React.FC = () => {
             <h2>Adicionar Novo Utilizador</h2>
             <Form onSubmit={handleSubmit} ref={form}>
                 <div>
-                    <p>
-                        <label htmlFor="username">Nome</label>
-                        <Input
-                            type="text"
-                            className="form-control"
-                            name="username"
-                            value={username}
-                            onChange={e => setUsername(e.target.value)}
-                            validations={[required, vusername]}
-                        />
-                    </p>
-                    <p>
-                        <label htmlFor="email">Email</label>
-                        <Input
-                            type="text"
-                            className="form-control"
-                            name="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            validations={[required, validEmail]}
-                        />
-                    </p>
+                    <label htmlFor="username">Nome</label>
+                    <Input
+                        type="text"
+                        className="form-control"
+                        name="username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        validations={[required, vusername]}
+                    />
+                    <p></p>
+                    <label htmlFor="email">Email</label>
+                    <Input
+                        type="text"
+                        className="form-control"
+                        name="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        validations={[required, validEmail]}
+                    />
+                    <p></p>
                     <button className="btn btn-primary btn-block" disabled={loading}>
                         {loading && (
                             <span className="spinner-border spinner-border-sm"></span>

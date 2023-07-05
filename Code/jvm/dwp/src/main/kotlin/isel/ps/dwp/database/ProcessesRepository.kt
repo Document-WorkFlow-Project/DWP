@@ -114,6 +114,9 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
     }
 
     override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
+        if (!handle.createQuery("select ativo from template_processo where nome = :name").bind("name", templateName).mapTo(Boolean::class.java).one())
+            throw ExceptionControllerAdvice.InvalidParameterException("Este template não está ativo, por isso não pode ser usado para criar um novo processo.")
+
         val uuid = UUID.randomUUID().toString()
         val userEmail = userAuth.email
 

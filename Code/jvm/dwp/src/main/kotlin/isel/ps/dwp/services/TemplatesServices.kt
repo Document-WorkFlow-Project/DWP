@@ -5,10 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.TemplatesInterface
-import isel.ps.dwp.model.ProcessTemplate
-import isel.ps.dwp.model.StageTemplate
-import isel.ps.dwp.model.TemplateResponse
-import isel.ps.dwp.model.UserAuth
+import isel.ps.dwp.model.*
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +13,12 @@ class TemplatesServices(
     private val transactionManager: TransactionManager,
     private val objectMapper: ObjectMapper
 ): TemplatesInterface {
+
+    override fun allTemplates(): List<TemplateWStatus> {
+        return transactionManager.run {
+            it.templatesRepository.allTemplates()
+        }
+    }
 
     override fun availableTemplates(user: UserAuth): List<String> {
         return transactionManager.run {
@@ -73,12 +76,12 @@ class TemplatesServices(
         }
     }
 
-    override fun deleteTemplate(templateName: String) {
+    override fun setTemplateAvailability(active: Boolean, templateName: String) {
         if (templateName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run {
-            it.templatesRepository.deleteTemplate(templateName)
+            it.templatesRepository.setTemplateAvailability(active, templateName)
         }
     }
 }

@@ -11,7 +11,6 @@ import Login from "./Components/LoginForm/login.component";
 import Profile from "./Components/Profile/profile.component";
 import {ProcessDetails} from "./Components/Processes/processDetails";
 import {StageDetails} from "./Components/Stages/stageDetails";
-import Admin from "./Components/Admin/admin.component";
 import AddUsers from "./Components/AddUsers/addusers.component";
 import { AuthContext } from "./AuthProvider";
 
@@ -39,8 +38,14 @@ export default function App() {
                     )}
                     {loggedUser.email && loggedUser.roles.includes("admin") && (
                         <div>
-                            <Link to={"/admin"} className="navbar-brand">
-                                Administrador
+                            <Link to="/templates" className="navbar-brand">
+                                Templates
+                            </Link>
+                            <Link to="/roles" className="navbar-brand">
+                                Papéis
+                            </Link>
+                            <Link to="/addusers" className="navbar-brand">
+                                Adicionar Utilizadores
                             </Link>
                         </div>
 
@@ -85,7 +90,6 @@ export default function App() {
                 <Route path="/stage/:id" element={<StageDetails/>}/>
                 <Route path="/templates" element={<Templates/>}/>
                 <Route path="/roles" element={<Roles/>}/>
-                <Route path="/admin" element={<Admin/>}/>
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/addusers" element={<AddUsers/>}/>
             </Routes>

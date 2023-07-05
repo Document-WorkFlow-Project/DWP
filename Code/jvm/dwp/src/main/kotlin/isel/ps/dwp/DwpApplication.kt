@@ -69,6 +69,7 @@ class PipelineConfigurer(
             .addPathPatterns("/users/list")
             .addPathPatterns("/users/register")
             .addPathPatterns("/users/auth")
+            .addPathPatterns("/users/credentials")
             .order(1)
 
         registry

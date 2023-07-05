@@ -13,8 +13,12 @@ import {toast} from "react-toastify";
 
 export default function Templates() {
 
-  const [availableTemplates, setAvailableTemplates] = useState([])
-  const [selectedTemplate, setSelectedTemplate] = useState("")
+  const tempObj = {
+    nome: "",
+    ativo: true
+  }
+  const [availableTemplates, setAvailableTemplates] = useState([tempObj])
+  const [selectedTemplate, setSelectedTemplate] = useState(tempObj)
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
@@ -42,41 +46,39 @@ export default function Templates() {
 
   const { loggedUser } = useContext(AuthContext);
 
-  //TODO add groups to template access
+  async function fetchData() {
+    try {
+      const templates = await templatesService.allTemplates()
+      
+      setAvailableTemplates(templates)
+
+      if (templates.length > 0)
+        setSelectedTemplate(templates[0])
+
+    } catch (error) {
+      let code = error.response.status
+      if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
+    }
+
+    try {
+      setRoleGroups(await rolesService.availableRoles())
+    } catch (error) {
+      let code = error.response.status
+      if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
+      else toast.error("There are no Roles. Please contact an Admin")
+    }
+
+    try {
+      setUsers(await usersService.usersList())
+    } catch (error) {
+      let code = error.response.status
+      if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
+    }
+  }
 
   useEffect(() => {
     if (!loggedUser.email)
       window.location.href = '/';
-    
-    const fetchData = async () => {
-
-      try {
-        const templates = await templatesService.availableTemplates()
-          setAvailableTemplates(templates)
-
-          if (templates.length > 0)
-            setSelectedTemplate(templates[0])
-
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
-      }
-
-      try {
-        setRoleGroups(await rolesService.availableRoles())
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
-        else toast.error("There are no Roles. Please contact an Admin")
-      }
-
-      try {
-        setUsers(await usersService.usersList())
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
-      }
-    }
     
     fetchData()
   }, [])
@@ -85,11 +87,17 @@ export default function Templates() {
     let options = []
 
     availableTemplates.forEach ((template, index) =>  {
-        options.push(<option key={index} value={template}>{template}</option>)
+        options.push(<option key={index} value={template.nome}>{template.nome}</option>)
     })
 
     return options;
   } 
+
+  async function changeTemplateAvailability(name, value) {
+    await templatesService.setTemplateAvailability(name, value)
+    
+    fetchData()
+  }
 
   function resetStageParams() {
     // Reset the stage name, description, and responsibles to empty strings and arrays
@@ -124,7 +132,7 @@ export default function Templates() {
   }
 
   const saveTemplate = () => {
-    if (availableTemplates.find(name => name === templateName)) {
+    if (availableTemplates.find(temp => temp.nome === templateName)) {
       setError("Nome do template já existe.")
       return
     }
@@ -166,15 +174,18 @@ export default function Templates() {
               <p className="error">Não existem templates disponíveis.</p>
           : 
             <div>  
-              <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                  {templateOptions()}
+              <select 
+                value={selectedTemplate.nome} 
+                onChange={(e) => {setSelectedTemplate(availableTemplates.find(temp => temp.nome === e.target.value))}}>
+                {templateOptions()}
               </select>
               <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
               <button onClick={() => {setShowUsersModal(true)}}>Utilizadores</button>
-              <button onClick={() => {
-                  templatesService.deleteTemplate(selectedTemplate)
-                  setAvailableTemplates(available => available.filter(name => name !== selectedTemplate))
-                }}>Apagar template</button>
+              {selectedTemplate.ativo ?
+                <button onClick={() => changeTemplateAvailability(selectedTemplate.nome, false)}>Desativar template</button>
+              :
+                <button onClick={() => changeTemplateAvailability(selectedTemplate.nome, true)}>Ativar template</button>
+              }
             </div>
         }
         <h2>Novo template de processo</h2>
@@ -225,7 +236,7 @@ export default function Templates() {
           <TemplateUsersModal 
             onClose={() => setShowUsersModal(false)}
             loggedUser={loggedUser}
-            selectedTemplate={selectedTemplate}
+            selectedTemplate={selectedTemplate.nome}
           />,
           document.body
         )}
@@ -234,7 +245,7 @@ export default function Templates() {
         {showDetailsModal && createPortal(
           <TemplateDetailsModal 
             onClose={() => setShowDetailsModal(false)}
-            selectedTemplate={selectedTemplate}
+            selectedTemplate={selectedTemplate.nome}
           />,
           document.body
         )}

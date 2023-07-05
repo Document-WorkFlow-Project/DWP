@@ -1,8 +1,11 @@
 package isel.ps.dwp.interfaces
 
+import isel.ps.dwp.model.TemplateWStatus
 import isel.ps.dwp.model.UserAuth
 
 interface TemplatesInterface {
+
+    fun allTemplates(): List<TemplateWStatus>
 
     /**
      * Obter lista de templates disponiveis para um utilizador
@@ -25,8 +28,8 @@ interface TemplatesInterface {
     fun removeUserFromTemplate(templateName: String, email: String)
 
     /**
-     * Remover template de um processo (função de administrador)
+     * Ativar/desativar template de um processo (função de administrador)
      */
-    fun deleteTemplate(templateName: String)
+    fun setTemplateAvailability(active: Boolean, templateName: String)
 
 }

@@ -14,6 +14,15 @@ class TemplatesController (
     private val templatesServices: TemplatesServices
 ) {
 
+    @GetMapping("/all")
+    @Admin
+    fun allTemplates(user: UserAuth): ResponseEntity<*> {
+        return ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(templatesServices.allTemplates())
+    }
+
     @GetMapping
     fun availableTemplates(user: UserAuth): ResponseEntity<*> {
         return ResponseEntity
@@ -69,14 +78,14 @@ class TemplatesController (
                 .body(template)
     }
 
-    @DeleteMapping("/{templateName}")
+    @PutMapping("/{templateName}")
     @Admin
-    fun deleteTemplate(@PathVariable templateName: String, user: UserAuth): ResponseEntity<*> {
-        templatesServices.deleteTemplate(templateName)
+    fun setTemplateAvailability(@PathVariable templateName: String, @RequestParam(required = true) active: Boolean, user: UserAuth): ResponseEntity<*> {
+        templatesServices.setTemplateAvailability(active, templateName)
         return ResponseEntity
-            .status(201)
+            .status(200)
             .contentType(MediaType.APPLICATION_JSON)
-            .body("Template $templateName deleted")
+            .body("Template $templateName availability set to $active")
     }
 
 }

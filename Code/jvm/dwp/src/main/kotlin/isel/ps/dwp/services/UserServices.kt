@@ -78,10 +78,10 @@ class UserServices(
         }
     }
 
-    override fun updateProfile(email: String, hashPassword: String, newPass: String) {
+    override fun updateCredentials(email: String, oldPass: String, newPass: String) {
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
-        if (hashPassword.isBlank())
+        if (oldPass.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Current password is required.")
         if (newPass.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("New password is required.")
@@ -89,7 +89,7 @@ class UserServices(
             throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
         return transactionManager.run {
-            it.usersRepository.updateProfile(email, hashPassword, newPass)
+            it.usersRepository.updateCredentials(email, oldPass, newPass)
         }
     }
 
