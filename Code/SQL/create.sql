@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Utilizador(
 CREATE TABLE IF NOT EXISTS template_processo(
     nome text PRIMARY KEY,
     descricao text NOT NULL,
+    ativo boolean not null,
     etapas json NOT NULL
 );
 
