@@ -30,6 +30,7 @@ const Profile =  () => {
                     <p></p>
                     <p><strong>Email:</strong> {loggedUser.email}</p>
                     <strong>Papéis atribuídos:</strong>
+                    <p></p>
                     {loggedUser.roles.length > 0 ?
                         <ul className="list-group">
                             {loggedUser.roles.map((role, index) => (
@@ -47,7 +48,8 @@ const Profile =  () => {
 
                 <div className="col-4">
                     <p></p>
-                    <h3>Alterar palavra-passe</h3>
+                    <h2>Alterar palavra-passe</h2>
+                    <p></p>
                     <form onSubmit={(e) => {
                             e.preventDefault()
                             changePassword()
