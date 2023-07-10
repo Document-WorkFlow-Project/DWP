@@ -106,22 +106,50 @@ td, th {
 }
 
 .progress__item--pending {
-    background-color: orange;
+    color: grey;
 }
   
 .progress__item--approved {
-    background-color: green;
+    color: rgb(0, 167, 0);
 }
-
+  
 .progress__item--disapproved {
-    background-color: red;
+    color: red;
 }
 
 .progress__item--left-uncomplete {
-    background-color: orange;
-}
-
-.progress__item--current {
-    background-color: purple;
+    color: rgb(109, 109, 109);
 }
   
+.progress__item--current {
+    color: rgb(46, 127, 225);
+}
+
+.timeline-with-icons {
+    border-left: 1px solid hsl(0, 0%, 90%);
+    position: relative;
+    list-style: none;
+}
+  
+.timeline-with-icons .timeline-item {
+    position: relative;
+}
+  
+.timeline-with-icons .timeline-item:after {
+    position: absolute;
+    display: block;
+    top: 0;
+}
+  
+.timeline-with-icons .timeline-icon {
+    position: absolute;
+    left: -48px;
+    background-color: hsl(217, 88.2%, 90%);
+    color: hsl(217, 88.8%, 35.1%);
+    border-radius: 50%;
+    height: 31px;
+    width: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

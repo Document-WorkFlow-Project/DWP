@@ -281,12 +281,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         val queryLimit = limit?.plus(1) ?: Int.MAX_VALUE
 
         val query = if (state == State.PENDING)
-            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao " +
+            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao, e.estado " +
                     "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
                     "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') " +
                     "order by e.data_inicio desc limit :limit offset :offset"
             else
-            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao " +
+            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao, e.estado " +
                     "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
                     "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) " +
                     "order by e.data_fim desc limit :limit offset :offset"

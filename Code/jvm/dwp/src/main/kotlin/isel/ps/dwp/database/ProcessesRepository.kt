@@ -39,11 +39,11 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         val queryLimit = limit?.plus(1) ?: Int.MAX_VALUE
 
         val query = if (state == State.PENDING)
-            "select id, nome, data_inicio, data_fim, descricao " +
+            "select id, nome, data_inicio, data_fim, descricao, estado " +
                     "from processo where autor = :email and estado = 'PENDING' " +
                     "order by data_inicio desc limit :limit offset :offset"
         else
-            "select id, nome, data_inicio, data_fim, descricao " +
+            "select id, nome, data_inicio, data_fim, descricao, estado " +
                     "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') " +
                     "order by data_fim desc limit :limit offset :offset"
 

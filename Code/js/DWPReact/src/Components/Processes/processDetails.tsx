@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import { convertTimestamp, estado } from "../../utils";
 import {Link} from "react-router-dom";
 import { formatBytes } from "../../utils";
+import { BsClockHistory, BsCheckCircle, BsXCircle, BsDashCircle, BsFillRecord2Fill } from 'react-icons/bs';
 
 
 export const ProcessDetails = () => {
@@ -104,38 +105,54 @@ export const ProcessDetails = () => {
                     }
                 </div>
                 
-                <div className="col">
-                    <p></p>
-                    <ul className="list-group">
+                <div className="col align-self-center">
+                    <ul className="timeline-with-icons">
                         {processStages.map((stage, index) => {
                             let className;
+                            let icon
+                            let state
 
                             if (index === currentStage) {
                                 if (stage.estado === "DISAPPROVED") {
                                   className = "progress__item--disapproved";
+                                  icon = <BsXCircle/>
+                                  state = "Não aprovado"
                                 } else if (stage.estado === "APPROVED") {
                                   className = "progress__item--approved";
+                                  icon = <BsCheckCircle/>
+                                  state = "Aprovado"
                                 } else {
                                   className = "progress__item--current";
+                                  icon = <BsFillRecord2Fill/>
+                                  state = "Em desenvolvimento"
                                 }
-                            } else if (index > currentStage && stage.estado === "DISAPPROVED") {
+                            } else if (index > currentStage && processDetails.estado === "DISAPPROVED") {
                                 className = "progress__item--left-uncomplete";
+                                icon = <BsDashCircle/>
+                                state = "Não iniciado"
                             } else if (stage.estado === "PENDING") {
                                 className = "progress__item--pending";
+                                icon = <BsClockHistory/>
+                                state = "Pendente"
                             } else if (stage.estado === "APPROVED") {
                                 className = "progress__item--approved";
+                                icon = <BsCheckCircle/>
+                                state = "Aprovado"
                             }
 
                             return (
-                                <li key={index} className={`list-group-item ${className}`}>
-                                <p>
-                                    <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/stage/${stage.id}`}>
-                                    <b>{stage.nome}</b>
-                                    </Link>
-                                </p>
-                                <p className="progress__info">
-                                    <b>{estado(stage.estado)}</b>
-                                </p>
+                                <li key={index} className={`timeline-item mb-5 ${className}`}>
+                                    <span className="timeline-icon">
+                                        {icon}
+                                    </span>
+                                    <p>
+                                        <Link className="link-dark link-offset-2 link-underline link-underline-opacity-0" to={`/stage/${stage.id}`}>
+                                        <b>{stage.nome}</b>
+                                        </Link>
+                                    </p>
+                                    <p className="progress__info">
+                                        <b className={`${className}`}>{state}</b>
+                                    </p>
                                 </li>
                             );
                         })}

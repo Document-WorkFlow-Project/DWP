@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react"
 import processServices from "../../Services/Processes/process.service"
 import { Link } from "react-router-dom"
-import { convertTimestamp } from "../../utils"
+import { convertTimestamp, estado } from "../../utils"
 import { AuthContext } from "../../AuthProvider"
 import {toast} from 'react-toastify';
 import stagesService from "../../Services/Stages/stages.service"
@@ -94,6 +94,7 @@ export const Processes = () => {
                                 <tr>
                                     <th>Etapa</th>
                                     <th>Descrição</th>
+                                    {selectedTaskType === "FINISHED" ? <th>Estado</th> : null}
                                     <th>Data Início</th>
                                     {selectedTaskType === "FINISHED" ? <th>Data Fim</th> : null}
                                     <th>Processo</th>
@@ -104,6 +105,7 @@ export const Processes = () => {
                                     <tr key={index}>
                                         <td><Link className="link-offset-2 link-underline link-underline-opacity-0" to={"/stage/" + stage.id}>{stage.nome}</Link></td>
                                         <td>{stage.descricao}</td>
+                                        {selectedTaskType === "FINISHED" ? <td>{estado(stage.estado)}</td> : null}
                                         <td>{convertTimestamp(stage.data_inicio)}</td>
                                         {selectedTaskType === "FINISHED" ? <td>{convertTimestamp(stage.data_fim)}</td> : null}
                                         <td><Link className="link-offset-2 link-underline link-underline-opacity-0" to={"/process/" + stage.id_processo}>{stage.processo_nome}</Link></td>
@@ -111,10 +113,16 @@ export const Processes = () => {
                                 ))}
                             </tbody>
                         </table>
-                        <p>
-                            {pendingTasks.hasPrevious && <button className="btn btn-primary btn-sm" onClick={() => setCurrentTaskPage(curr => curr - 1)}>Página anterior</button>}
-                            {pendingTasks.hasNext && <button className="btn btn-primary btn-sm" onClick={() => setCurrentTaskPage(curr => curr + 1)}>Página seguinte</button>}
-                        </p>
+                        <p></p>
+                        <div className="row row-cols-auto">
+                            <div className="col">
+                                {pendingTasks.hasPrevious && <button className="btn btn-primary btn-sm" onClick={() => setCurrentTaskPage(curr => curr - 1)}>Página anterior</button>}
+                            </div>
+                            <div className="col">
+                                {pendingTasks.hasNext && <button className="btn btn-primary btn-sm" onClick={() => setCurrentTaskPage(curr => curr + 1)}>Página seguinte</button>}
+                            </div>
+                        </div>
+                        <p></p>
                     </div>
                 }
             </div>
@@ -137,6 +145,7 @@ export const Processes = () => {
                                 <tr>
                                     <th>Processo</th>
                                     <th>Descrição</th>
+                                    {selectedProccessType === "FINISHED" ? <th>Estado</th> : null}
                                     <th>Data Início</th>
                                     {selectedProccessType === "FINISHED" ? <th>Data Fim</th> : null}
                                 </tr>
@@ -146,16 +155,22 @@ export const Processes = () => {
                                     <tr key={index}>
                                         <td><Link className="link-offset-2 link-underline link-underline-opacity-0" to={"/process/" + process.id}>{process.nome}</Link></td>
                                         <td>{process.descricao}</td>
+                                        {selectedProccessType === "FINISHED" ? <td>{estado(process.estado)}</td> : null}
                                         <td>{convertTimestamp(process.data_inicio)}</td>
                                         {selectedProccessType === "FINISHED" ? <td>{convertTimestamp(process.data_fim)}</td> : null}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        <p>
-                            {processes.hasPrevious && <button className="btn btn-primary btn-sm" onClick={() => setCurrentProcessPage(curr => curr - 1)}>Página anterior</button>}
-                            {processes.hasNext && <button className="btn btn-primary btn-sm" onClick={() => setCurrentProcessPage(curr => curr + 1)}>Página seguinte</button>}
-                        </p>
+                        <p></p>
+                        <div className="row row-cols-auto">
+                            <div className="col">
+                                {processes.hasPrevious && <button className="btn btn-primary btn-sm" onClick={() => setCurrentProcessPage(curr => curr - 1)}>Página anterior</button>}
+                            </div>
+                            <div className="col">
+                                {processes.hasNext && <button className="btn btn-primary btn-sm" onClick={() => setCurrentProcessPage(curr => curr + 1)}>Página seguinte</button>}
+                            </div>
+                        </div>
                     </div>
                 }
             </div>

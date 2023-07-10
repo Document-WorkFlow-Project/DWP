@@ -78,7 +78,8 @@ data class StageDetails(
     val data_fim: Timestamp?,
     val id_processo: String,
     val processo_nome: String,
-    val descricao: String
+    val descricao: String,
+    val estado: String
 )
 
 data class StageInfo(

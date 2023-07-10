@@ -31,7 +31,8 @@ data class ProcessModel(
         val id: String,
         val data_inicio: Timestamp,
         val data_fim: Timestamp?,
-        val descricao: String
+        val descricao: String,
+        val estado: String
 )
 
 data class UserAuth(
