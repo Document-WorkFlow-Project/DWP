@@ -22,6 +22,13 @@ export const estado = (value) => {
         return "Não aprovado"
 }
 
+export const modo = (value) => {
+    if (value == "Unanimous")
+        return "Unânime"
+    else
+        return "Maioritário"
+}
+
 export function formatBytes(bytes) {
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
     let i = 0;

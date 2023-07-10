@@ -73,10 +73,9 @@ export default function App() {
                     {showLogin && (
                         <div className="popup-container">
                             <div className="popup">
-                                <button className="close-button" onClick={toggleLogin}>
-                                    X
-                                </button>
-                                <Login/>
+                                <Login
+                                    onClose={toggleLogin}
+                                />
                             </div>
                         </div>
                     )}

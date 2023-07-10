@@ -4,8 +4,8 @@ CREATE DOMAIN email AS varchar(32) CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-
 
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel(
-    nome varchar(32) PRIMARY KEY,
-    descricao varchar(100)
+    nome varchar(50) PRIMARY KEY,
+    descricao text
 );
 
 --Utilizador(email, nome, authToken, password)
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS Documento_Processo(
 
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel(
-    papel varchar(36) NOT NULL,
+    papel varchar(100) NOT NULL,
     email_utilizador varchar(36) NOT NULL,
     FOREIGN KEY (papel) REFERENCES Papel(nome) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,

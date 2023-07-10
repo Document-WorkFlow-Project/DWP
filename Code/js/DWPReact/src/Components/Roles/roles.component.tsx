@@ -84,34 +84,50 @@ export const Roles = () => {
     }
 
     return (
-        <div>
-            <h2>Papéis disponíveis</h2>
-            { availableRoles.length === 0 ?
-                <p className="error">Não existem papéis disponíveis.</p>
-            : 
-                <div>  
-                    <label><b>Papel: </b>
-                        <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
-                            {roleOptions()}
-                        </select>
-                    </label>
-                    <button onClick={() => {setShowModal(true)}}>Utilizadores</button>
-                    {selectedRole !== "admin" && <button onClick={() => {rolesService.deleteRole(selectedRole)}}>Apagar papel</button>}
-                    <p><b>Descrição: </b></p>
-                    <div className="">
-                        {selectedRoleDetails.descricao}
-                    </div>
+        <div className="container-fluid">
+            <div className="row align-items-start">
+                <div className="col-10">
+                    <p></p>
+                    <h2>Papéis disponíveis</h2>
+                    <p></p>
+                    { availableRoles.length === 0 ?
+                        <p className="error">Não existem papéis disponíveis.</p>
+                    : 
+                        <div className="row row-cols-auto">  
+                            <div className="col-5">
+                                <select className="form-select" value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
+                                    {roleOptions()}
+                                </select>
+                            </div>
+                            <div className="col">
+                                <button className="btn btn-primary" onClick={() => {setShowModal(true)}}>Utilizadores</button>
+                            </div>
+                            <div className="col">
+                                {selectedRole !== "admin" && <button className="btn btn-danger" onClick={() => {rolesService.deleteRole(selectedRole)}}>Apagar papel</button>}
+                            </div>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
+            <div className="row align-items-start">
+                <div className="col">
+                    <p></p>
+                    <p><b>Descrição: </b> {selectedRoleDetails.descricao}</p>
+                </div>
+            </div>
+            <div className="row align-items-start">
+                <div className="col-6">
+                    <h2>Novo Papel</h2>
+                    <p><b>Nome: </b></p>
+                    <input className="form-control" type="text" value={roleName} onChange={e => {setRoleName(e.target.value)}}/>
+                    <p></p>
+                    <p><b>Descrição: </b></p>
+                    <textarea className="form-control" style={{ resize: "none" }} value={roleDescription} onChange={e => setRoleDescription(e.target.value)}/>
+                    <p className="error">{error}</p>
 
-            <h2>Novo Papel</h2>
-            <p><b>Nome: </b></p>
-            <input className="name-input" type="text" value={roleName} onChange={e => {setRoleName(e.target.value)}}/>
-            <p><b>Descrição: </b></p>
-            <textarea className="description-area" value={roleDescription} onChange={e => setRoleDescription(e.target.value)}/>
-            <p className="error">{error}</p>
-
-            <button onClick={createRole}>Criar papel</button>
+                    <button className="btn btn-success" onClick={createRole}>Criar papel</button>
+                </div>
+            </div>        
 
             <div>
                 {showModal && createPortal(

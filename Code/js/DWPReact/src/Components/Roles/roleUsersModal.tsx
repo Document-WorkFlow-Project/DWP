@@ -52,29 +52,49 @@ export function RoleUsersModal({
         <div className="bg">
             <div className="stage-modal">
                 <h3>{selectedRole}</h3>
-                <p><b>Utilizadores: </b></p>
-                <div className="responsible-container">
-                    {roleUsers.map((user, index) => {
-                        if (selectedRole === "admin" && user === loggedUser.email)
-                            return (<p key={index}> {user} </p>)
-                        else
-                            return (<p key={index}> {user} <button onClick={() => removeUserFromRole(user)}>x</button></p>)
-                    })}
+
+                <div className="row">
+                    <div className="col">
+                        <p><b>Utilizadores: </b></p>
+                        <div className="responsible-container">
+                            {roleUsers.map((user, index) => {
+                                if (selectedRole === "admin" && user === loggedUser.email)
+                                    return (<p key={index}> {user} </p>)
+                                else
+                                    return (<p key={index}> {user} <button className="btn-close" onClick={() => removeUserFromRole(user)}></button></p>)
+                            })}
+                        </div>
+                    </div>
                 </div>
                 
-                <p><b>Adicionar utilizadores: </b></p>
-                <div>
-                    <input type="text" id="myInput" placeholder="Pesquisar utilizadores" 
-                        onChange={(e) => {setSearchInput(e.target.value)}}>
-                    </input>
+                
+                <div className="row">
+                    <div className="col">
+                        <p><b>Adicionar utilizadores: </b></p>
+                        <div>
+                            <input className="form-control" type="text" id="myInput" placeholder="Pesquisar utilizadores" 
+                                onChange={(e) => {setSearchInput(e.target.value)}}>
+                            </input>
+                        </div>
+                    </div>
                 </div>
-                <div className="scroll-resp">
-                    {filteredUsers.map((user, index) => (
-                        <p key={index}><button key={index} onClick={() => addUserToRole(user)}>{user}</button></p>
-                    ))}
-                </div>
+                
 
-                <p><button onClick={onClose}>Fechar</button></p>
+                <div className="row">
+                    <div className="col">
+                        <div className="scroll-resp">
+                            {filteredUsers.map((user, index) => (
+                                <p key={index}><button className="btn btn-primary" key={index} onClick={() => addUserToRole(user)}>{user}</button></p>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="row">
+                    <p></p>
+                    <button className="btn btn-danger" onClick={onClose}>Fechar</button> 
+                </div>
+                
             </div>
         </div>
     )

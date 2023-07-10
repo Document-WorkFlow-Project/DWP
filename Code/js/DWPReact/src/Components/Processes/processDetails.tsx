@@ -16,7 +16,7 @@ export const ProcessDetails = () => {
         template_processo: "",
         estado: "PENDING",
         autor: "",
-        data_inicio: "",
+        data_inicio: null,
         data_fim: null
     })
     const [processDocs, setProcessDocs] = useState({
@@ -74,39 +74,74 @@ export const ProcessDetails = () => {
     }
 
     return (
-        <div>
-            <h2>{processDetails.nome}</h2>
-            <p><b>Descrição: </b>{processDetails.descricao}</p>
-            <p><b>Template: </b>{processDetails.template_processo}</p>
-            <p><b>Autor: </b>{processDetails.autor}</p>
-            <p><b>Estado: </b>{estado(processDetails.estado)}</p>
-            <p><b>Data de início: </b>{convertTimestamp(processDetails.data_inicio)}</p>
-            {processDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(processDetails.data_fim)}</p>}
-            <p><b>Documentos: </b></p>
-            {processDocs.names.length > 0 ?
-                <div>
-                    <div className="scroll">
-                        {processDocs.names.map((name, index) => {
-                            return (<p key={index}>{name} </p>)})
-                        }
-                    </div>
-                    <p><b>Tamanho: </b>{formatBytes(processDocs.size)}</p>
-                    <p><button onClick={() => downloadDocs()}>Transferir documentos</button></p>
-                </div>
-                :
-                <p>Nenhum documento carregado.</p>
-            }
-            <div>
-                {processStages.map((stage, index) => {
-                    const className = index === currentStage ? getClassName(stage.estado) : '';
-
-                    return (
-                        <div key={index} className={`clipping-container ${className}`}>
-                            <p><Link to={`/stage/${stage.id}`}><b>{stage.nome}</b></Link></p>
-                            <p><b>{estado(stage.estado)}</b></p>
+        <div className="container-fluid">
+            <div className="row row-cols-auto">
+                <div className="col-6">
+                    <p></p>
+                    <h2>{processDetails.nome}</h2>
+                    <p></p>
+                    <p><b>Descrição: </b>{processDetails.descricao}</p>
+                    <p><b>Template: </b>{processDetails.template_processo}</p>
+                    <p><b>Autor: </b>{processDetails.autor}</p>
+                    <p><b>Estado: </b>{estado(processDetails.estado)}</p>
+                    <p><b>Data de início: </b>{convertTimestamp(processDetails.data_inicio)}</p>
+                    {processDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(processDetails.data_fim)}</p>}
+                    
+                    <p><b>Documentos: </b></p>
+                    {processDocs.names.length > 0 ?
+                        <div>
+                            <div className="scroll">
+                                {processDocs.names.map((name, index) => {
+                                    return (<p key={index}>{name} </p>)})
+                                }
+                            </div>
+                            <p></p>
+                            <p><b>Tamanho: </b>{formatBytes(processDocs.size)}</p>
+                            <p><button className="btn btn-primary" onClick={() => downloadDocs()}>Transferir documentos</button></p>
                         </div>
-                    )
-                })}
+                        :
+                        <p>Nenhum documento carregado.</p>
+                    }
+                </div>
+                
+                <div className="col">
+                    <p></p>
+                    <ul className="list-group">
+                        {processStages.map((stage, index) => {
+                            let className;
+
+                            if (index === currentStage) {
+                                if (stage.estado === "DISAPPROVED") {
+                                  className = "progress__item--disapproved";
+                                } else if (stage.estado === "APPROVED") {
+                                  className = "progress__item--approved";
+                                } else {
+                                  className = "progress__item--current";
+                                }
+                            } else if (index > currentStage && stage.estado === "DISAPPROVED") {
+                                className = "progress__item--left-uncomplete";
+                            } else if (stage.estado === "PENDING") {
+                                className = "progress__item--pending";
+                            } else if (stage.estado === "APPROVED") {
+                                className = "progress__item--approved";
+                            }
+
+                            return (
+                                <li key={index} className={`list-group-item ${className}`}>
+                                <p>
+                                    <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/stage/${stage.id}`}>
+                                    <b>{stage.nome}</b>
+                                    </Link>
+                                </p>
+                                <p className="progress__info">
+                                    <b>{estado(stage.estado)}</b>
+                                </p>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+
             </div>
         </div>
     )

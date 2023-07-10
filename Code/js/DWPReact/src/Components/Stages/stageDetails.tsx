@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import { useParams } from 'react-router';
 import stagesService from "../../Services/Stages/stages.service";
 import { Comments } from "../Comments/commentBox";
-import { convertTimestamp, estado } from "../../utils";
+import { convertTimestamp, estado, modo } from "../../utils";
 import { createPortal } from 'react-dom'
 import { SignaturesModal } from "./signaturesModal";
 import { AuthContext } from "../../AuthProvider";
@@ -64,9 +64,12 @@ export const StageDetails = () => {
     }
 
     return (
-        <div>
-            <Link to={`/process/${stageDetails.id_processo}`}>Voltar ao processo</Link>
+        <div className="container-fluid">
+            <p></p>
+            <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/process/${stageDetails.id_processo}`}>Voltar ao processo</Link>
+            <p></p>
             <h2>{stageDetails.nome}</h2>
+            <p></p>
             <p><b>Descrição: </b>{stageDetails.descricao}</p>
             <p><b>Estado: </b><a>{estado(stageDetails.estado)}</a></p>
             <p><b>Prazo: </b>{stageDetails.prazo} dias</p>
@@ -77,15 +80,21 @@ export const StageDetails = () => {
             }
                 
             {stageDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(stageDetails.data_fim)}</p>}
-            <p><b>Modo de assinatura: </b>{stageDetails.modo}</p>
-            <p><button onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
+            <p><b>Modo de assinatura: </b>{modo(stageDetails.modo)}</p>
+            <p><button className="btn btn-primary" onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
 
             {hasToSign &&
-                <div>
-                    <button onClick={() => signStage(true)}>Aprovar etapa</button>
-                    <button onClick={() => signStage(false)}>Reprovar etapa</button>
+                <div className="row row-cols-auto">
+                    <div className="col">
+                        <button className="btn btn-success" onClick={() => signStage(true)}>Aprovar etapa</button>
+                    </div>
+                    <div className="col">
+                        <button className="btn btn-danger" onClick={() => signStage(false)}>Não Aprovar etapa</button>
+                    </div>
                 </div>
             }
+
+            <p></p>
             
             <Comments stageId={id}/>
 

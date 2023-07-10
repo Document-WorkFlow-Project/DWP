@@ -57,36 +57,40 @@ const adduserscomponent: React.FC = () => {
 
 
     return (
-        <div>
+        <div className='container-fluid'>
+            <p></p>
             <h2>Adicionar Novo Utilizador</h2>
+            <p></p>
             <Form onSubmit={handleSubmit} ref={form}>
-                <div>
-                    <label htmlFor="username">Nome</label>
-                    <Input
-                        type="text"
-                        className="form-control"
-                        name="username"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        validations={[required, vusername]}
-                    />
-                    <p></p>
-                    <label htmlFor="email">Email</label>
-                    <Input
-                        type="text"
-                        className="form-control"
-                        name="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        validations={[required, validEmail]}
-                    />
-                    <p></p>
-                    <button className="btn btn-primary btn-block" disabled={loading}>
-                        {loading && (
-                            <span className="spinner-border spinner-border-sm"></span>
-                        )}
-                        <span>Adicionar utilizador</span>
-                    </button>
+                <div className="row align-items-start">
+                    <div className="col-4">
+                        <label htmlFor="username">Nome</label>
+                        <Input
+                            type="text"
+                            className="form-control"
+                            name="username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            validations={[required, vusername]}
+                        />
+                        <p></p>
+                        <label htmlFor="email">Email</label>
+                        <Input
+                            type="text"
+                            className="form-control"
+                            name="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            validations={[required, validEmail]}
+                        />
+                        <p></p>
+                        <button className="btn btn-primary" disabled={loading}>
+                            {loading && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span>Adicionar utilizador</span>
+                        </button>
+                    </div>
                 </div>
 
                 <CheckButton style={{ display: "none" }} ref={checkBtn} />

@@ -6,7 +6,9 @@ import AuthService from "../../Services/Users/auth.service";
 import {toast, ToastContainer} from "react-toastify";
 import { vpassword, validEmail, required } from "../../utils";
 
-const Login = () => {
+export function Login ({
+    onClose
+}) {
     const form = useRef();
     const checkBtn = useRef();
 
@@ -56,46 +58,47 @@ const Login = () => {
     };
 
     return (
-        <div className="col-md-12">
-            <div className="card card-container">
-                <Form onSubmit={handleLogin} ref={form}>
-                    <div className="form-group">
-                        <label htmlFor="username">Email</label>
-                        <Input
-                            type="text"
-                            className="form-control"
-                            name="email"
-                            value={email}
-                            onChange={onChangeEmail}
-                            validations={[required, validEmail]}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <Input
-                            type="password"
-                            className="form-control"
-                            name="password"
-                            value={password}
-                            onChange={onChangePassword}
-                            validations={[required, vpassword]}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <button className="btn btn-primary btn-block" disabled={loading}>
-                            {loading && (
-                                <span className="spinner-border spinner-border-sm"></span>
-                            )}
-                            <span>Login</span>
-                        </button>
-                    </div>
-
-                    <CheckButton style={{ display: "none" }} ref={checkBtn} />
-                </Form>
-                <ToastContainer /> {/* Add the toast container */}
+        <div className="container">
+            <div className="row justify-content-end">
+                <button className="btn-close" onClick={onClose}></button>
             </div>
+            <Form onSubmit={handleLogin} ref={form}>
+                <div className="form-group">
+                    <p><b>Email</b></p>
+                    <Input
+                        type="text"
+                        className="form-control"
+                        name="email"
+                        value={email}
+                        onChange={onChangeEmail}
+                        validations={[required, validEmail]}
+                    />
+                </div>
+                <p></p>
+                <div className="form-group">
+                    <p><b>Password</b></p>
+                    <Input
+                        type="password"
+                        className="form-control"
+                        name="password"
+                        value={password}
+                        onChange={onChangePassword}
+                        validations={[required, vpassword]}
+                    />
+                </div>
+                <p></p>
+                <div className="form-group">
+                    <button className="btn btn-primary" disabled={loading}>
+                        {loading && (
+                            <span className="spinner-border spinner-border-sm"></span>
+                        )}
+                        <span>Login</span>
+                    </button>
+                </div>
+
+                <CheckButton style={{ display: "none" }} ref={checkBtn} />
+            </Form>
+            <ToastContainer /> {/* Add the toast container */}
         </div>
     );
 };
