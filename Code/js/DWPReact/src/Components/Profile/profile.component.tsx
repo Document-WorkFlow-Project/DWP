@@ -1,5 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import { AuthContext } from "../../AuthProvider";
+import authService from "../../Services/Users/auth.service";
+import {toast, ToastContainer} from "react-toastify";
 
 const Profile =  () => {
 
@@ -15,10 +17,25 @@ const Profile =  () => {
         console.log(loggedUser.roles)
     }, [])
 
-    async function changePassword() {
+    function changePassword() {
         if (newPass !== repeatNewPass) {
             setError("Palavras passe não coincidem.")
+            return;
+        } else if (currentPass === newPass) {
+            setError("A nova palavra passe não pode ser igual à atual.")
+            return;
         }
+
+        authService.updatePass(currentPass, newPass).then(
+            (response) => {
+                toast.success(response);
+            },
+            (error) => {
+                console.log(error)
+                const resMessage = (error.response &&  error.response.data ) || error.toString();
+                toast.error(resMessage);
+            }
+        );
     }
 
     return (
@@ -55,11 +72,14 @@ const Profile =  () => {
                             changePassword()
                         }}>
                         <p>Palavra-passe atual:</p>
-                        <input className="form-control" required={true} type="password" value={currentPass} onChange={e => {setCurrentPass(e.target.value)}}/>
+                        <input className="form-control" required={true} minLength={6} type="password" value={currentPass} onChange={e => {setCurrentPass(e.target.value)}}/>
+                        <p></p>
                         <p>Nova palavra-passe:</p>
-                        <input className="form-control" required={true} type="password" value={newPass} onChange={e => {setNewPass(e.target.value)}}/>
+                        <input className="form-control" required={true} minLength={6} type="password" value={newPass} onChange={e => {setNewPass(e.target.value)}}/>
+                        <p></p>
                         <p>Repetir nova palavra-passe:</p>
-                        <input className="form-control" required={true} type="password" value={repeatNewPass} onChange={e => {setRepeatNewPass(e.target.value)}}/>
+                        <input className="form-control" required={true} minLength={6} type="password" value={repeatNewPass} onChange={e => {setRepeatNewPass(e.target.value)}}/>
+                        <p></p>
                         <p className="error">{error}</p>
 
                         <input className="btn btn-primary" type="submit" value="Alterar palavra-passe"></input>

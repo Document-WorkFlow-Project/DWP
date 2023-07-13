@@ -25,6 +25,14 @@ class AuthService {
         return response.data;
     }
 
+    async updatePass(oldPass: string, newPass: string) {
+        const response = await axios.put(`${API_URL}/users/credentials`, {
+            password: oldPass,
+            newPassword: newPass
+        })
+
+        return response.data;
+    }
 }
 
 export default new AuthService();

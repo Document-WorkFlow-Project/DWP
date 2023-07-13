@@ -6,8 +6,8 @@ module.exports = {
     devServer: {
         proxy: {
             '/api': {
-                //target: 'http://localhost:8080',
-                target: 'http://dwp-backend:8080', // IMPORTANT! use this target when building the image for docker
+                target: 'http://localhost:8080',
+                //target: 'http://dwp-backend:8080', // IMPORTANT! use this target when building the image for docker
                 pathRewrite: {'^/api': ''},
                 secure: false
             }

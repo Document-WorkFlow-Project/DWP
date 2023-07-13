@@ -85,6 +85,8 @@ class UserServices(
             throw ExceptionControllerAdvice.ParameterIsBlank("Current password is required.")
         if (newPass.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("New password is required.")
+        if (newPass.length < 6)
+            throw ExceptionControllerAdvice.InvalidParameterException("Password is too short.")
         if (newPass.length > 32)
             throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
