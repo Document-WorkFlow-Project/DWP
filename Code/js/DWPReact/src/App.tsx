@@ -8,7 +8,7 @@ import "./App.css";
 import {useState, useContext} from "react";
 import AuthService from "./Services/Users/auth.service";
 import Login from "./Components/LoginForm/login.component";
-import Profile from "./Components/Profile/profile.component";
+import {Profile} from "./Components/Profile/profile.component";
 import {ProcessDetails} from "./Components/Processes/processDetails";
 import {StageDetails} from "./Components/Stages/stageDetails";
 import AddUsers from "./Components/AddUsers/addusers.component";
@@ -53,7 +53,7 @@ export default function App() {
                     {loggedUser.email ? (
                         <div className="navbar-login-right">
                             <div className="navbar-profile">
-                                <Link to={"/profile"} className="nav-link">
+                                <Link to={`/profile/${loggedUser.email}`} className="nav-link">
                                     {loggedUser.nome}
                                 </Link>
                                 <button className="loginicon" onClick={async () => await AuthService.logout()}>
@@ -89,7 +89,7 @@ export default function App() {
                 <Route path="/stage/:id" element={<StageDetails/>}/>
                 <Route path="/templates" element={<Templates/>}/>
                 <Route path="/roles" element={<Roles/>}/>
-                <Route path="/profile" element={<Profile/>}/>
+                <Route path="/profile/:userEmail" element={<Profile/>}/>
                 <Route path="/addusers" element={<AddUsers/>}/>
             </Routes>
 

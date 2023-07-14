@@ -1,23 +1,45 @@
 import {useContext, useEffect, useState} from "react";
+import { useParams } from 'react-router';
 import { AuthContext } from "../../AuthProvider";
 import authService from "../../Services/Users/auth.service";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
+import usersService from "../../Services/Users/users.service";
 
-const Profile =  () => {
+export const Profile = () => {
 
+    const { userEmail } = useParams();
     const { loggedUser } = useContext(AuthContext);
 
+    const [userDetails, setUserDetails] = useState(loggedUser)
+
+    const [showChangePass, setShowChangePass] = useState(false)
     const [currentPass, setCurrentPass] = useState("")
     const [newPass, setNewPass] = useState("")
     const [repeatNewPass, setRepeatNewPass] = useState("")
-    
+
     const [error, setError] = useState("")
 
+    async function fetchUserDetails(email) {
+        try {
+            const user = await usersService.getUserDetails(email)
+            setUserDetails(user)
+        } catch (err) {
+            setShowChangePass(true)
+            toast.error(`Erro ao obter o perfil de ${email}. Tente novamente...`)
+        }
+    }
+    
     useEffect( () => {
-        console.log(loggedUser.roles)
-    }, [])
+        if (userEmail === loggedUser.email){
+            setShowChangePass(true)
+            setUserDetails(loggedUser)
+        } else {
+            setShowChangePass(false)
+            fetchUserDetails(userEmail)
+        }
+    }, [userEmail])
 
-    function changePassword() {
+    async function changePassword() {
         if (newPass !== repeatNewPass) {
             setError("Palavras passe não coincidem.")
             return;
@@ -26,16 +48,14 @@ const Profile =  () => {
             return;
         }
 
-        authService.updatePass(currentPass, newPass).then(
-            (response) => {
-                toast.success(response);
-            },
-            (error) => {
-                console.log(error)
-                const resMessage = (error.response &&  error.response.data ) || error.toString();
-                toast.error(resMessage);
-            }
-        );
+        try {
+            const res = await authService.updatePass(currentPass, newPass)
+            toast.success(res);
+            setError("")
+        } catch(err) {
+            const resMessage = err.response.data || err.toString();
+            toast.error(resMessage);
+        }
     }
 
     return (
@@ -43,14 +63,14 @@ const Profile =  () => {
             <div className="row">
                 <div className="col-4">
                     <p></p>
-                    <h2>{loggedUser.nome}</h2>
+                    <h2>{userDetails.nome}</h2>
                     <p></p>
-                    <p><strong>Email:</strong> {loggedUser.email}</p>
+                    <p><strong>Email:</strong> {userDetails.email}</p>
                     <strong>Papéis atribuídos:</strong>
                     <p></p>
-                    {loggedUser.roles.length > 0 ?
+                    {userDetails.roles.length > 0 ?
                         <ul className="list-group">
-                            {loggedUser.roles.map((role, index) => (
+                            {userDetails.roles.map((role, index) => (
                                 <li className="list-group-item" key={index}>{role.trim()}</li>
                             ))}
                         </ul>
@@ -59,36 +79,36 @@ const Profile =  () => {
                     }
                 </div>
 
-                <div className="col-2">
+                {showChangePass && 
+                    <>
+                        <div className="col-2">
 
-                </div>
+                        </div>
 
-                <div className="col-4">
-                    <p></p>
-                    <h2>Alterar palavra-passe</h2>
-                    <p></p>
-                    <form onSubmit={(e) => {
-                            e.preventDefault()
-                            changePassword()
-                        }}>
-                        <p>Palavra-passe atual:</p>
-                        <input className="form-control" required={true} minLength={6} type="password" value={currentPass} onChange={e => {setCurrentPass(e.target.value)}}/>
-                        <p></p>
-                        <p>Nova palavra-passe:</p>
-                        <input className="form-control" required={true} minLength={6} type="password" value={newPass} onChange={e => {setNewPass(e.target.value)}}/>
-                        <p></p>
-                        <p>Repetir nova palavra-passe:</p>
-                        <input className="form-control" required={true} minLength={6} type="password" value={repeatNewPass} onChange={e => {setRepeatNewPass(e.target.value)}}/>
-                        <p></p>
-                        <p className="error">{error}</p>
+                        <div className="col-4">
+                            <p></p>
+                            <h2>Alterar palavra-passe</h2>
+                            <p></p>
+                            <form onSubmit={changePassword}>
+                                <p>Palavra-passe atual:</p>
+                                <input className="form-control" required={true} minLength={6} type="password" value={currentPass} onChange={e => {setCurrentPass(e.target.value)}}/>
+                                <p></p>
+                                <p>Nova palavra-passe:</p>
+                                <input className="form-control" required={true} minLength={6} type="password" value={newPass} onChange={e => {setNewPass(e.target.value)}}/>
+                                <p></p>
+                                <p>Repetir nova palavra-passe:</p>
+                                <input className="form-control" required={true} minLength={6} type="password" value={repeatNewPass} onChange={e => {setRepeatNewPass(e.target.value)}}/>
+                                <p></p>
+                                <p className="error">{error}</p>
 
-                        <input className="btn btn-primary" type="submit" value="Alterar palavra-passe"></input>
-                    </form>
-                </div>
+                                <input className="btn btn-primary" type="submit" value="Alterar palavra-passe"></input>
+                            </form>
+                        </div>
+                    </>
+                }
+                
             </div>
             
         </div>
     );
 };
-
-export default Profile;

@@ -27,11 +27,10 @@ export const Roles = () => {
             try {
                 setAvailableRoles(await rolesService.availableRoles())
             } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
-                else toast.error("There are no Roles. Please contact an Admin")
+                toast.error("Erro a obter papéis. Tenta novamente...")
             }
         }
+
         fetchData()
     }, [])
       
@@ -46,8 +45,7 @@ export const Roles = () => {
                 try {
                     setSelectedRoleDetails(await rolesService.roleDetails(selectedRole))
                 } catch (error) {
-                    let code = error.response.status
-                    if (code != 404) toast.error("Error Getting Role Details. Please Refresh ...")
+                    toast.error("Erro a obter papéis. Tenta novamente...")
                 }
             }
             fetchDetails()

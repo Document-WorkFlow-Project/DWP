@@ -20,32 +20,40 @@ export function RoleUsersModal({
             window.location.href = '/';
 
         const fetchData = async () => {
-            try{
+            try {
               const rUsers = await rolesService.roleUsers(selectedRole)
               setRoleUsers(rUsers)
 
               const users = await usersService.usersList()
               setAvailableUsers(users.filter(user => !rUsers.includes(user)))
             } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Error getting Users and Roles Information, please Refresh ...")
+                toast.error("Erro a obter utilizadores. Tenta novamente...")
             }
         }
+        
         fetchData()
     }, [])
 
     const filteredUsers = availableUsers.filter(item => item.toLowerCase().includes(searchInput.toLowerCase()))
 
     const removeUserFromRole = async (user) => {
-        await rolesService.removeRoleFromUser(selectedRole, user)
-        setRoleUsers(roleUsers.filter(email => email !== user))
-        setAvailableUsers((prevUsers) => [...prevUsers, user])
+        try {
+            await rolesService.removeRoleFromUser(selectedRole, user)
+            setRoleUsers(roleUsers.filter(email => email !== user))
+            setAvailableUsers((prevUsers) => [...prevUsers, user])
+        } catch (error) {
+            toast.error("Erro a obter papéis. Tenta novamente...")
+        }
     }
 
     const addUserToRole = async (user) => {
-        await rolesService.addRoleToUSer(selectedRole, user)
-        setRoleUsers((prevUsers) => [...prevUsers, user])
-        setAvailableUsers(availableUsers.filter(email => email !== user))
+        try {
+            await rolesService.addRoleToUSer(selectedRole, user)
+            setRoleUsers((prevUsers) => [...prevUsers, user])
+            setAvailableUsers(availableUsers.filter(email => email !== user))
+        } catch (error) {
+            toast.error("Erro a obter papéis. Tenta novamente...")
+        }
     }
 
     return (

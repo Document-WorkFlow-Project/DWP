@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { TemplateDetailsModal } from "../Templates/templateModals"
 import templatesService from "../../Services/Templates/templates.service"
 import { AuthContext } from '../../AuthProvider';
+import {toast} from 'react-toastify';
 
 export const NewProcess = () => {
 
@@ -27,16 +28,19 @@ export const NewProcess = () => {
            window.location.href = '/';
 
         const fetchData = async () => {
-            const templates = await templatesService.availableTemplates()
-            if(Array.isArray(templates)) {
+            try {
+                const templates = await templatesService.availableTemplates()
                 setAvailableTemplates(templates)
-                
+                    
                 if(templates.length > 0)
                     setSelectedTemplate(templates[0])
+            } catch (err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
             }
         }
-        fetchData()
 
+        fetchData()
     }, [])
 
     function templateOptions() {
@@ -70,8 +74,29 @@ export const NewProcess = () => {
             setDragActive(false)
 
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                const files = Array.from(e.dataTransfer.files)
-                setUploadedDocs((prevDocs) => [...prevDocs, ...files])
+                const files = Array.from(e.dataTransfer.files) as unknown as FileList;
+                const maxSize = 500 * 1024 * 1024 // 500MB
+
+                // calculate the size of the files added before
+                let totalSize = uploadedDocs.reduce((size, file) => size + file.size, 0);
+                const validFiles = [];
+
+                // check if the size of each file added does not exceed the limit
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i]
+                    if (file) {
+                        totalSize += file.size;
+        
+                        if (totalSize <= maxSize) {
+                            validFiles.push(file);
+                        } else {
+                            toast.error("Limite 500MB de upload atingido.")
+                            break;
+                        }
+                    }
+                }
+        
+                setUploadedDocs(prevDocs => [...prevDocs, ...validFiles]);
             }
         }
 
@@ -90,7 +115,7 @@ export const NewProcess = () => {
             setUploadedDocs((prevDocs) => prevDocs.filter((file) => file.name !== fileName))
         }
 
-        const handleSubmit = function(e) {
+        const handleSubmit = async function(e) {
             e.preventDefault()
 
             if (processName === "" || processDescription === "") {
@@ -110,7 +135,14 @@ export const NewProcess = () => {
 
             uploadedDocs.forEach((file) => formData.append('file', file))
 
-            processServices.createProcess(formData)
+            try {
+                await processServices.createProcess(formData)
+                window.location.href = "/processes"
+            }
+            catch(err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
+            }
         }
 
         return (

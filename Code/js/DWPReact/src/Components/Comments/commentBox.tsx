@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import commentsService from "../../Services/comments.service"
 import { convertTimestamp } from "../../utils"
 import {toast} from "react-toastify";
+import {Link} from "react-router-dom";
 
 export function Comments ({stageId}) {
 
@@ -10,28 +11,30 @@ export function Comments ({stageId}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            let comts
             try {
-                comts = await commentsService.stageComments(stageId)
+                const comts = await commentsService.stageComments(stageId)
                 setCommments(comts)
             } catch (error) {
-               toast.error("Error Posting Comment. Please Refresh ...")
+               toast.error("Erro ao obter comentários. Tenta novamente...")
             }
-
         }
         fetchData()
     }, [])
 
-    const publishComment = () => {
+    const publishComment = async () => {
         if (newComment === "")
            return
         else {
-            commentsService.postComment(stageId, newComment)
+            try {
+                await commentsService.postComment(stageId, newComment)
+            } catch (error) {
+                toast.error("Erro ao adicionar comentário. Tenta novamente...")
+            }
         } 	
     }
 
     return (
-        <div className="container-fluid">
+        <div>
             <h2>Comentários</h2>
             <p></p>
             
@@ -54,7 +57,7 @@ export function Comments ({stageId}) {
                         {comments.map((comment, index) => {
                             return (
                                 <div key={index} className="clipping-container">
-                                    <p><b>{comment.remetente} </b>{convertTimestamp(comment.data)}</p>
+                                    <p><b><Link className="link-secondary link-offset-2 link-underline link-underline-opacity-0" to={`/profile/${comment.remetente}`}>{comment.remetente}</Link> </b>{convertTimestamp(comment.data)}</p>
                                     <p>{comment.texto}</p>
                                 </div>
                             )

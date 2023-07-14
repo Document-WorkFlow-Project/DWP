@@ -36,22 +36,16 @@ export function Login ({
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
-            await AuthService.login(email, password).then(
-                (response) => {
-                    window.location.href = "processes"
-                    toast.success(response);
-                },
-                (error) => {
-                    console.log(error)
-                    const resMessage =
-                        (error.response &&
-                            error.response.data ) ||
-                        error.toString();
-
-                    setLoading(false);
-                    toast.error(resMessage);
-                }
-            );
+            try {
+                const res = await AuthService.login(email, password)
+                window.location.href = "processes"
+                toast.success(res);
+            } catch (error) {
+                console.log(error)
+                const resMessage = error.response.data || error.toString();
+                setLoading(false);
+                toast.error(resMessage);
+            }
         } else {
             setLoading(false);
         }

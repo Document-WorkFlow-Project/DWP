@@ -25,7 +25,6 @@ export function AuthProvider({ children }) {
                 else 
                     setLoggedUser(loggedOut);
             } catch (error) {
-                console.log(error)
                 setLoggedUser(loggedOut);
             }
 

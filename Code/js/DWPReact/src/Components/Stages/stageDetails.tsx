@@ -38,9 +38,7 @@ export const StageDetails = () => {
                 window.location.href = '/';
             try {
                 const stageDetails = await stagesService.stageDetails(id)
-
-                if (typeof stageDetails === 'object')
-                    setStageDetails(stageDetails)
+                setStageDetails(stageDetails)
 
                 const signatures = await stagesService.stageSignatures(id)
                 setStageSignatures(signatures)
@@ -48,8 +46,7 @@ export const StageDetails = () => {
                 if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
                     setHasToSign(true)
             } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Something Wrong Happened. Please Refresh ...")
+                toast.error("Erro a obter assinaturas. Tenta novamente...")
             }
         }
         fetchData()
@@ -59,7 +56,8 @@ export const StageDetails = () => {
         try {
             await stagesService.signStage(id, value)
         } catch (error) {
-            toast.error(error.message)
+            const resMessage = error.response.data || error.toString();
+            toast.error(resMessage);
         }
     }
 
@@ -98,15 +96,13 @@ export const StageDetails = () => {
             
             <Comments stageId={id}/>
 
-            <div>
-                {showSignatureModal && createPortal(
-                    <SignaturesModal 
-                        onClose={() => setShowSignatureModal(false)}
-                        signatures={stageSignatures}
-                    />,
-                    document.body
-                )}
-            </div>
+            {showSignatureModal && createPortal(
+                <SignaturesModal 
+                    onClose={() => setShowSignatureModal(false)}
+                    signatures={stageSignatures}
+                />,
+                document.body
+            )}
         </div>
     )
 }

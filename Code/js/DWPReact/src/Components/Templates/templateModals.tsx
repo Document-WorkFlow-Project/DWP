@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import templatesService from "../../Services/Templates/templates.service"
 import { modo } from "../../utils"
+import {toast} from "react-toastify";
 
 export function NewStageModal({ 
     onClose, 
@@ -196,12 +197,15 @@ export function TemplateDetailsModal({onClose, selectedTemplate}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const template = await templatesService.getTemplate(selectedTemplate);
-            setTemplateDetails(template)
+            try {
+                const template = await templatesService.getTemplate(selectedTemplate);
+                setTemplateDetails(template)
+            } catch (err) {
+                toast.error("Erro ao obter detalhes do template. Tenta novamente...");
+            }
         }
-        fetchData()
 
-        console.log(templateDetails)
+        fetchData()
     }, [])
 
     return (

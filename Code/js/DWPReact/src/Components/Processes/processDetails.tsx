@@ -5,6 +5,7 @@ import { convertTimestamp, estado } from "../../utils";
 import {Link} from "react-router-dom";
 import { formatBytes } from "../../utils";
 import { BsClockHistory, BsCheckCircle, BsXCircle, BsDashCircle, BsFillRecord2Fill } from 'react-icons/bs';
+import {toast} from 'react-toastify';
 
 
 export const ProcessDetails = () => {
@@ -29,18 +30,14 @@ export const ProcessDetails = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const details = await processServices.processDetails(id)
-            
-            if (typeof details === 'object')
+            try {
+                const details = await processServices.processDetails(id)
                 setProcessDetails(details)
 
-            const docDetails = await processServices.processDocDetails(id)
-            if (typeof docDetails === 'object')
+                const docDetails = await processServices.processDocDetails(id)
                 setProcessDocs(docDetails)
 
-            const stages = await processServices.processStages(id)
-            
-            if (Array.isArray(stages)){
+                const stages = await processServices.processStages(id)
                 setProcessStages(stages)
                 
                 const currentStageIndex = stages.findIndex((stage) => stage.estado === 'PENDING' || stage.estado === 'DISAPPROVED');
@@ -49,29 +46,30 @@ export const ProcessDetails = () => {
                     setCurrentStage(stages.length - 1)
                 else
                     setCurrentStage(currentStageIndex)
+
+            } catch(err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
             }
         }
+        
         fetchData()
     }, [])
 
     async function downloadDocs() {
-        const data = await processServices.downloadDocs(id);
-        const downloadUrl = window.URL.createObjectURL(new Blob([data]));
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.setAttribute('download', `documents-${id}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    const getClassName = (state) => {
-        if (state === "PENDING")
-            return 'pending-stage'
-        else if (state === "APPROVED")
-            return 'success-stage'
-        else if (state === "DISAPPROVED")
-            return 'failure-stage'
+        try {
+            const data = await processServices.downloadDocs(id);
+            const downloadUrl = window.URL.createObjectURL(new Blob([data]));
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `documents-${id}.zip`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch(err) {
+            const resMessage = err.response.data || err.toString();
+            toast.error(resMessage);
+        }
     }
 
     return (
@@ -83,7 +81,7 @@ export const ProcessDetails = () => {
                     <p></p>
                     <p><b>Descrição: </b>{processDetails.descricao}</p>
                     <p><b>Template: </b>{processDetails.template_processo}</p>
-                    <p><b>Autor: </b>{processDetails.autor}</p>
+                    <p><b>Autor: <Link className="link-secondary link-offset-2 link-underline link-underline-opacity-0" to={`/profile/${processDetails.autor}`}>{processDetails.autor}</Link></b></p>
                     <p><b>Estado: </b>{estado(processDetails.estado)}</p>
                     <p><b>Data de início: </b>{convertTimestamp(processDetails.data_inicio)}</p>
                     {processDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(processDetails.data_fim)}</p>}

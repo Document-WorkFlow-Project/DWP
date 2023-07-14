@@ -56,23 +56,19 @@ export default function Templates() {
         setSelectedTemplate(templates[0])
 
     } catch (error) {
-      let code = error.response.status
-      if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
+      toast.error("Erro ao obter templates. Tenta novamente...")
     }
 
     try {
       setRoleGroups(await rolesService.availableRoles())
     } catch (error) {
-      let code = error.response.status
-      if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
-      else toast.error("There are no Roles. Please contact an Admin")
+      toast.error("Erro ao obter papéis. Tenta novamente...")
     }
 
     try {
       setUsers(await usersService.usersList())
     } catch (error) {
-      let code = error.response.status
-      if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
+      toast.error("Erro ao obter utilizadores. Tenta novamente...")
     }
   }
 
@@ -94,7 +90,11 @@ export default function Templates() {
   } 
 
   async function changeTemplateAvailability(name, value) {
-    await templatesService.setTemplateAvailability(name, value)
+    try {
+      await templatesService.setTemplateAvailability(name, value)
+    } catch (err) {
+      toast.error("Erro ao ativar/desativar template. Tenta novamente...")
+    }
     
     fetchData()
   }

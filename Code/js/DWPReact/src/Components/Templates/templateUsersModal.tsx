@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import usersService from "../../Services/Users/users.service"
 import templatesService from "../../Services/Templates/templates.service"
+import {toast} from 'react-toastify';
 
 export function TemplateUsersModal({
     onClose,
@@ -15,13 +16,17 @@ export function TemplateUsersModal({
 
     useEffect(() => {
         const fetchData = async () => {
-          const tUsers = await templatesService.templateUsers(selectedTemplate)
-          if(Array.isArray(tUsers))
-            setTemplateUsers(tUsers)
-          
-          const users = await usersService.usersList()
-          if(Array.isArray(users))
-            setAvailableUsers(users.filter(user => !tUsers.includes(user) && user !== loggedUser.email))
+            try {
+                const tUsers = await templatesService.templateUsers(selectedTemplate)
+                setTemplateUsers(tUsers)
+                
+                const users = await usersService.usersList()
+                setAvailableUsers(users.filter(user => !tUsers.includes(user) && user !== loggedUser.email))
+                
+            } catch(err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
+            }
         }
         fetchData()
     }, [])
@@ -29,20 +34,22 @@ export function TemplateUsersModal({
     const filteredUsers = availableUsers.filter(item => item.toLowerCase().includes(searchInput.toLowerCase()))
 
     const removeUserFromTemplate = async (user) => {
-        const res = await templatesService.removeUSerFromTemplate(selectedTemplate, user)
-        console.log(res.status)
-        if (res.status === 201) {
+        try {
+            await templatesService.removeUSerFromTemplate(selectedTemplate, user)
             setTemplateUsers(templateUsers.filter(email => email !== user))
             setAvailableUsers((prevUsers) => [...prevUsers, user])
+        } catch (err) {
+            toast.error("Erro ao remover utilizador. Tenta novamente...")
         }
     }
 
     const addUserToTemplate = async (user) => {
-        const res = await templatesService.addUserToTemplate(selectedTemplate, user)
-        console.log(res.status)
-        if (res.status === 201) {
+        try {
+            await templatesService.addUserToTemplate(selectedTemplate, user)
             setTemplateUsers((prevUsers) => [...prevUsers, user])
             setAvailableUsers(availableUsers.filter(email => email !== user))
+        } catch (err) {
+            toast.error("Erro ao adicionar utilizador. Tenta novamente...")
         }
     }
 

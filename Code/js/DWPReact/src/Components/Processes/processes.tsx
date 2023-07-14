@@ -43,8 +43,7 @@ export const Processes = () => {
                 setPendingTasks(tasks)
 
             } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Error getting Stages, please Refresh ...")
+                toast.error("Erro ao ober tarefas. Tenta novamente...")
             }
         }
 
@@ -63,8 +62,7 @@ export const Processes = () => {
                 setProcesses(processes)
 
             } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Error getting Processes, please Refresh ...")
+                toast.error("Erro ao ober processos. Tenta novamente...")
             }
         }
         fetchData()

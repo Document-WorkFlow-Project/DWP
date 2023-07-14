@@ -11,8 +11,8 @@ class ProcessesService {
                 withCredentials: true,
                 headers: {'Content-Type': 'multipart/form-data'}
             })
-            console.log(response)
-            window.location.href = "/processes"
+
+            return response.data;
         }
         catch (error) {
             console.log(error)
