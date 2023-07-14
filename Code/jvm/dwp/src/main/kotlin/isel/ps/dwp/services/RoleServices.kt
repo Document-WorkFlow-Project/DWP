@@ -73,6 +73,8 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
     override fun removeRoleFromUser(roleName: String, userEmail: String) {
         if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
+        if (roleName == "admin")
+            throw ExceptionControllerAdvice.InvalidParameterException("O papel administrador não pode ser eliminado.")
         if (userEmail.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("UserId can't be blank.")
 

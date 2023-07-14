@@ -65,7 +65,6 @@ class RolesRepository(private val handle: Handle) : RolesInterface {
             .also { if (it == 0) throw ExceptionControllerAdvice.InvalidParameterException("Erro ao adicionar papel.") }
     }
 
-    //TODO impedir que um admin se remova a si próprio deste papel
     override fun removeRoleFromUser(roleName: String, userEmail: String) {
         // Check if role exists
         roleDetails(roleName)
