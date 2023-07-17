@@ -169,7 +169,7 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado ao processo")
 
         handle.createUpdate(
-            "update processo set estado = 'CANCELLED' where id = :processId"
+            "update processo set estado = 'DISAPPROVED' where id = :processId"
         ).bind("processId", processId).execute()
     }
 
@@ -194,8 +194,8 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     private fun isUserInProcess(processId: String, userEmail: String): Boolean {
         val sql = """SELECT CASE 
-                    WHEN COUNT(*) > 0 THEN 'True' 
-                    ELSE 'False' 
+                    WHEN COUNT(*) > 0 THEN true 
+                    ELSE false
                     END AS IsUserInProcess
                 FROM Utilizador_Etapa ue 
                 INNER JOIN Etapa e ON ue.id_etapa = e.id 
@@ -204,12 +204,10 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         // Execute the query, assuming handle is a Handle instance.
         val result =
             handle.createQuery(sql).bind("userEmail", userEmail).bind("processId", processId)
-                .mapTo(String::class.java)
-                .firstOrNull()
-                ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("O Utilizador não está no processo")
+                .mapTo(Boolean::class.java)
+                .one()
 
-        // Convert result to Boolean and return.
-        return result.toBoolean()
+        return result
     }
 
     private fun userProcessesThatHaveNotEnded(userEmail: String): List<ProcessModel> {

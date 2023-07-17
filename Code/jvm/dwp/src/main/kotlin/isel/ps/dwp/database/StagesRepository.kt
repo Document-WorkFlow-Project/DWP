@@ -390,8 +390,8 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
     private fun isUserInStage(stageId: String, userEmail: String): Boolean {
         val sql = """SELECT CASE
-                WHEN COUNT(*) > 0 THEN 'True'
-        ELSE 'False'
+                WHEN COUNT(*) > 0 THEN true
+        ELSE false
         END AS IsUserInStage
         FROM Utilizador_Etapa
                 WHERE email_utilizador = :userEmail AND id_etapa = :stageId;""".trimIndent()
@@ -401,12 +401,11 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
             handle.createQuery(sql)
                 .bind("userEmail", userEmail)
                 .bind("stageId", stageId)
-                .mapTo(String::class.java)
-                .firstOrNull()
-                ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("O Utilizador não está na etapa")
+                .mapTo(Boolean::class.java)
+                .one()
 
         // Convert result to Boolean and return.
-        return result.toBoolean()
+        return result
     }
 
     fun userAdminOrInStage(stageId: String, userAuth: UserAuth): Boolean {

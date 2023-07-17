@@ -14,14 +14,14 @@ import java.util.*
 
 @Service
 class ProcessServices(
-        private val transactionManager: TransactionManager,
-        private val stageServices: StageServices,
-        private val objectMapper: ObjectMapper
-): ProcessesInterface {
+    private val transactionManager: TransactionManager,
+    private val stageServices: StageServices,
+    private val objectMapper: ObjectMapper
+) : ProcessesInterface {
 
-    override fun getProcesses(userAuth: UserAuth,type: String?): List<String> {
+    override fun getProcesses(userAuth: UserAuth, type: String?): List<String> {
         return transactionManager.run {
-            it.processesRepository.getProcesses(userAuth,type)
+            it.processesRepository.getProcesses(userAuth, type)
         }
     }
 
@@ -37,37 +37,43 @@ class ProcessServices(
         }
     }
 
-    override fun processStages(userAuth: UserAuth,processId: String): List<StageModel> {
+    override fun processStages(userAuth: UserAuth, processId: String): List<StageModel> {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         return transactionManager.run {
-            it.processesRepository.processStages(userAuth,processId)
+            it.processesRepository.processStages(userAuth, processId)
         }
     }
 
-    override fun processDetails(userAuth: UserAuth,processId: String): Process {
+    override fun processDetails(userAuth: UserAuth, processId: String): Process {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         return transactionManager.run {
-            it.processesRepository.processDetails(userAuth,processId)
+            it.processesRepository.processDetails(userAuth, processId)
         }
     }
 
-    override fun processDocs(userAuth: UserAuth,processId: String): List<Document> {
+    override fun processDocs(userAuth: UserAuth, processId: String): List<Document> {
         return transactionManager.run {
-            it.processesRepository.processDocs(userAuth,processId)
+            it.processesRepository.processDocs(userAuth, processId)
         }
     }
 
-    override fun processDocsDetails(userAuth: UserAuth,processId: String): ProcessDocInfo {
+    override fun processDocsDetails(userAuth: UserAuth, processId: String): ProcessDocInfo {
         return transactionManager.run {
-            it.processesRepository.processDocsDetails(userAuth,processId)
+            it.processesRepository.processDocsDetails(userAuth, processId)
         }
     }
 
-    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
+    override fun newProcess(
+        templateName: String,
+        name: String,
+        description: String,
+        files: List<MultipartFile>,
+        userAuth: UserAuth
+    ): String {
         return transactionManager.run {
             // Create process
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
@@ -96,42 +102,51 @@ class ProcessServices(
                     }
                 }
 
-                val stageId = it.stagesRepository.createStage(processId, index, stage.name, stage.description, stage.mode, responsibleSet.toList(), stage.duration)
+                val stageId = it.stagesRepository.createStage(
+                    processId,
+                    index,
+                    stage.name,
+                    stage.description,
+                    stage.mode,
+                    responsibleSet.toList(),
+                    stage.duration,
+                    userAuth
+                )
                 // Start the first stage
                 if (index == 0)
                     stageServices.startNextPendingStage(stageId)
             }
 
             // Save uploaded files associated to this process
-            files.forEach{ file ->
+            files.forEach { file ->
                 val docId = UUID.randomUUID().toString()
 
                 // Save file in filesystem
                 saveInFilesystem(file, "$uploadsFolderPath/$docId-${file.originalFilename}")
 
                 it.documentsRepository.saveDocReference(file, docId)
-                it.processesRepository.associateDocToProcess(userAuth,docId, processId)
+                it.processesRepository.associateDocToProcess(userAuth, docId, processId)
             }
 
             processId
         }
     }
 
-    override fun deleteProcess(userAuth: UserAuth,processId: String) {
+    override fun deleteProcess(userAuth: UserAuth, processId: String) {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         transactionManager.run {
-            it.processesRepository.deleteProcess(userAuth,processId)
+            it.processesRepository.deleteProcess(userAuth, processId)
         }
     }
 
-    override fun cancelProcess(userAuth: UserAuth,processId: String) {
+    override fun cancelProcess(userAuth: UserAuth, processId: String) {
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
         transactionManager.run {
-            it.processesRepository.cancelProcess(userAuth,processId)
+            it.processesRepository.cancelProcess(userAuth, processId)
         }
     }
 

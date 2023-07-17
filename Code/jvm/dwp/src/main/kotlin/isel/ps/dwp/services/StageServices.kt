@@ -17,7 +17,7 @@ class StageServices(
 
     override fun stageDetails(stageId: String,userAuth: UserAuth): Stage {
         return transactionManager.run {
-            if (!it.stagesRepository.userAdminOrInStage(
+            if (it.stagesRepository.userAdminOrInStage(
                     stageId,
                     userAuth
                 )
@@ -48,9 +48,7 @@ class StageServices(
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
-            it.stagesRepository.stageUsers(stageId).find {
-                user -> user.email == userAuth.email
-            } ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não faz parte da etapa.")
+            it.stagesRepository.stageUsers(stageId,userAuth)
 
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
@@ -91,7 +89,7 @@ class StageServices(
 
     override fun stageSignatures(stageId: String,userAuth: UserAuth): List<Signature> {
         return transactionManager.run {
-            if (!it.stagesRepository.userAdminOrInStage(
+            if (it.stagesRepository.userAdminOrInStage(
                     stageId,
                     userAuth
                 )
@@ -140,7 +138,7 @@ class StageServices(
 
     override fun stageUsers(stageId: String,userAuth: UserAuth): List<UserDetails> {
         return transactionManager.run {
-            if (!it.stagesRepository.userAdminOrInStage(
+            if (it.stagesRepository.userAdminOrInStage(
                     stageId,
                     userAuth
                 )
@@ -167,7 +165,7 @@ class StageServices(
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
-            if (!it.stagesRepository.userAdminOrInStage(
+            if (it.stagesRepository.userAdminOrInStage(
                     stageId,
                     user
                 )
@@ -186,7 +184,7 @@ class StageServices(
 
     override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
         return transactionManager.run {
-            if (!it.stagesRepository.userAdminOrInStage(
+            if (it.stagesRepository.userAdminOrInStage(
                     stageId,
                     userAuth
                 )
