@@ -27,6 +27,9 @@ class RoleServices(private val transactionManager: TransactionManager) : RolesIn
         if (roleName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("RoleId can't be blank.")
 
+        if (roleName == "admin")
+            throw ExceptionControllerAdvice.InvalidParameterException("O papel admin não pode ser apagado.")
+
         return transactionManager.run {
             it.rolesRepository.deleteRole(roleName)
         }

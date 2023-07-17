@@ -15,7 +15,7 @@ interface StagesInterface {
         userAuth: UserAuth
     ): String
 
-    fun startNextPendingStage(stageId: String): String?
+    fun startNextPendingStage(stageId: String): StageInfo?
 
     /**
      * Os responsáveis pela etapa devem assinar para o workflow avançar (true para aprovação e false para reprovação)
@@ -34,11 +34,9 @@ interface StagesInterface {
     fun stageUsers(stageId: String, userAuth: UserAuth): List<UserDetails>
 
     /**
-     * Obter lista de etapas pendentes que o utilizador necessita de assinar (função de administrador ou utilizador associado à etapa)
+     * Obter lista de etapas pendentes ou terminadas (função de administrador ou utilizador associado à etapa)
      */
-    fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo>
-
-    fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo>
+    fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage
 
     /**
      * Detalhes de uma etapa (função de utilizador associado ao processo)

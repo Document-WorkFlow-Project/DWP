@@ -4,8 +4,9 @@ export default function Home() {
 
     return (
         <div>
-
+            <p></p>
             <h1>Document Workflow Platform</h1>
+            <p></p>
             <p>
                 Os processos de geração, verificação, aprovação e publicação de documentos em organizações hierárquicas são vitais para o funcionamento das mesmas. <br></br>
                 No entanto, estes processos são consumidores de recursos materiais e humanos, ao longo de toda a cadeia, pelos diferentes órgãos da instituição. <br></br>

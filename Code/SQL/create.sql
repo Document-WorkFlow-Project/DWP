@@ -4,8 +4,8 @@ CREATE DOMAIN email AS varchar(32) CHECK (value ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-
 
 --Papel(id,nome,descricao)
 CREATE TABLE IF NOT EXISTS Papel(
-    nome varchar(32) PRIMARY KEY,
-    descricao varchar(100)
+    nome varchar(50) PRIMARY KEY,
+    descricao text
 );
 
 --Utilizador(email, nome, authToken, password)
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS Utilizador(
 CREATE TABLE IF NOT EXISTS template_processo(
     nome text PRIMARY KEY,
     descricao text NOT NULL,
-    path text NOT NULL
+    ativo boolean not null,
+    etapas json NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS acesso_template(
@@ -93,7 +94,7 @@ CREATE TABLE IF NOT EXISTS Documento_Processo(
 
 -- Tabela que associa Utilizadores a Papel
 CREATE TABLE IF NOT EXISTS Utilizador_Papel(
-    papel varchar(36) NOT NULL,
+    papel varchar(100) NOT NULL,
     email_utilizador varchar(36) NOT NULL,
     FOREIGN KEY (papel) REFERENCES Papel(nome) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -107,10 +108,16 @@ CREATE TABLE IF NOT EXISTS Utilizador_Etapa(
     assinatura boolean,
     data_assinatura timestamp,
     id_notificacao text,
+    data_inicio_notif timestamp,
     FOREIGN KEY (email_utilizador) REFERENCES Utilizador(email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_etapa) REFERENCES Etapa(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (email_utilizador, id_etapa)
 );
+
+insert into papel values ('admin', 'Administrador');
+-- initial admin password = admin1234
+INSERT INTO utilizador VALUES ('david.robalo@hotmail.com', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
+INSERT INTO utilizador_papel VALUES ('admin', 'david.robalo@hotmail.com');
 
 COMMIT TRANSACTION;
 

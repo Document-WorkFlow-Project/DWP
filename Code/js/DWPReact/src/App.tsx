@@ -1,4 +1,4 @@
-import {Routes, Route, Link} from "react-router-dom";
+import {Routes, Route, Link, useNavigate} from "react-router-dom";
 import Home from "./Components/Home/home.component";
 import Templates from "./Components/Templates/templates.component";
 import {NewProcess} from "./Components/Processes/newProcess";
@@ -8,22 +8,31 @@ import "./App.css";
 import {useState, useContext} from "react";
 import AuthService from "./Services/Users/auth.service";
 import Login from "./Components/LoginForm/login.component";
-import Profile from "./Components/Profile/profile.component";
+import {Profile} from "./Components/Profile/profile.component";
 import {ProcessDetails} from "./Components/Processes/processDetails";
 import {StageDetails} from "./Components/Stages/stageDetails";
-import Admin from "./Components/Admin/admin.component";
 import AddUsers from "./Components/AddUsers/addusers.component";
 import { AuthContext } from "./AuthProvider";
+import {toast} from "react-toastify";
 
 export default function App() {
 
-    const { loggedUser } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const { loggedUser, checkAuth } = useContext(AuthContext);
 
     const [showLogin, setShowLogin] = useState(false);
 
     const toggleLogin = () => {
         setShowLogin(!showLogin);
     };
+
+    async function handleLogout() {
+        await AuthService.logout()
+        await checkAuth()
+        navigate('/');
+        toast.success("Logout feito com sucesso.")
+    }
 
     return (
         <div>
@@ -39,8 +48,14 @@ export default function App() {
                     )}
                     {loggedUser.email && loggedUser.roles.includes("admin") && (
                         <div>
-                            <Link to={"/admin"} className="navbar-brand">
-                                Administrador
+                            <Link to="/templates" className="navbar-brand">
+                                Templates
+                            </Link>
+                            <Link to="/roles" className="navbar-brand">
+                                Papéis
+                            </Link>
+                            <Link to="/addusers" className="navbar-brand">
+                                Adicionar Utilizadores
                             </Link>
                         </div>
 
@@ -48,10 +63,12 @@ export default function App() {
                     {loggedUser.email ? (
                         <div className="navbar-login-right">
                             <div className="navbar-profile">
-                                <Link to={"/profile"} className="nav-link">
+                                <Link to={`/profile/${loggedUser.email}`} className="nav-link">
                                     {loggedUser.nome}
                                 </Link>
-                                <button className="loginicon" onClick={async () => await AuthService.logout()}>
+                                <button 
+                                    className="loginicon" 
+                                    onClick={handleLogout}>
                                     Logout
                                 </button>
                             </div>
@@ -68,26 +85,26 @@ export default function App() {
                     {showLogin && (
                         <div className="popup-container">
                             <div className="popup">
-                                <button className="close-button" onClick={toggleLogin}>
-                                    X
-                                </button>
-                                <Login/>
+                                <Login
+                                    onClose={toggleLogin}
+                                    navigate={navigate}
+                                />
                             </div>
                         </div>
                     )}
                 </div>
             </div>
+            
             <Routes>
                 <Route path="/" element={<Home/>}/>
-                <Route path="/processes" element={<Processes/>}/>
-                <Route path="/newprocess" element={<NewProcess/>}/>
-                <Route path="/process/:id" element={<ProcessDetails/>}/>
-                <Route path="/stage/:id" element={<StageDetails/>}/>
-                <Route path="/templates" element={<Templates/>}/>
-                <Route path="/roles" element={<Roles/>}/>
-                <Route path="/admin" element={<Admin/>}/>
-                <Route path="/profile" element={<Profile/>}/>
-                <Route path="/addusers" element={<AddUsers/>}/>
+                <Route path="/processes" element={<Processes navigate={navigate}/>}/>
+                <Route path="/newprocess" element={<NewProcess navigate={navigate}/>}/>
+                <Route path="/process/:id" element={<ProcessDetails navigate={navigate}/>}/>
+                <Route path="/stage/:id" element={<StageDetails navigate={navigate}/>}/>
+                <Route path="/templates" element={<Templates navigate={navigate}/>}/>
+                <Route path="/roles" element={<Roles navigate={navigate}/>}/>
+                <Route path="/profile/:userEmail" element={<Profile navigate={navigate}/>}/>
+                <Route path="/addusers" element={<AddUsers navigate={navigate}/>}/>
             </Routes>
 
         </div>

@@ -28,39 +28,42 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
 
     // Retorna lista de processos pendentes do user que fez o pedido
     // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
-    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        if (userAuth.roles.contains("admin")) {
-            return handle.createQuery(
-                "select id, nome, data_inicio, data_fim, estado from processo where estado = 'PENDING' order by data_fim desc"
-            ).bind("email", userAuth.email).mapTo(ProcessModel::class.java).list()
-                .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
-        }
+    override fun processesOfState(
+        state: State,
+        userAuth: UserAuth,
+        limit: Int?,
+        skip: Int?,
+        userEmail: String?
+    ): ProcessPage {
+        val email = userEmail ?: userAuth.email
 
-        // Se é utilizador normal vê os processos em que participou e já acabaram + aqueles que acabaram e ele era o autor
-        val userProcessesPending = userProcessesThatHaveNotEnded(userAuth.email)
-        val userAuthoredProcessesPending = processesWhereUserIsAuthorAndHaveNotEnded(userAuth.email)
+        val queryLimit = limit?.plus(1) ?: Int.MAX_VALUE
 
-        return (userProcessesPending + userAuthoredProcessesPending).toSet().toList()
+        val query = if (state == State.PENDING)
+            "select id, nome, data_inicio, data_fim, descricao, estado " +
+                    "from processo where autor = :email and estado = 'PENDING' " +
+                    "order by data_inicio desc limit :limit offset :offset"
+        else
+            "select id, nome, data_inicio, data_fim, descricao, estado " +
+                    "from processo where autor = :email and (estado = 'APPROVED' or estado = 'DISAPPROVED') " +
+                    "order by data_fim desc limit :limit offset :offset"
 
-    }
+        val list = handle.createQuery(query)
+            .bind("email", email)
+            .bind("limit", queryLimit)
+            .bind("offset", skip)
+            .mapTo(ProcessModel::class.java)
+            .list()
 
-    // Retorna lista de processos terminados do user que fez o pedido
-    // Se for fornecido email, tem de ser pedido feito por parte do administrador, só este tipo de user pode aceder processos que não lhe pertencem
-    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        // Se é admin vé todos
-        if (userAuth.roles.contains("admin")) {
-            return handle.createQuery(
-                "select id, nome, data_inicio, data_fim, estado " + "from processo where (estado = 'APPROVED' or estado = 'DISAPPROVED') order by data_fim desc"
-            ).bind("email", userAuth.email).mapTo(ProcessModel::class.java).list()
-                .ifEmpty { throw ExceptionControllerAdvice.UserNotFoundException("Nenhum processo encontrado") }
-        }
+        // Check if there is a previous page
+        val hasPreviousPage = skip?.let { it > 0 } ?: false
 
-        // Se é utilizador normal vê os processos em que participou e já acabaram + aqueles que acabaram e ele era o autor
-        val userProcessesEnded = userProcessesThatHaveEnded(userAuth.email)
-        val userAuthoredProcessesEnded = processesWhereUserIsAuthorAndHaveEnded(userAuth.email)
+        // Check if there is a next page
+        val hasNextPage = list.size == queryLimit
 
-        return (userProcessesEnded + userAuthoredProcessesEnded).toSet().toList()
+        val pageList = list.take(limit ?: list.size)
 
+        return ProcessPage(hasPreviousPage, hasNextPage, pageList)
     }
 
     override fun processStages(userAuth: UserAuth, processId: String): List<StageModel> {
@@ -122,9 +125,10 @@ class ProcessesRepository(private val handle: Handle) : ProcessesInterface {
         return ProcessDocInfo(names, size)
     }
 
-    override fun newProcess(
-        templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth
-    ): String {
+    override fun newProcess(templateName: String, name: String, description: String, files: List<MultipartFile>, userAuth: UserAuth): String {
+        if (!handle.createQuery("select ativo from template_processo where nome = :name").bind("name", templateName).mapTo(Boolean::class.java).one())
+            throw ExceptionControllerAdvice.InvalidParameterException("Este template não está ativo, por isso não pode ser usado para criar um novo processo.")
+
         val uuid = UUID.randomUUID().toString()
         val userEmail = userAuth.email
 

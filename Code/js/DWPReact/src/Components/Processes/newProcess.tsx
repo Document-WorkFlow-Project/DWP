@@ -5,8 +5,9 @@ import { createPortal } from 'react-dom'
 import { TemplateDetailsModal } from "../Templates/templateModals"
 import templatesService from "../../Services/Templates/templates.service"
 import { AuthContext } from '../../AuthProvider';
+import {toast} from 'react-toastify';
 
-export const NewProcess = () => {
+export const NewProcess = ({ navigate }) => {
 
     const [availableTemplates, setAvailableTemplates] = useState([])
     const [uploadedDocs, setUploadedDocs] = useState([])
@@ -22,21 +23,25 @@ export const NewProcess = () => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-
-        if (!loggedUser.email)
-           window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
 
         const fetchData = async () => {
-            const templates = await templatesService.availableTemplates()
-            if(Array.isArray(templates)) {
+            try {
+                const templates = await templatesService.availableTemplates()
                 setAvailableTemplates(templates)
-                
+                    
                 if(templates.length > 0)
                     setSelectedTemplate(templates[0])
+            } catch (err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
             }
         }
-        fetchData()
 
+        fetchData()
     }, [])
 
     function templateOptions() {
@@ -70,8 +75,29 @@ export const NewProcess = () => {
             setDragActive(false)
 
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                const files = Array.from(e.dataTransfer.files)
-                setUploadedDocs((prevDocs) => [...prevDocs, ...files])
+                const files = Array.from(e.dataTransfer.files) as unknown as FileList;
+                const maxSize = 500 * 1024 * 1024 // 500MB
+
+                // calculate the size of the files added before
+                let totalSize = uploadedDocs.reduce((size, file) => size + file.size, 0);
+                const validFiles = [];
+
+                // check if the size of each file added does not exceed the limit
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i]
+                    if (file) {
+                        totalSize += file.size;
+        
+                        if (totalSize <= maxSize) {
+                            validFiles.push(file);
+                        } else {
+                            toast.error("Limite 500MB de upload atingido.")
+                            break;
+                        }
+                    }
+                }
+        
+                setUploadedDocs(prevDocs => [...prevDocs, ...validFiles]);
             }
         }
 
@@ -90,7 +116,7 @@ export const NewProcess = () => {
             setUploadedDocs((prevDocs) => prevDocs.filter((file) => file.name !== fileName))
         }
 
-        const handleSubmit = function(e) {
+        const handleSubmit = async function(e) {
             e.preventDefault()
 
             if (processName === "" || processDescription === "") {
@@ -110,7 +136,14 @@ export const NewProcess = () => {
 
             uploadedDocs.forEach((file) => formData.append('file', file))
 
-            processServices.createProcess(formData)
+            try {
+                await processServices.createProcess(formData)
+                navigate("/processes")
+            }
+            catch(err) {
+                const resMessage = err.response.data || err.toString();
+                toast.error(resMessage);
+            }
         }
 
         return (
@@ -125,7 +158,7 @@ export const NewProcess = () => {
                                 <div className="files-scroll">
                                     {uploadedDocs.map((file) => (
                                         <div key={file.name}>
-                                            <p>{file.name} <button onClick={() => handleDelete(file.name)}>x</button></p>
+                                            <p>{file.name} <button className="btn btn-close" onClick={() => handleDelete(file.name)}></button></p>
                                         </div>
                                     ))}
                                 </div>
@@ -137,43 +170,69 @@ export const NewProcess = () => {
                 </label>
                 { dragActive && <div id="drag-file-element" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div> }
                 <p></p>
-                <input type="submit" value="Criar Processo"/>
+                <input className="btn btn-success" type="submit" value="Criar Processo"/>
             </form>
         )
     }
 
     return (
-        <div>
+        <div className="container-fluid">
+            <p></p>
             <h2>Novo processo</h2>
+            <p></p>
 
             { availableTemplates.length === 0 ?
                 <p className="error">Não existem templates disponíveis.</p>
             :
-                <div>
-                        <label><b>Template: </b>
-                            <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                <div className="container-fluid">
+                    <div className="row row-cols-auto align-items-center">
+                        <div className="col">
+                            <b>Template: </b>
+                        </div>
+                        
+                        <div className="col-3">
+                            <select className="form-select" value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                                 {templateOptions()}
                             </select>
-                            <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
-                        </label>
-
-                        <p><b>Nome: </b></p>
-                        <input className="name-input" type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/>
-                        <p><b>Descrição: </b></p>
-                        <textarea className="description-area" value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
-                        <p className="error">{error}</p>
-
-                        <DragDropFiles/>
-
-                        <div>
-                            {showDetailsModal && createPortal(
-                                <TemplateDetailsModal
-                                    onClose={() => setShowDetailsModal(false)}
-                                    selectedTemplate={selectedTemplate}
-                                />,
-                                document.body
-                            )}
                         </div>
+                        
+                        <div className="col">
+                            <button className="btn btn-primary" onClick={() => setShowDetailsModal(true)}>Detalhes</button>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <p></p>
+                    <div className="col-6">
+                        <p><b>Nome: </b></p>
+                        <input className="form-control" type="text" value={processName} onChange={e => {setProcessName(e.target.value)}}/>
+                    </div>
+
+                    <div className="col-6">
+                        <p></p>
+                        <p><b>Descrição: </b></p>
+                        <textarea className="form-control" style={{ resize: "none" }} value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
+                    </div>
+                    
+                    <p className="error">{error}</p>
+                    
+                    
+                    <div className="row">
+                        <p></p>
+                        <div className="col-1"></div>
+                        <DragDropFiles/>
+                    </div>
+
+                    <div>
+                        {showDetailsModal && createPortal(
+                            <TemplateDetailsModal
+                                onClose={() => setShowDetailsModal(false)}
+                                selectedTemplate={selectedTemplate}
+                            />,
+                            document.body
+                        )}
+                    </div>
                 </div>
             }
         </div>

@@ -20,8 +20,4 @@ interface DocumentsInterface {
      */
     fun documentDetails(fileId: String): Document?
 
-    /**
-     * Histórico de documentos (função de administrador ou utilizador autorizado)
-     */
-    //TODO
 }

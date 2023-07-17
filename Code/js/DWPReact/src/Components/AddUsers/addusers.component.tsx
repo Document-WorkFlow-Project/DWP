@@ -2,20 +2,22 @@ import {useState, useRef, useEffect, useContext} from 'react';
 import Input from "react-validation/build/input";
 import Form from "react-validation/build/form";
 import CheckButton from "react-validation/build/button";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import './addusers.component.css'
 import "react-toastify/dist/ReactToastify.css";
 import authService from '../../Services/Users/auth.service';
 import { AuthContext } from '../../AuthProvider';
 import { required, validEmail, vusername } from '../../utils';
 
-const adduserscomponent: React.FC = () => {
+const adduserscomponent = ({ navigate }) => {
 
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
     }, [])
 
     const form = useRef();
@@ -33,23 +35,15 @@ const adduserscomponent: React.FC = () => {
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
-            await authService.register(email, username).then(
-                (response) => {
-                    console.log(response)
-                    toast.success(response); // Show success toast
-                    setUsername("")
-                    setEmail("")
-                },
-                (error) => {
-                    console.log(error)
-                    const resMessage =
-                        (error.response.data &&
-                            error.response.data )||
-                        error.toString();
-
-                    toast.error(resMessage);
-                }
-            );
+            try {
+                const response = await authService.register(email, username)
+                toast.success(response);
+                setUsername("")
+                setEmail("")
+            } catch (error) {
+                const resMessage = error.response.data || error.toString();
+                toast.error(resMessage);
+            }
         } else {
             setLoading(false);
         }
@@ -57,11 +51,13 @@ const adduserscomponent: React.FC = () => {
 
 
     return (
-        <div>
+        <div className='container-fluid'>
+            <p></p>
             <h2>Adicionar Novo Utilizador</h2>
+            <p></p>
             <Form onSubmit={handleSubmit} ref={form}>
-                <div>
-                    <p>
+                <div className="row align-items-start">
+                    <div className="col-4">
                         <label htmlFor="username">Nome</label>
                         <Input
                             type="text"
@@ -71,8 +67,7 @@ const adduserscomponent: React.FC = () => {
                             onChange={e => setUsername(e.target.value)}
                             validations={[required, vusername]}
                         />
-                    </p>
-                    <p>
+                        <p></p>
                         <label htmlFor="email">Email</label>
                         <Input
                             type="text"
@@ -82,18 +77,18 @@ const adduserscomponent: React.FC = () => {
                             onChange={e => setEmail(e.target.value)}
                             validations={[required, validEmail]}
                         />
-                    </p>
-                    <button className="btn btn-primary btn-block" disabled={loading}>
-                        {loading && (
-                            <span className="spinner-border spinner-border-sm"></span>
-                        )}
-                        <span>Adicionar utilizador</span>
-                    </button>
+                        <p></p>
+                        <button className="btn btn-primary" disabled={loading}>
+                            {loading && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span>Adicionar utilizador</span>
+                        </button>
+                    </div>
                 </div>
 
                 <CheckButton style={{ display: "none" }} ref={checkBtn} />
             </Form>
-            <ToastContainer /> {/* Add the toast container */}
         </div>
     );
 };

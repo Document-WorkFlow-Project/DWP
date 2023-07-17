@@ -1,18 +1,24 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../../Services/Users/auth.service";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import { vpassword, validEmail, required } from "../../utils";
+import { AuthContext } from "../../AuthProvider";
 
-const Login = () => {
+export function Login ({
+    onClose,
+    navigate
+}) {
     const form = useRef();
     const checkBtn = useRef();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const { checkAuth } = useContext(AuthContext);
 
     const onChangeEmail = (e) => {
         const email = e.target.value;
@@ -34,74 +40,64 @@ const Login = () => {
 
         // @ts-ignore
         if (checkBtn.current.context._errors.length === 0) {
-            await AuthService.login(email, password).then(
-                (response) => {
-                    window.location.reload();
-                    toast.success(response);
-                },
-                (error) => {
-                    console.log(error)
-                    const resMessage =
-                        (error.response &&
-                            error.response.data ) ||
-                        error.toString();
-
-                    setLoading(false);
-                    toast.error(resMessage);
-                }
-            );
-        } else {
-            setLoading(false);
-        }
+            try {
+                const res = await AuthService.login(email, password)
+                await checkAuth()
+                onClose()
+                navigate("/processes")
+                toast.success(res);
+            } catch (error) {
+                console.log(error)
+                const resMessage = error.response.data || error.toString();
+                setLoading(false);
+                toast.error(resMessage);
+            }
+        } 
+        
+        setLoading(false);
     };
 
     return (
-        <div className="col-md-12">
-            <div className="card card-container">
-                <img
-                    src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-                    alt="profile-img"
-                    className="profile-img-card"
-                />
-
-                <Form onSubmit={handleLogin} ref={form}>
-                    <div className="form-group">
-                        <label htmlFor="username">Email</label>
-                        <Input
-                            type="text"
-                            className="form-control"
-                            name="email"
-                            value={email}
-                            onChange={onChangeEmail}
-                            validations={[required, validEmail]}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <Input
-                            type="password"
-                            className="form-control"
-                            name="password"
-                            value={password}
-                            onChange={onChangePassword}
-                            validations={[required, vpassword]}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <button className="btn btn-primary btn-block" disabled={loading}>
-                            {loading && (
-                                <span className="spinner-border spinner-border-sm"></span>
-                            )}
-                            <span>Login</span>
-                        </button>
-                    </div>
-
-                    <CheckButton style={{ display: "none" }} ref={checkBtn} />
-                </Form>
-                <ToastContainer /> {/* Add the toast container */}
+        <div className="container">
+            <div className="row justify-content-end">
+                <button className="btn-close" onClick={onClose}></button>
             </div>
+            <Form onSubmit={handleLogin} ref={form}>
+                <div className="form-group">
+                    <p><b>Email</b></p>
+                    <Input
+                        type="text"
+                        className="form-control"
+                        name="email"
+                        value={email}
+                        onChange={onChangeEmail}
+                        validations={[required, validEmail]}
+                    />
+                </div>
+                <p></p>
+                <div className="form-group">
+                    <p><b>Password</b></p>
+                    <Input
+                        type="password"
+                        className="form-control"
+                        name="password"
+                        value={password}
+                        onChange={onChangePassword}
+                        validations={[required, vpassword]}
+                    />
+                </div>
+                <p></p>
+                <div className="form-group">
+                    <button className="btn btn-primary" disabled={loading}>
+                        {loading && (
+                            <span className="spinner-border spinner-border-sm"></span>
+                        )}
+                        <span>Login</span>
+                    </button>
+                </div>
+
+                <CheckButton style={{ display: "none" }} ref={checkBtn} />
+            </Form>
         </div>
     );
 };

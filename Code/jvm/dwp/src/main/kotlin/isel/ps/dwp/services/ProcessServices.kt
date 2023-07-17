@@ -10,16 +10,14 @@ import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
 import java.util.*
 
 @Service
 class ProcessServices(
         private val transactionManager: TransactionManager,
-        private val stageServices: StageServices
+        private val stageServices: StageServices,
+        private val objectMapper: ObjectMapper
 ): ProcessesInterface {
-
-    private val objectMapper: ObjectMapper = ObjectMapper()
 
     override fun getProcesses(userAuth: UserAuth,type: String?): List<String> {
         return transactionManager.run {
@@ -27,15 +25,15 @@ class ProcessServices(
         }
     }
 
-    override fun pendingProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
+    override fun processesOfState(
+        state: State,
+        userAuth: UserAuth,
+        limit: Int?,
+        skip: Int?,
+        userEmail: String?
+    ): ProcessPage {
         return transactionManager.run {
-            it.processesRepository.pendingProcesses(userAuth, userEmail)
-        }
-    }
-
-    override fun finishedProcesses(userAuth: UserAuth, userEmail: String?): List<ProcessModel> {
-        return transactionManager.run {
-            it.processesRepository.finishedProcesses(userAuth, userEmail)
+            it.processesRepository.processesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
 
@@ -75,11 +73,11 @@ class ProcessServices(
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
             // Get template stages to be initialized
-            val templateDetails = it.templatesRepository.templateDetails(templateName)
-            val template = objectMapper.readValue<ProcessTemplate>(File(templateDetails.path))
+            val templateDetails = it.templatesRepository.getTemplate(templateName)
+            val stages = objectMapper.readValue<List<StageTemplate>>(templateDetails.etapas)
 
             // Create process stages
-            template.stages.forEachIndexed { index, stage ->
+            stages.forEachIndexed { index, stage ->
 
                 // Translate stage responsible into emails, using a hash set to avoid duplicates
                 val responsibleSet = HashSet<String>()

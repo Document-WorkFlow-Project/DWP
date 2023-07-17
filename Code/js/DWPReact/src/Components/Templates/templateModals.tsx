@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import templatesService from "../../Services/Templates/templates.service"
+import { modo } from "../../utils"
+import {toast} from "react-toastify";
 
 export function NewStageModal({ 
     onClose, 
@@ -63,56 +65,114 @@ export function NewStageModal({
     return (
         <div className="bg">
             <div className="stage-modal">
-                <div><h2>Nova etapa</h2>
-                    <p><b>Nome: </b></p>
-                    <input className="name-input" type="text" value={stageName} onChange={e => setStageName(e.target.value)}/>
-                    <p><b>Descrição: </b></p>
-                    <textarea className="description-area" value={stageDescription} onChange={e => setStageDescription(e.target.value)}/>
-                    <p><b>Prazo: </b><input type="number" min={1} value={stageDuration} onChange={e => setStageDuration(e.target.value)}/> dias</p>
-                    <div>
-                        <p><b>Responsáveis: </b></p>
-                        <div className="responsible-container">
-                            {stageResponsibles.map((resp, index) => {
-                                return (
-                                    <p key={index}> {resp} <button onClick={() => removeResp(resp)}>x</button></p>
-                                )
-                            })}
+                <div className="container">
+                    <h2>Nova etapa</h2>
+                    <div className="row">
+                        <div className="col">
+                            <p></p>
+                            <p><b>Nome: </b></p>
+                            <input className="form-control" type="text" value={stageName} onChange={e => setStageName(e.target.value)}/>
                         </div>
-                        <div>
-                            <input type="text" id="myInput" placeholder="Pesquisar responsáveis" 
+                    </div>
+
+                    
+                    <div className="row">
+                        <div className="col">
+                            <p></p>
+                            <p><b>Descrição: </b></p>
+                            <textarea className="form-control" style={{ resize: "none" }} value={stageDescription} onChange={e => setStageDescription(e.target.value)}/>
+                        </div>
+                    </div>
+
+                    <div className="row align-items-center">
+                        <p></p>
+                        <div className="col-2">
+                            <b>Prazo: </b>
+                        </div>
+                        <div className="col">
+                            <input className="form-control" type="number" min={1} value={stageDuration} onChange={e => setStageDuration(e.target.value)}/>
+                        </div>
+                        <div className="col">
+                            dias
+                        </div>
+                    </div>
+
+                    <div className="row align-items-center">
+                        <p></p>
+                        <div className="col-5">
+                            <label><b>Modo de assinatura: </b></label>
+                        </div>
+                        <div className="col-5">
+                            <select className="form-select" value={selectedMode} onChange={(e) => setSelectedMode(e.target.value)}>
+                                    <option value="Unanimous">Unânime</option>
+                                    <option value="Majority">Maioritário</option>
+                            </select>
+                        </div>
+                        <div className="col">
+                            <b onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}> ?</b>
+
+                            {isHovering && (
+                                <dialog open>
+                                    <p><b>Unânime: </b>Todos os responsáveis devem assinar a etapa para o processo prosseguir</p>
+                                    <p><b>Maioritário: </b>A maioria dos responsáveis deve assinar a etapa para o processo prosseguir</p>
+                                </dialog>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <p></p>
+                        <div className="col">
+                            <p><b>Responsáveis: </b></p>
+                            <div className="responsible-container">
+                                {stageResponsibles.map((resp, index) => {
+                                    return (
+                                        <p key={index}> {resp} <button className="btn-close" onClick={() => removeResp(resp)}></button></p>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-7">
+                            <input className="form-control" type="text" id="myInput" placeholder="Pesquisar responsáveis" 
                                 onChange={(e) => {setSearchInput(e.target.value)}}>
                             </input>
-                            <select value={selectedList} onChange={(e) => setSelectedList(e.target.value)}>
+                        </div>
+                        <div className="col">
+                            <select className="form-select" value={selectedList} onChange={(e) => setSelectedList(e.target.value)}>
                                 <option value="Groups">Grupos</option>
                                 <option value="All">Utilizadores</option>
                             </select>
                         </div>
-                        <div className="scroll-resp">
-                            {filteredUsers.map((item, index) => (
-                                <p key={index}><button key={index} onClick={() => addResponsible(item)}>{item}</button></p>
-                            ))}
+                    </div>
+
+                    <div className="row">
+                        <div className="col">
+                            <div className="scroll-resp">
+                                {filteredUsers.map((item, index) => (
+                                    <p key={index}><button className="btn btn-primary" key={index} onClick={() => addResponsible(item)}>{item}</button></p>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <div>
+
+                    <div className="row">
                         <p></p>
-                        <label><b>Modo de assinatura: </b></label>
-                        <select value={selectedMode} onChange={(e) => setSelectedMode(e.target.value)}>
-                                <option value="Unanimous">Unânime</option>
-                                <option value="Majority">Maioritário</option>
-                        </select>
-                        <b onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}> ?</b>
+                        <div className="col">
+                            <p className="error">{stageError}</p>
+                        </div>
                     </div>
-                    {isHovering && (
-                        <dialog open>
-                            <p><b>Unânime: </b>Todos os responsáveis devem assinar a etapa para o processo prosseguir</p>
-                            <p><b>Maioritário: </b>A maioria dos responsáveis deve assinar a etapa para o processo prosseguir</p>
-                        </dialog>
-                    )}
-                    <p className="error">{stageError}</p>
-                    <p>
-                        <button onClick={onClose}>Cancelar</button>
-                        <button onClick={handleSave}>Guardar etapa</button>
-                    </p>
+
+                    <div className="row">
+                        <div className="col-3">
+                            <button className="btn btn-danger" onClick={onClose}>Cancelar</button>
+                        </div>
+                        <div className="col">
+                            <button className="btn btn-success" onClick={handleSave}>Guardar etapa</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,39 +197,51 @@ export function TemplateDetailsModal({onClose, selectedTemplate}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const template = await templatesService.getTemplate(selectedTemplate);
-            setTemplateDetails(template)
+            try {
+                const template = await templatesService.getTemplate(selectedTemplate);
+                setTemplateDetails(template)
+            } catch (err) {
+                toast.error("Erro ao obter detalhes do template. Tenta novamente...");
+            }
         }
-        fetchData()
 
-        console.log(templateDetails)
+        fetchData()
     }, [])
 
     return (
         <div className="bg">
-            <div className="modal">
-                <h3>{selectedTemplate}</h3>
-                <p><b>Descrição: </b>{templateDetails.description}</p>
-                <div className="scroll">
-                    {templateDetails.stages.map((stage, index) => {
-                        return (
-                            <div key={index} className="clipping-container">
-                                <p><b>{stage.name}</b></p>
-                                <p><b>Descrição: </b>{stage.description}</p>
-                                <p><b>Prazo: </b>{stage.duration} dias</p>
-                                <p><b>Responsáveis: </b>
-                                    {stage.responsibles.map((resp, index) => {
-                                        return (
-                                            <a key={index}> {resp}; </a>
-                                        )
-                                    })}
-                                </p>
-                                <p><b>Modo de assinatura: </b>{stage.mode}</p>
-                            </div>
-                        )
-                    })}
+            <div className="stage-modal">
+                <div className="container-fluid">
+                    <div className="row row-cols-auto">
+                        <div className="col">
+                            <h3>{selectedTemplate}</h3>
+                            <p></p>
+                            <b>Descrição: </b>
+                            <p></p>
+                            {templateDetails.description}
+                            <p></p>
+
+                            {templateDetails.stages.map((stage, index) => {
+                                return (
+                                    <div key={index} className="clipping-container">
+                                        <p><b>{stage.name}</b></p>
+                                        <p><b>Descrição: </b>{stage.description}</p>
+                                        <p><b>Prazo: </b>{stage.duration} dias</p>
+                                        <p><b>Responsáveis: </b>
+                                            {stage.responsibles.map((resp, index) => {
+                                                return (
+                                                    <a key={index}> {resp}; </a>
+                                                )
+                                            })}
+                                        </p>
+                                        <p><b>Modo de assinatura: </b>{modo(stage.mode)}</p>
+                                    </div>
+                                )
+                            })}
+                            <button className="btn btn-danger" onClick={onClose}>Fechar</button>
+                        </div>
+                    </div>
                 </div>
-                <button onClick={onClose}>Fechar</button>
             </div>
         </div>
     )

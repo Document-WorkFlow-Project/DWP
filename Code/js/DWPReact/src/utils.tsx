@@ -22,6 +22,13 @@ export const estado = (value) => {
         return "Não aprovado"
 }
 
+export const modo = (value) => {
+    if (value == "Unanimous")
+        return "Unânime"
+    else
+        return "Maioritário"
+}
+
 export function formatBytes(bytes) {
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
     let i = 0;
@@ -38,7 +45,7 @@ export function required(value) {
     if (!value) {
         return (
             <div className="invalid-feedback d-block">
-                This field is required!
+                Campo em falta.
             </div>
         )
     }
@@ -48,7 +55,7 @@ export function validEmail(value) {
     if (!isEmail(value)) {
         return (
             <div className="invalid-feedback d-block">
-                This is not a valid email.
+                Este email não é válido.
             </div>
         )
     }
@@ -58,7 +65,7 @@ export function vusername (value) {
     if (value.length < 3 || value.length > 20) {
         return (
             <div className="invalid-feedback d-block">
-                The username must be between 3 and 20 characters.
+                Este campo deve ter entre 3 and 20 caracteres.
             </div>
         )
     }
@@ -68,7 +75,7 @@ export function vpassword(value) {
     if (value.length < 6 || value.length > 40) {
         return (
             <div className="invalid-feedback d-block">
-                The password must be between 6 and 40 characters.
+                A password deve ter entre 6 and 40 caracteres.
             </div>
         );
     }

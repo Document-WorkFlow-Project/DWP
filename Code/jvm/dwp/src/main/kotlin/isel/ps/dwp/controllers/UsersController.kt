@@ -3,6 +3,7 @@ package isel.ps.dwp.controllers
 import isel.ps.dwp.http.pipeline.authorization.Admin
 import isel.ps.dwp.model.RegisterModel
 import isel.ps.dwp.model.SignInModel
+import isel.ps.dwp.model.UpdateCredentialsModel
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.UserServices
 import jakarta.servlet.http.HttpServletRequest
@@ -57,9 +58,12 @@ class UsersController (
     @PostMapping("/login")
     fun login(@RequestBody signIn: SignInModel): ResponseEntity<*> {
         val uuid = userServices.login(signIn.email, signIn.password)
+        // Cookie com validade de 24h
+        val expirationTime = 24 * 60 * 60
+
         return ResponseEntity
             .status(201)
-            .header("Set-Cookie", "token=${uuid};Path=/;HttpOnly")
+            .header("Set-Cookie", "token=${uuid};max-age=$expirationTime;Path=/;HttpOnly")
             .contentType(MediaType.APPLICATION_JSON)
             .body("Login feito com Sucesso")
     }
@@ -67,12 +71,21 @@ class UsersController (
     @PostMapping("/logout")
     fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<*> {
         val cookie = request.getHeader("Cookie")
-        if (cookie != null) {
+        if (cookie != null)
             response.addHeader("Set-Cookie", "$cookie;Path=/;HttpOnly;Max-Age=-1")
-        }
+
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
             .body("O Utilizador acabou de sair da sessão")
+    }
+
+    @PutMapping("/credentials")
+    fun updatePassword(@RequestBody credentials: UpdateCredentialsModel, user: UserAuth): ResponseEntity<*> {
+        userServices.updateCredentials(user.email, credentials.password, credentials.newPassword)
+        return ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("Palavra-passe alterada.")
     }
 }

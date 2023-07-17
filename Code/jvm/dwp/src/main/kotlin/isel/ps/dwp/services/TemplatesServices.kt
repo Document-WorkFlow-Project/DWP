@@ -1,20 +1,24 @@
 package isel.ps.dwp.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import isel.ps.dwp.ExceptionControllerAdvice
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.TemplatesInterface
-import isel.ps.dwp.model.UserAuth
-import isel.ps.dwp.templatesFolderPath
-import isel.ps.dwp.utils.deleteFromFilesystem
-import isel.ps.dwp.utils.saveInFilesystem
+import isel.ps.dwp.model.*
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 
 @Service
-class TemplatesServices(private val transactionManager: TransactionManager): TemplatesInterface {
+class TemplatesServices(
+    private val transactionManager: TransactionManager,
+    private val objectMapper: ObjectMapper
+): TemplatesInterface {
+
+    override fun allTemplates(): List<TemplateWStatus> {
+        return transactionManager.run {
+            it.templatesRepository.allTemplates()
+        }
+    }
 
     override fun availableTemplates(user: UserAuth): List<String> {
         return transactionManager.run {
@@ -28,19 +32,13 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         }
     }
 
-    override fun addTemplate(templateName: String, templateDescription: String, templateFile: MultipartFile): String {
-        if (templateFile.contentType != "application/json")
-            throw ExceptionControllerAdvice.DataTransferError("Invalid template file format.")
+    fun addTemplate(template: ProcessTemplate) {
+        // Convert stages objects to json
+        val stagesJson = objectMapper.writeValueAsString(template.stages)
 
-        // Save template file description in database
         transactionManager.run {
-            it.templatesRepository.addTemplate(templateName, templateDescription, templateFile)
+            it.templatesRepository.addTemplate(template.name, template.description, stagesJson)
         }
-
-        // Save template file in filesystem
-        saveInFilesystem(templateFile, "$templatesFolderPath/${templateFile.originalFilename}")
-
-        return templateName
     }
 
     override fun addUsersToTemplate(templateName: String, email: String) {
@@ -67,29 +65,23 @@ class TemplatesServices(private val transactionManager: TransactionManager): Tem
         }
     }
 
-    fun getTemplate(templateName: String): ByteArray {
-        val templateDetails = transactionManager.run {
-            it.templatesRepository.templateDetails(templateName)
+    fun getTemplate(templateName: String, user: UserAuth): TemplateResponse  {
+        if (!availableTemplates(user).contains(templateName))
+            throw ExceptionControllerAdvice.InvalidParameterException("O utilizador não tem acesso a este template.")
+
+        return transactionManager.run {
+            val templateDetails = it.templatesRepository.getTemplate(templateName)
+            val stages = objectMapper.readValue<List<StageTemplate>>(templateDetails.etapas)
+            TemplateResponse(templateDetails.nome, templateDetails.descricao, stages)
         }
-
-        val file: Path = Paths.get(templateDetails.path)
-
-        return Files.readAllBytes(file)
     }
 
-    override fun deleteTemplate(templateName: String) {
+    override fun setTemplateAvailability(active: Boolean, templateName: String) {
         if (templateName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
-        val templatePath = transactionManager.run {
-            it.templatesRepository.findTemplatePathByName(templateName)
-        }
-
-        // Delete template file from filesystem
-        deleteFromFilesystem(templatePath)
-
         transactionManager.run {
-            it.templatesRepository.deleteTemplate(templateName)
+            it.templatesRepository.setTemplateAvailability(active, templateName)
         }
     }
 }

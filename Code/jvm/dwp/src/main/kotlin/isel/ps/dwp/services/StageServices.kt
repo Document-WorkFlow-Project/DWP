@@ -1,7 +1,7 @@
 package isel.ps.dwp.services
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.NOTIFICATION_FREQUENCY
+import isel.ps.dwp.REDIRECT_URL
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
@@ -32,10 +32,12 @@ class StageServices(
             it.processesRepository.processDetails(userAuth, processId)
         }
 
+        val state = if (processDetails.estado == "APPROVED") "aprovado" else "não aprovado"
+
         val emailDetails = EmailDetails(
-            processDetails.autor,
-            "O processo ${processDetails.id} foi concluido com estado ${processDetails.estado}.",
-            "Processo ${processDetails.id} concluído"
+                processDetails.autor,
+                "O processo ${processDetails.nome} foi concluído com estado $state.\nVer detalhes:\n$REDIRECT_URL/process/${processDetails.id}\n\nObrigado,\nDWP",
+                "Processo ${processDetails.nome} concluído"
         )
         notificationServices.sendSimpleMail(emailDetails)
     }
@@ -46,10 +48,10 @@ class StageServices(
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
-            it.stagesRepository.stageUsers( stageId,userAuth).find { det ->
-                det.email == userAuth.email
+            it.stagesRepository.stageUsers(stageId).find {
+                user -> user.email == userAuth.email
             } ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não faz parte da etapa.")
-            //it.stagesRepository.checkStage(stageId)
+
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
 
@@ -83,7 +85,7 @@ class StageServices(
 
         // Cancelar emails agendados
         notificationIds.forEach {
-            notificationServices.cancelScheduledEmails(it)
+            notificationServices.cancelScheduledNotification(it)
         }
     }
 
@@ -103,26 +105,21 @@ class StageServices(
      * Inicia a próxima etapa pendente do processo associado
      * Notifica utilizadores resposáveis pela etapa e agendando notificações recorrentes
      */
-    override fun startNextPendingStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): StageInfo? {
         // Ver qual a próxima etapa e atualizar com data inicio
-        val nextStageId = transactionManager.run {
+        val nextStage = transactionManager.run {
             it.stagesRepository.startNextPendingStage(stageId)
         }
 
-        if (nextStageId != null) {
-            // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acordo com NOTIFICATION_FREQUENCY
+        if (nextStage != null) {
+            // Notificar utilizadores da próxima etapa e agendar notificações recorrentes
             transactionManager.run {
-                it.stagesRepository.stageResponsible(nextStageId).forEach { resp ->
-                    val message =
-                        "Olá $resp,\n\nTem uma tarefa pendente.\nVer detalhes:\nhttp://localhost:3000/stage/$nextStageId\n\nObrigado,\nDWP"
-                    val email = EmailDetails(resp, message, "Tarefa pendente")
-                    val notificationId = notificationServices.scheduleEmail(email, NOTIFICATION_FREQUENCY)
-                    it.stagesRepository.addNotificationId(resp, notificationId, nextStageId)
-                }
+                val stageResponsible = it.stagesRepository.stageResponsible(nextStage.id)
+                notificationServices.scheduleStageNotifications(nextStage, stageResponsible)
             }
         }
 
-        return nextStageId
+        return nextStage
     }
 
     override fun createStage(
@@ -153,15 +150,9 @@ class StageServices(
         }
     }
 
-    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+    override fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage {
         return transactionManager.run {
-            it.stagesRepository.pendingStages(userAuth, userEmail)
-        }
-    }
-
-    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
-        return transactionManager.run {
-            it.stagesRepository.finishedStages(userAuth, userEmail)
+            it.stagesRepository.stagesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
 

@@ -29,10 +29,10 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Retorna a próxima etapa pendente de um processo ou null caso não existam mais etapas pendentes
      */
-    private fun nextPendingStage(processId: String): String? {
-        return handle.createQuery("select id from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
+    private fun nextPendingStage(processId: String): StageInfo? {
+        return handle.createQuery("select id, prazo from etapa where id_processo = :processId and estado = 'PENDING' order by indice")
             .bind("processId", processId)
-            .mapTo<String>()
+            .mapTo<StageInfo>()
             .firstOrNull()
     }
 
@@ -47,7 +47,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
      * Inicia a próxima etapa pendente de um processo, atualizando a sua data de inicio.
      * Caso não existam mais etapas pendentes retorna null.
      */
-    override fun startNextPendingStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): StageInfo? {
         val processId = findProcessFromStage(stageId)
 
         if (processEnded(processId))
@@ -67,7 +67,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
 
         handle.createUpdate("UPDATE etapa SET data_inicio = :startDate WHERE id = :stageId")
             .bind("startDate", Timestamp(System.currentTimeMillis()))
-            .bind("stageId", nextStage)
+            .bind("stageId", nextStage.id)
             .execute()
 
         return nextStage
@@ -76,10 +76,15 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
     /**
      * Guarda id de notificação na base de dados
      */
-    fun addNotificationId(userEmail: String, notificationId: String, stageId: String) {
-        handle.createUpdate("UPDATE utilizador_etapa SET id_notificacao = :notificationId WHERE id_etapa = :stageId and email_utilizador = :email")
+    fun addNotificationId(userEmail: String, notificationId: String, stageId: String, startNotificationDate: Timestamp) {
+        handle.createUpdate(
+            "UPDATE utilizador_etapa " +
+                    "SET id_notificacao = :notificationId, data_inicio_notif = :startDate " +
+                    "WHERE id_etapa = :stageId and email_utilizador = :email "
+        )
             .bind("notificationId", notificationId)
             .bind("stageId", stageId)
+            .bind("startDate", startNotificationDate)
             .bind("email", userEmail)
             .execute()
     }
@@ -121,6 +126,17 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         }
     }
 
+    fun getAllActiveStageNotifications(): List<StageNotification> {
+        return handle.createQuery(
+            "SELECT ue.id_notificacao, ue.data_inicio_notif, ue.email_utilizador, ue.id_etapa " +
+                    "FROM utilizador_etapa ue " +
+                    "join etapa e on ue.id_etapa = e.id " +
+                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null and e.estado = 'PENDING')"
+        )
+            .mapTo<StageNotification>()
+            .list()
+    }
+
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         if (!isUserInStage(
                 stageId,
@@ -140,7 +156,9 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         if (processEnded(processId))
             throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
 
-        if (nextPendingStage(processId) != stageId)
+        val nextPendingStage = nextPendingStage(processId) ?: throw ExceptionControllerAdvice.InvalidParameterException("Este processo já terminou.")
+
+        if (nextPendingStage.id != stageId)
             throw ExceptionControllerAdvice.InvalidParameterException("Esta não é a etapa currente, ainda não pode assinar.")
 
         val date = Timestamp(System.currentTimeMillis())
@@ -208,8 +226,12 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         } else if (mode == "Majority") {
             // Se mais de metade das assinaturas já estiverem preenchidas, o workflow pode prosseguir
             if (handle.createQuery(
-                    "with counted_values as (select assinatura, count(*) as total_count, count(*) filter (where assinatura is not null) as non_null_count from utilizador_etapa where id = :stageId)" +
-                            "select non_null_count > total_count / 2 from counted_values"
+                    "with counted_values as (" +
+                            "select count(*) as total_count, count(assinatura) as non_null_count " +
+                            "from utilizador_etapa " +
+                            "where id_etapa = :stageId )" +
+                        "select non_null_count > total_count / 2 " +
+                            "from counted_values"
                 )
                     .bind("stageId", stageId)
                     .mapTo<Boolean>()
@@ -263,31 +285,44 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return stageId
     }
 
-    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+    override fun stagesOfState(
+        state: State,
+        userAuth: UserAuth,
+        limit: Int?,
+        skip: Int?,
+        userEmail: String?
+    ): TaskPage {
         val email = userEmail ?: userAuth.email
 
-        return handle.createQuery(
-            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.estado " +
-                    "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
-                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') order by e.data_inicio desc"
-        )
-            .bind("email", email)
-            .mapTo(StageInfo::class.java)
-            .list()
-    }
+        val queryLimit = limit?.plus(1) ?: Int.MAX_VALUE
 
-    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
-        // TODO("Vale a pena checkar se o User pertence ao que?")
-        val email = userEmail ?: userAuth.email
-
-        return handle.createQuery(
-            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.estado " +
+        val query = if (state == State.PENDING)
+            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao, e.estado " +
                     "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
-                    "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) order by e.data_fim desc"
-        )
+                    "WHERE (ue.assinatura is null AND ue.id_notificacao is not null AND ue.email_utilizador = :email and e.estado = 'PENDING') " +
+                    "order by e.data_inicio desc limit :limit offset :offset"
+            else
+            "SELECT e.id, e.nome, e.data_inicio, e.data_fim, p.nome as processo_nome, e.id_processo, e.descricao, e.estado " +
+                    "FROM utilizador_etapa ue join etapa e on ue.id_etapa = e.id join processo p on p.id = e.id_processo " +
+                    "WHERE (ue.email_utilizador = :email and (e.estado = 'APPROVED' or e.estado = 'DISAPPROVED')) " +
+                    "order by e.data_fim desc limit :limit offset :offset"
+
+        val list = handle.createQuery(query)
             .bind("email", email)
-            .mapTo(StageInfo::class.java)
+            .bind("limit", queryLimit)
+            .bind("offset", skip)
+            .mapTo(StageDetails::class.java)
             .list()
+
+        // Check if there is a previous page
+        val hasPreviousPage = skip?.let { it > 0 } ?: false
+
+        // Check if there is a next page
+        val hasNextPage = list.size == queryLimit
+
+        val pageList = list.take(limit ?: list.size)
+
+        return TaskPage(hasPreviousPage, hasNextPage, pageList)
     }
 
     override fun stageUsers(stageId: String, userAuth: UserAuth): List<UserDetails> {

@@ -12,7 +12,7 @@ module.exports = {
                 secure: false
             }
         },
-        historyApiFallback: true,
+        historyApiFallback: { disableDotRule: true },
         port: 3000
     },
     module: {
