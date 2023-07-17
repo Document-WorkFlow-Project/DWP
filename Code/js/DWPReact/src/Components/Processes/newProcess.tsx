@@ -7,7 +7,7 @@ import templatesService from "../../Services/Templates/templates.service"
 import { AuthContext } from '../../AuthProvider';
 import {toast} from 'react-toastify';
 
-export const NewProcess = () => {
+export const NewProcess = ({ navigate }) => {
 
     const [availableTemplates, setAvailableTemplates] = useState([])
     const [uploadedDocs, setUploadedDocs] = useState([])
@@ -23,9 +23,10 @@ export const NewProcess = () => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-
-        if (!loggedUser.email)
-           window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
 
         const fetchData = async () => {
             try {
@@ -137,7 +138,7 @@ export const NewProcess = () => {
 
             try {
                 await processServices.createProcess(formData)
-                window.location.href = "/processes"
+                navigate("/processes")
             }
             catch(err) {
                 const resMessage = err.response.data || err.toString();

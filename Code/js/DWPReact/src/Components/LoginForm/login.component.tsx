@@ -1,13 +1,15 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../../Services/Users/auth.service";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import { vpassword, validEmail, required } from "../../utils";
+import { AuthContext } from "../../AuthProvider";
 
 export function Login ({
-    onClose
+    onClose,
+    navigate
 }) {
     const form = useRef();
     const checkBtn = useRef();
@@ -15,6 +17,8 @@ export function Login ({
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const { checkAuth } = useContext(AuthContext);
 
     const onChangeEmail = (e) => {
         const email = e.target.value;
@@ -38,7 +42,9 @@ export function Login ({
         if (checkBtn.current.context._errors.length === 0) {
             try {
                 const res = await AuthService.login(email, password)
-                window.location.href = "processes"
+                await checkAuth()
+                onClose()
+                navigate("/processes")
                 toast.success(res);
             } catch (error) {
                 console.log(error)
@@ -46,9 +52,9 @@ export function Login ({
                 setLoading(false);
                 toast.error(resMessage);
             }
-        } else {
-            setLoading(false);
-        }
+        } 
+        
+        setLoading(false);
     };
 
     return (
@@ -92,7 +98,6 @@ export function Login ({
 
                 <CheckButton style={{ display: "none" }} ref={checkBtn} />
             </Form>
-            <ToastContainer /> {/* Add the toast container */}
         </div>
     );
 };

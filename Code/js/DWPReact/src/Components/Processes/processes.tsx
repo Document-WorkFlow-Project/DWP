@@ -7,7 +7,7 @@ import {toast} from 'react-toastify';
 import stagesService from "../../Services/Stages/stages.service"
 
 
-export const Processes = () => {
+export const Processes = ({ navigate }) => {
 
     const pageObj = {
         "hasPrevious": false,
@@ -27,8 +27,11 @@ export const Processes = () => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
+        console.log(loggedUser)
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
     }, [])
 
     useEffect(() => {
@@ -72,7 +75,7 @@ export const Processes = () => {
     return (
         <div className="container-fluid">
             <p></p>
-            <button className="btn btn-success" onClick={() => window.location.href = "/newprocess"}>Novo processo</button>
+            <button className="btn btn-success" onClick={() => navigate("/newprocess")}>Novo processo</button>
             <p></p>
             <h2>Tarefas</h2>
             <div className="col-3">

@@ -9,15 +9,16 @@ export function Comments ({stageId}) {
     const [comments, setCommments] = useState([])
     const [newComment, setNewComment] = useState("")
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const comts = await commentsService.stageComments(stageId)
-                setCommments(comts)
-            } catch (error) {
-               toast.error("Erro ao obter comentários. Tenta novamente...")
-            }
+    const fetchData = async () => {
+        try {
+            const comts = await commentsService.stageComments(stageId)
+            setCommments(comts)
+        } catch (error) {
+           toast.error("Erro ao obter comentários. Tenta novamente...")
         }
+    }
+
+    useEffect(() => {
         fetchData()
     }, [])
 
@@ -27,6 +28,8 @@ export function Comments ({stageId}) {
         else {
             try {
                 await commentsService.postComment(stageId, newComment)
+                setNewComment("")
+                fetchData()
             } catch (error) {
                 toast.error("Erro ao adicionar comentário. Tenta novamente...")
             }

@@ -41,7 +41,6 @@ class StagesService {
     async signStage(stageId, value) {
         try {
             await axios.put(`${API_URL}/stages/sign/${stageId}?approve=${value}`, {withCredentials: true})
-            window.location.href = `/stage/${stageId}`
         }
         catch (error) {
             console.log(error)

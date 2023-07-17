@@ -9,13 +9,15 @@ import authService from '../../Services/Users/auth.service';
 import { AuthContext } from '../../AuthProvider';
 import { required, validEmail, vusername } from '../../utils';
 
-const adduserscomponent: React.FC = () => {
+const adduserscomponent = ({ navigate }) => {
 
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
     }, [])
 
     const form = useRef();

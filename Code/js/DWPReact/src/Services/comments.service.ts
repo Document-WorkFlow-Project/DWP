@@ -18,7 +18,6 @@ class CommentsService {
         const newComment = {text: comment}
         try {
             await axios.post(`${API_URL}/stages/${stageId}/comments`, newComment, {withCredentials: true})
-            window.location.href = `/stage/${stageId}`
         }
         catch (error) {
             console.log(error)

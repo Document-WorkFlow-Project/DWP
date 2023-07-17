@@ -5,7 +5,7 @@ import authService from "../../Services/Users/auth.service";
 import {toast} from "react-toastify";
 import usersService from "../../Services/Users/users.service";
 
-export const Profile = () => {
+export const Profile = ({ navigate }) => {
 
     const { userEmail } = useParams();
     const { loggedUser } = useContext(AuthContext);
@@ -30,6 +30,11 @@ export const Profile = () => {
     }
     
     useEffect( () => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+
         if (userEmail === loggedUser.email){
             setShowChangePass(true)
             setUserDetails(loggedUser)

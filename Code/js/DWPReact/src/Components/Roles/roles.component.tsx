@@ -5,7 +5,7 @@ import { RoleUsersModal } from "./roleUsersModal"
 import { AuthContext } from "../../AuthProvider"
 import {toast} from "react-toastify";
 
-export const Roles = () => {
+export const Roles = ({ navigate }) => {
 
     const [roleName, setRoleName] = useState("")
     const [roleDescription, setRoleDescription] = useState("")
@@ -19,16 +19,18 @@ export const Roles = () => {
 
     const { loggedUser } = useContext(AuthContext);
 
+    const fetchData = async () => {
+        try {
+            setAvailableRoles(await rolesService.availableRoles())
+        } catch (error) {
+            toast.error("Erro a obter papéis. Tenta novamente...")
+        }
+    }
+
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
-        
-        const fetchData = async () => {
-            try {
-                setAvailableRoles(await rolesService.availableRoles())
-            } catch (error) {
-                toast.error("Erro a obter papéis. Tenta novamente...")
-            }
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
         }
 
         fetchData()
@@ -62,7 +64,7 @@ export const Roles = () => {
         return options;
     } 
 
-    const createRole = () => {
+    const createRole = async () => {
         if (availableRoles.find(name => name === roleName)) {
             setError("Nome do template já existe.")
             return
@@ -78,7 +80,15 @@ export const Roles = () => {
             description: roleDescription
         }
 
-        rolesService.saveRole(newRole)
+        try {
+            await rolesService.saveRole(newRole)
+            toast.success(`Papel ${roleName} criado.`)
+            setRoleName("")
+            setRoleDescription("")
+            fetchData()
+        } catch (err) {
+            toast.error("")
+        }
     }
 
     return (
@@ -101,7 +111,20 @@ export const Roles = () => {
                                 <button className="btn btn-primary" onClick={() => {setShowModal(true)}}>Utilizadores</button>
                             </div>
                             <div className="col">
-                                {selectedRole !== "admin" && <button className="btn btn-danger" onClick={() => {rolesService.deleteRole(selectedRole)}}>Apagar papel</button>}
+                                {selectedRole !== "admin" && 
+                                    <button className="btn btn-danger" 
+                                        onClick={async () => {
+                                            try {
+                                                await rolesService.deleteRole(selectedRole)
+                                                toast.success(`Papel ${selectedRole} eliminado.`)
+                                                fetchData()
+                                            } catch (err) {
+                                                const resMessage = err.response.data || err.toString();
+                                                toast.error(resMessage)
+                                            }
+                                        }}
+                                    >Apagar papel</button>
+                                }
                             </div>
                         </div>
                     }
@@ -132,6 +155,7 @@ export const Roles = () => {
                 <RoleUsersModal 
                     onClose={() => setShowModal(false)}
                     selectedRole={selectedRole}
+                    navigate={navigate}
                 />,
                 document.body
                 )}

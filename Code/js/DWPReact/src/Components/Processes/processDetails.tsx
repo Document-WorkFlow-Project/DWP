@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import processServices from "../../Services/Processes/process.service"
 import { useParams } from 'react-router';
 import { convertTimestamp, estado } from "../../utils";
@@ -6,9 +6,9 @@ import {Link} from "react-router-dom";
 import { formatBytes } from "../../utils";
 import { BsClockHistory, BsCheckCircle, BsXCircle, BsDashCircle, BsFillRecord2Fill } from 'react-icons/bs';
 import {toast} from 'react-toastify';
+import { AuthContext } from "../../AuthProvider";
 
-
-export const ProcessDetails = () => {
+export const ProcessDetails = ({ navigate }) => {
     
     const { id } = useParams();
     const [processDetails, setProcessDetails] = useState({
@@ -28,7 +28,14 @@ export const ProcessDetails = () => {
     const [processStages, setProcessStages] = useState([])
     const [currentStage, setCurrentStage] = useState(0)
 
+    const { loggedUser } = useContext(AuthContext);
+
     useEffect(() => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+
         const fetchData = async () => {
             try {
                 const details = await processServices.processDetails(id)
@@ -49,6 +56,7 @@ export const ProcessDetails = () => {
 
             } catch(err) {
                 const resMessage = err.response.data || err.toString();
+                navigate('/processes');
                 toast.error(resMessage);
             }
         }

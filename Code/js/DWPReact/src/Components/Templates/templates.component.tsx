@@ -11,7 +11,7 @@ import { AuthContext } from "../../AuthProvider";
 import {toast} from "react-toastify";
 import { modo } from "../../utils";
 
-export default function Templates() {
+export default function Templates({ navigate }) {
 
   const tempObj = {
     nome: "",
@@ -52,7 +52,9 @@ export default function Templates() {
       
       setAvailableTemplates(templates)
 
-      if (templates.length > 0)
+      if(selectedTemplate != tempObj)
+        setSelectedTemplate(templates.find(temp => temp.nome === selectedTemplate.nome))
+      else if (templates.length > 0)
         setSelectedTemplate(templates[0])
 
     } catch (error) {
@@ -73,8 +75,10 @@ export default function Templates() {
   }
 
   useEffect(() => {
-    if (!loggedUser.email)
-      window.location.href = '/';
+    if (!loggedUser.email) {
+      navigate('/');
+      toast.error("O utilizador não tem sessão iniciada.")
+    }
     
     fetchData()
   }, [])
@@ -92,11 +96,10 @@ export default function Templates() {
   async function changeTemplateAvailability(name, value) {
     try {
       await templatesService.setTemplateAvailability(name, value)
+      fetchData()
     } catch (err) {
       toast.error("Erro ao ativar/desativar template. Tenta novamente...")
     }
-    
-    fetchData()
   }
 
   function resetStageParams() {
@@ -131,7 +134,7 @@ export default function Templates() {
     setStages(newStages)
   }
 
-  const saveTemplate = () => {
+  const saveTemplate = async () => {
     if (availableTemplates.find(temp => temp.nome === templateName)) {
       setError("Nome do template já existe.")
       return
@@ -153,7 +156,13 @@ export default function Templates() {
       stages: stages
     }
 
-    templatesService.saveTemplate(template)
+    try {
+      await templatesService.saveTemplate(template)
+      navigate("/newprocess")
+    } catch (err) {
+      const resMessage = err.response.data || err.toString();
+      toast.error(resMessage)
+    }
   }
 
   function handleOnDragEnd(result) {

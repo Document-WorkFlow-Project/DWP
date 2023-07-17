@@ -87,7 +87,6 @@ class TemplatesService {
         try {
             const response = await axios.post(`${API_URL}/templates`, templateJson, { withCredentials: true })
             console.log(response)
-            window.location.href = "/newprocess"
         }
         catch (error) {
             console.log(error)

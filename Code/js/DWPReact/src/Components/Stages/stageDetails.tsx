@@ -10,7 +10,7 @@ import { AuthContext } from "../../AuthProvider";
 import {toast} from "react-toastify";
 
 
-export const StageDetails = () => {
+export const StageDetails = ({ navigate }) => {
     
     const { id } = useParams();
     
@@ -32,29 +32,35 @@ export const StageDetails = () => {
 
     const { loggedUser } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!loggedUser.email)
-                window.location.href = '/';
-            try {
-                const stageDetails = await stagesService.stageDetails(id)
-                setStageDetails(stageDetails)
+    const fetchData = async () => {
+        try {
+            const stageDetails = await stagesService.stageDetails(id)
+            setStageDetails(stageDetails)
 
-                const signatures = await stagesService.stageSignatures(id)
-                setStageSignatures(signatures)
+            const signatures = await stagesService.stageSignatures(id)
+            setStageSignatures(signatures)
 
-                if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
-                    setHasToSign(true)
-            } catch (error) {
-                toast.error("Erro a obter assinaturas. Tenta novamente...")
-            }
+            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
+                setHasToSign(true)
+        } catch (error) {
+            toast.error("Erro a obter assinaturas. Tenta novamente...")
         }
+    }
+
+    useEffect(() => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+        
         fetchData()
     }, [])
 
     const signStage = async (value) => {
         try {
             await stagesService.signStage(id, value)
+            setHasToSign(false)
+            fetchData()
         } catch (error) {
             const resMessage = error.response.data || error.toString();
             toast.error(resMessage);
