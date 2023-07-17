@@ -7,6 +7,7 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.ProcessesInterface
 import isel.ps.dwp.model.*
 import isel.ps.dwp.uploadsFolderPath
+import isel.ps.dwp.utils.deleteFromFilesystem
 import isel.ps.dwp.utils.saveInFilesystem
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -102,15 +103,28 @@ class ProcessServices(
                     stageServices.startNextPendingStage(stageId)
             }
 
-            // Save uploaded files associated to this process
-            files.forEach{ file ->
-                val docId = UUID.randomUUID().toString()
+            val addedFilesPaths = mutableListOf<String>()
 
-                // Save file in filesystem
-                saveInFilesystem(file, "$uploadsFolderPath/$docId-${file.originalFilename}")
+            try {
+                // Save uploaded files associated to this process
+                files.forEach { file ->
+                    val docId = UUID.randomUUID().toString()
+                    val path = "$uploadsFolderPath/$docId-${file.originalFilename}"
 
-                it.documentsRepository.saveDocReference(file, docId)
-                it.processesRepository.associateDocToProcess(docId, processId)
+                    // Save file in filesystem
+                    saveInFilesystem(file, path)
+
+                    // Save path in case of exception
+                    addedFilesPaths.add(path)
+
+                    it.documentsRepository.saveDocReference(file, docId)
+                    it.processesRepository.associateDocToProcess(docId, processId)
+                }
+            } catch (exception: Exception) {
+                addedFilesPaths.forEach { path ->
+                    deleteFromFilesystem(path)
+                }
+                throw ExceptionControllerAdvice.DataTransferError("Erro na escrita de ficheiros.")
             }
 
             processId
