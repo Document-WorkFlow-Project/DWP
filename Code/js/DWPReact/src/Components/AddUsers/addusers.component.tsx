@@ -38,8 +38,6 @@ const adduserscomponent = ({ navigate }) => {
             try {
                 const response = await authService.register(email, username)
                 toast.success(response);
-                setUsername("")
-                setEmail("")
             } catch (error) {
                 const resMessage = error.response.data || error.toString();
                 toast.error(resMessage);
