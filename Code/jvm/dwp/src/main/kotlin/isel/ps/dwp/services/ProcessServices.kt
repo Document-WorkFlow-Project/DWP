@@ -133,7 +133,7 @@ class ProcessServices(
                     addedFilesPaths.add(path)
 
                     it.documentsRepository.saveDocReference(file, docId)
-                    it.processesRepository.associateDocToProcess(docId, processId)
+                    it.processesRepository.associateDocToProcess(userAuth,docId, processId)
                 }
             } catch (exception: Exception) {
                 addedFilesPaths.forEach { path ->
