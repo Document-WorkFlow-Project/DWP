@@ -408,6 +408,21 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
         return result
     }
 
+    private fun ProcessIdFromStage(stageId: String, userEmail: String): String {
+        val sql = """ """.trimIndent()
+
+        // Execute the query, assuming handle is a Handle instance.
+        val result =
+            handle.createQuery(sql)
+                .bind("userEmail", userEmail)
+                .bind("stageId", stageId)
+                .mapTo(String::class.java)
+                .one()
+
+        // Convert result to Boolean and return.
+        return result
+    }
+
     fun userAdminOrInStage(stageId: String, userAuth: UserAuth): Boolean {
         return !userAuth.roles.contains("admin") && !isUserInStage(
             stageId, userAuth.email
