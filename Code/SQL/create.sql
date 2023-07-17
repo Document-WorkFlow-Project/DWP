@@ -119,10 +119,10 @@ insert into papel values ('admin', 'Administrador');
 INSERT INTO utilizador VALUES ('david.robalo@hotmail.com', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
 INSERT INTO utilizador_papel VALUES ('admin', 'david.robalo@hotmail.com');
 
-INSERT INTO utilizador VALUES ('A47283@alunos.isel.pt', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
+INSERT INTO utilizador VALUES ('A47283@alunos.isel.pt', 'Administrador principal', 'ba39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
 INSERT INTO utilizador_papel VALUES ('admin', 'A47283@alunos.isel.pt');
 
-INSERT INTO utilizador VALUES ('A47249@alunos.isel.pt', 'Administrador principal', 'bd39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
+INSERT INTO utilizador VALUES ('A47249@alunos.isel.pt', 'Administrador principal', 'bc39bea0-ba49-4fda-8660-b8870b3ae187', 'c93ccd78b2076528346216b3b2f701e6');
 INSERT INTO utilizador_papel VALUES ('admin', 'A47249@alunos.isel.pt');
 
 COMMIT TRANSACTION;
