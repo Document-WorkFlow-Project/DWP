@@ -10,7 +10,7 @@ import { AuthContext } from "../../AuthProvider";
 import {toast} from "react-toastify";
 
 
-export const StageDetails = () => {
+export const StageDetails = ({ navigate }) => {
     
     const { id } = useParams();
     
@@ -32,33 +32,50 @@ export const StageDetails = () => {
 
     const { loggedUser } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!loggedUser.email)
-                window.location.href = '/';
-            try {
-                const stageDetails = await stagesService.stageDetails(id)
-                setStageDetails(stageDetails)
+    const [loadingApprove, setLoadingApprove] = useState(false);
+    const [loadingReject, setLoadingReject] = useState(false);
 
-                const signatures = await stagesService.stageSignatures(id)
-                setStageSignatures(signatures)
+    const fetchData = async () => {
+        try {
+            const stageDetails = await stagesService.stageDetails(id)
+            setStageDetails(stageDetails)
 
-                if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
-                    setHasToSign(true)
-            } catch (error) {
-                toast.error("Erro a obter assinaturas. Tenta novamente...")
-            }
+            const signatures = await stagesService.stageSignatures(id)
+            setStageSignatures(signatures)
+
+            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
+                setHasToSign(true)
+        } catch (error) {
+            toast.error("Erro a obter assinaturas. Tenta novamente...")
         }
+    }
+
+    useEffect(() => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+        
         fetchData()
     }, [])
 
     const signStage = async (value) => {
+        if (value) 
+            setLoadingApprove(true);
+        else 
+            setLoadingReject(true);
+        
         try {
             await stagesService.signStage(id, value)
+            fetchData()
+            setHasToSign(false)
         } catch (error) {
             const resMessage = error.response.data || error.toString();
             toast.error(resMessage);
         }
+        
+        setLoadingApprove(false);
+        setLoadingReject(false);
     }
 
     return (
@@ -84,10 +101,20 @@ export const StageDetails = () => {
             {hasToSign &&
                 <div className="row row-cols-auto">
                     <div className="col">
-                        <button className="btn btn-success" onClick={() => signStage(true)}>Aprovar etapa</button>
+                        <button className="btn btn-success" disabled={loadingApprove || loadingReject} onClick={() => signStage(true)}>
+                            {loadingApprove && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span> Aprovar etapa</span>
+                        </button>
                     </div>
                     <div className="col">
-                        <button className="btn btn-danger" onClick={() => signStage(false)}>Não Aprovar etapa</button>
+                        <button className="btn btn-danger" disabled={loadingApprove || loadingReject} onClick={() => signStage(false)}>
+                            {loadingReject && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span> Não aprovar etapa</span>
+                        </button>
                     </div>
                 </div>
             }

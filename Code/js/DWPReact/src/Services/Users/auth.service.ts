@@ -14,7 +14,6 @@ class AuthService {
 
     async logout() {
         await axios.post(`${API_URL}/users/logout`)
-        window.location.href = "/"
     }
 
     async register(email: string, username: string) {

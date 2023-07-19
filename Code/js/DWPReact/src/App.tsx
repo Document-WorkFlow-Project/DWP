@@ -1,4 +1,4 @@
-import {Routes, Route, Link} from "react-router-dom";
+import {Routes, Route, Link, useNavigate} from "react-router-dom";
 import Home from "./Components/Home/home.component";
 import Templates from "./Components/Templates/templates.component";
 import {NewProcess} from "./Components/Processes/newProcess";
@@ -13,16 +13,26 @@ import {ProcessDetails} from "./Components/Processes/processDetails";
 import {StageDetails} from "./Components/Stages/stageDetails";
 import AddUsers from "./Components/AddUsers/addusers.component";
 import { AuthContext } from "./AuthProvider";
+import {toast} from "react-toastify";
 
 export default function App() {
 
-    const { loggedUser } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const { loggedUser, checkAuth } = useContext(AuthContext);
 
     const [showLogin, setShowLogin] = useState(false);
 
     const toggleLogin = () => {
         setShowLogin(!showLogin);
     };
+
+    async function handleLogout() {
+        await AuthService.logout()
+        await checkAuth()
+        navigate('/');
+        toast.success("Logout feito com sucesso.")
+    }
 
     return (
         <div>
@@ -56,7 +66,9 @@ export default function App() {
                                 <Link to={`/profile/${loggedUser.email}`} className="nav-link">
                                     {loggedUser.nome}
                                 </Link>
-                                <button className="loginicon" onClick={async () => await AuthService.logout()}>
+                                <button 
+                                    className="loginicon" 
+                                    onClick={handleLogout}>
                                     Logout
                                 </button>
                             </div>
@@ -75,22 +87,24 @@ export default function App() {
                             <div className="popup">
                                 <Login
                                     onClose={toggleLogin}
+                                    navigate={navigate}
                                 />
                             </div>
                         </div>
                     )}
                 </div>
             </div>
+            
             <Routes>
                 <Route path="/" element={<Home/>}/>
-                <Route path="/processes" element={<Processes/>}/>
-                <Route path="/newprocess" element={<NewProcess/>}/>
-                <Route path="/process/:id" element={<ProcessDetails/>}/>
-                <Route path="/stage/:id" element={<StageDetails/>}/>
-                <Route path="/templates" element={<Templates/>}/>
-                <Route path="/roles" element={<Roles/>}/>
-                <Route path="/profile/:userEmail" element={<Profile/>}/>
-                <Route path="/addusers" element={<AddUsers/>}/>
+                <Route path="/processes" element={<Processes navigate={navigate}/>}/>
+                <Route path="/newprocess" element={<NewProcess navigate={navigate}/>}/>
+                <Route path="/process/:id" element={<ProcessDetails navigate={navigate}/>}/>
+                <Route path="/stage/:id" element={<StageDetails navigate={navigate}/>}/>
+                <Route path="/templates" element={<Templates navigate={navigate}/>}/>
+                <Route path="/roles" element={<Roles navigate={navigate}/>}/>
+                <Route path="/profile/:userEmail" element={<Profile navigate={navigate}/>}/>
+                <Route path="/addusers" element={<AddUsers navigate={navigate}/>}/>
             </Routes>
 
         </div>

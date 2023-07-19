@@ -1,50 +1,48 @@
-import {useState, useRef, useEffect, useContext} from 'react';
-import Input from "react-validation/build/input";
-import Form from "react-validation/build/form";
-import CheckButton from "react-validation/build/button";
+import {useState, useEffect, useContext} from 'react';
+import { isEmail } from "validator";
 import {toast} from "react-toastify";
 import './addusers.component.css'
 import "react-toastify/dist/ReactToastify.css";
 import authService from '../../Services/Users/auth.service';
 import { AuthContext } from '../../AuthProvider';
-import { required, validEmail, vusername } from '../../utils';
 
-const adduserscomponent: React.FC = () => {
+const adduserscomponent = ({ navigate }) => {
 
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
     }, [])
-
-    const form = useRef();
-    const checkBtn = useRef();
 
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [error, setError] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // @ts-ignore
-        form.current.validateAll();
-
-        // @ts-ignore
-        if (checkBtn.current.context._errors.length === 0) {
-            try {
-                const response = await authService.register(email, username)
-                toast.success(response);
-                setUsername("")
-                setEmail("")
-            } catch (error) {
-                const resMessage = error.response.data || error.toString();
-                toast.error(resMessage);
-            }
-        } else {
-            setLoading(false);
+        if (!isEmail(email)) {
+            setError("Email não é válido.")
+            return;
         }
+
+        setLoading(true)
+
+        try {
+            const response = await authService.register(email, username)
+            toast.success(response);
+            setUsername("")
+            setEmail("")
+        } catch (error) {
+            const resMessage = error.response.data || error.toString();
+            toast.error(resMessage);
+        }
+        
+        setLoading(false);
     };
 
 
@@ -53,40 +51,34 @@ const adduserscomponent: React.FC = () => {
             <p></p>
             <h2>Adicionar Novo Utilizador</h2>
             <p></p>
-            <Form onSubmit={handleSubmit} ref={form}>
+            <form onSubmit={handleSubmit}>
                 <div className="row align-items-start">
                     <div className="col-4">
-                        <label htmlFor="username">Nome</label>
-                        <Input
-                            type="text"
+                        <p>Nome:</p>
+                        <input
                             className="form-control"
                             name="username"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
-                            validations={[required, vusername]}
+                            minLength={3}
+                            maxLength={20}
+                            required={true}
                         />
                         <p></p>
-                        <label htmlFor="email">Email</label>
-                        <Input
-                            type="text"
+                        <p>Email:</p>
+                        <input
                             className="form-control"
                             name="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            validations={[required, validEmail]}
+                            required={true}
                         />
                         <p></p>
-                        <button className="btn btn-primary" disabled={loading}>
-                            {loading && (
-                                <span className="spinner-border spinner-border-sm"></span>
-                            )}
-                            <span>Adicionar utilizador</span>
-                        </button>
+                        <p className="error">{error}</p>               
+                        <input className="btn btn-primary" type="submit" value={loading ? "Loading..." : "Adicionar utilizador"} disabled={loading}></input>
                     </div>
                 </div>
-
-                <CheckButton style={{ display: "none" }} ref={checkBtn} />
-            </Form>
+            </form>
         </div>
     );
 };

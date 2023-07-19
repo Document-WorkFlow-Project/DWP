@@ -18,6 +18,4 @@ fun deleteFromFilesystem(path: String) {
     val file = File(path)
     if (file.exists())
         file.delete()
-    else
-        throw ExceptionControllerAdvice.DocumentNotFoundException("$path not found.")
 }

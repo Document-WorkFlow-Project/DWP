@@ -15,22 +15,22 @@ export function AuthProvider({ children }) {
     const [loggedUser, setLoggedUser] = useState(loggedOut);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/users/auth`);
-                
-                if (response.status === 200) 
-                    setLoggedUser(response.data);
-                else 
-                    setLoggedUser(loggedOut);
-            } catch (error) {
+    const checkAuth = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/users/auth`);
+            
+            if (response.status === 200) 
+                setLoggedUser(response.data);
+            else 
                 setLoggedUser(loggedOut);
-            }
+        } catch (error) {
+            setLoggedUser(loggedOut);
+        }
 
-            setLoading(false);
-        };
+        setLoading(false);
+    };
 
+    useEffect(() => {
         checkAuth();
     }, []);
 
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext.Provider value={{ loggedUser }}>
+        <AuthContext.Provider value={{ loggedUser, checkAuth }}>
             {children}
         </AuthContext.Provider>
     );

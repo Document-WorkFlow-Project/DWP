@@ -5,7 +5,7 @@ import authService from "../../Services/Users/auth.service";
 import {toast} from "react-toastify";
 import usersService from "../../Services/Users/users.service";
 
-export const Profile = () => {
+export const Profile = ({ navigate }) => {
 
     const { userEmail } = useParams();
     const { loggedUser } = useContext(AuthContext);
@@ -18,6 +18,7 @@ export const Profile = () => {
     const [repeatNewPass, setRepeatNewPass] = useState("")
 
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false);
 
     async function fetchUserDetails(email) {
         try {
@@ -30,6 +31,11 @@ export const Profile = () => {
     }
     
     useEffect( () => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+
         if (userEmail === loggedUser.email){
             setShowChangePass(true)
             setUserDetails(loggedUser)
@@ -39,7 +45,9 @@ export const Profile = () => {
         }
     }, [userEmail])
 
-    async function changePassword() {
+    async function changePassword(e) {
+        e.preventDefault()
+
         if (newPass !== repeatNewPass) {
             setError("Palavras passe não coincidem.")
             return;
@@ -48,14 +56,21 @@ export const Profile = () => {
             return;
         }
 
+        setLoading(true)
+
         try {
             const res = await authService.updatePass(currentPass, newPass)
             toast.success(res);
+            setCurrentPass("")
+            setNewPass("")
+            setRepeatNewPass("")
             setError("")
         } catch(err) {
             const resMessage = err.response.data || err.toString();
             toast.error(resMessage);
         }
+
+        setLoading(false)
     }
 
     return (
@@ -101,7 +116,7 @@ export const Profile = () => {
                                 <p></p>
                                 <p className="error">{error}</p>
 
-                                <input className="btn btn-primary" type="submit" value="Alterar palavra-passe"></input>
+                                <input className="btn btn-primary" type="submit" value={loading ? "Loading..." : "Alterar palavra-passe"} disabled={loading}></input>
                             </form>
                         </div>
                     </>

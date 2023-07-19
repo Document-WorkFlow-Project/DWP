@@ -7,7 +7,7 @@ import templatesService from "../../Services/Templates/templates.service"
 import { AuthContext } from '../../AuthProvider';
 import {toast} from 'react-toastify';
 
-export const NewProcess = () => {
+export const NewProcess = ({ navigate }) => {
 
     const [availableTemplates, setAvailableTemplates] = useState([])
     const [uploadedDocs, setUploadedDocs] = useState([])
@@ -20,12 +20,15 @@ export const NewProcess = () => {
 
     const [showDetailsModal, setShowDetailsModal] = useState(false)
 
+    const [loading, setLoading] = useState(false);
+
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-
-        if (!loggedUser.email)
-           window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
 
         const fetchData = async () => {
             try {
@@ -127,6 +130,8 @@ export const NewProcess = () => {
                 setError("Nenhum documento carregado.")
                 return
             }
+            
+            setLoading(true)
 
             const formData = new FormData()
             formData.append('templateName', selectedTemplate)
@@ -137,12 +142,14 @@ export const NewProcess = () => {
 
             try {
                 await processServices.createProcess(formData)
-                window.location.href = "/processes"
+                navigate("/processes")
             }
             catch(err) {
                 const resMessage = err.response.data || err.toString();
                 toast.error(resMessage);
             }
+
+            setLoading(false)
         }
 
         return (
@@ -169,7 +176,12 @@ export const NewProcess = () => {
                 </label>
                 { dragActive && <div id="drag-file-element" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div> }
                 <p></p>
-                <input className="btn btn-success" type="submit" value="Criar Processo"/>
+                <input
+                    className="btn btn-success"
+                    type="submit"
+                    value={loading ? "Loading..." : "Criar Processo"}
+                    disabled={loading}
+                />
             </form>
         )
     }
@@ -213,7 +225,7 @@ export const NewProcess = () => {
                         <p><b>Descrição: </b></p>
                         <textarea className="form-control" style={{ resize: "none" }} value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
                     </div>
-                    
+                    <p></p>
                     <p className="error">{error}</p>
                     
                     

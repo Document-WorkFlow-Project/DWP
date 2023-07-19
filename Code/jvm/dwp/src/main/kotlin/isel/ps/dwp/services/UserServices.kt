@@ -7,6 +7,7 @@ import isel.ps.dwp.interfaces.UsersInterface
 import isel.ps.dwp.model.EmailDetails
 import isel.ps.dwp.model.User
 import isel.ps.dwp.model.UserAuth
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,13 +17,13 @@ class UserServices(
 ): UsersInterface {
 
     override fun checkBearerToken(bearerToken: String): UserAuth {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.checkBearerToken(bearerToken)
         }
     }
 
     override fun usersList(): List<String> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.usersList()
         }
     }
@@ -33,7 +34,7 @@ class UserServices(
         if (password.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Password is required.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.login(email, password)
         }
     }
@@ -46,7 +47,7 @@ class UserServices(
         if (name.length > 32)
             throw ExceptionControllerAdvice.InvalidParameterException("Name is too long.")
 
-        val password = transactionManager.run {
+        val password = transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.usersRepository.register(email, name)
         }
 
@@ -64,7 +65,7 @@ class UserServices(
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.deleteUser(email)
         }
     }
@@ -73,7 +74,7 @@ class UserServices(
         if (email.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Email is required.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.userDetails(email)
         }
     }
@@ -90,13 +91,13 @@ class UserServices(
         if (newPass.length > 32)
             throw ExceptionControllerAdvice.InvalidParameterException("Password is too long.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.usersRepository.updateCredentials(email, oldPass, newPass)
         }
     }
 
     override fun checkUser(email: String): User? {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.usersRepository.checkUser(email) ?: throw ExceptionControllerAdvice.UserNotFound("Utilizador não encontrado.")
         }
     }

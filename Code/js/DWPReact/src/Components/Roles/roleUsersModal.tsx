@@ -6,7 +6,8 @@ import {toast} from "react-toastify";
 
 export function RoleUsersModal({
     onClose,
-    selectedRole
+    selectedRole,
+    navigate
 }) {
     const [roleUsers, setRoleUsers] = useState([])
     const [availableUsers, setAvailableUsers] = useState([])
@@ -16,8 +17,10 @@ export function RoleUsersModal({
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!loggedUser.email)
-            window.location.href = '/';
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
 
         const fetchData = async () => {
             try {
