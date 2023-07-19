@@ -17,10 +17,9 @@ class StageServices(
 
     override fun stageDetails(stageId: String,userAuth: UserAuth): Stage {
         return transactionManager.run {
-            if (it.stagesRepository.userAdminOrInStage(
-                    stageId,
-                    userAuth
-                )
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
             ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageDetails(stageId,userAuth)
         }
@@ -48,6 +47,10 @@ class StageServices(
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.userAdminOrInStage(
+                            stageId, userAuth
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageUsers(stageId,userAuth)
 
             it.stagesRepository.signStage(stageId, approve, userAuth)
@@ -89,10 +92,9 @@ class StageServices(
 
     override fun stageSignatures(stageId: String,userAuth: UserAuth): List<Signature> {
         return transactionManager.run {
-            if (it.stagesRepository.userAdminOrInStage(
-                    stageId,
-                    userAuth
-                )
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
             ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageDetails(stageId,userAuth)
             it.stagesRepository.stageSignatures(stageId,userAuth)
@@ -138,10 +140,9 @@ class StageServices(
 
     override fun stageUsers(stageId: String,userAuth: UserAuth): List<UserDetails> {
         return transactionManager.run {
-            if (it.stagesRepository.userAdminOrInStage(
-                    stageId,
-                    userAuth
-                )
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
             ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageDetails(stageId,userAuth)
             it.stagesRepository.stageUsers(stageId,userAuth)
@@ -165,10 +166,9 @@ class StageServices(
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
-            if (it.stagesRepository.userAdminOrInStage(
-                    stageId,
-                    user
-                )
+            if (!user.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, user.email
+                    )
             ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageDetails(stageId, user)
             it.stagesRepository.addComment(stageId, comment, user)
@@ -184,10 +184,9 @@ class StageServices(
 
     override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
         return transactionManager.run {
-            if (it.stagesRepository.userAdminOrInStage(
-                    stageId,
-                    userAuth
-                )
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
             ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
             it.stagesRepository.stageDetails(stageId,userAuth)
             it.stagesRepository.stageComments(stageId,userAuth)
