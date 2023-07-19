@@ -1,6 +1,5 @@
 import { useEffect, useState, useContext } from "react"
 import { createPortal } from 'react-dom'
-import FormData from 'form-data';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import './templates.css'
 import templatesService from "../../Services/Templates/templates.service";
@@ -10,11 +9,16 @@ import usersService from "../../Services/Users/users.service";
 import { TemplateUsersModal } from "./templateUsersModal"
 import { AuthContext } from "../../AuthProvider";
 import {toast} from "react-toastify";
+import { modo } from "../../utils";
 
-export default function Templates() {
+export default function Templates({ navigate }) {
 
-  const [availableTemplates, setAvailableTemplates] = useState([])
-  const [selectedTemplate, setSelectedTemplate] = useState("")
+  const tempObj = {
+    nome: "",
+    ativo: true
+  }
+  const [availableTemplates, setAvailableTemplates] = useState([tempObj])
+  const [selectedTemplate, setSelectedTemplate] = useState(tempObj)
   
   // template name, description, and stages
   const [templateName, setTemplateName] = useState("")
@@ -42,40 +46,38 @@ export default function Templates() {
 
   const { loggedUser } = useContext(AuthContext);
 
-  //TODO add groups to template access
+  async function fetchData() {
+    try {
+      const templates = await templatesService.allTemplates()
+      
+      setAvailableTemplates(templates)
+
+      if(selectedTemplate != tempObj)
+        setSelectedTemplate(templates.find(temp => temp.nome === selectedTemplate.nome))
+      else if (templates.length > 0)
+        setSelectedTemplate(templates[0])
+
+    } catch (error) {
+      toast.error("Erro ao obter templates. Tenta novamente...")
+    }
+
+    try {
+      setRoleGroups(await rolesService.availableRoles())
+    } catch (error) {
+      toast.error("Erro ao obter papéis. Tenta novamente...")
+    }
+
+    try {
+      setUsers(await usersService.usersList())
+    } catch (error) {
+      toast.error("Erro ao obter utilizadores. Tenta novamente...")
+    }
+  }
 
   useEffect(() => {
-    if (!loggedUser.email)
-      window.location.href = '/';
-    
-    const fetchData = async () => {
-
-      try {
-        const templates = await templatesService.availableTemplates()
-          setAvailableTemplates(templates)
-
-          if (templates.length > 0)
-            setSelectedTemplate(templates[0])
-
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Templates. Please Refresh ...")
-      }
-
-      try {
-        setRoleGroups(await rolesService.availableRoles())
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Roles. Please Refresh ...")
-        else toast.error("There are no Roles. Please contact an Admin")
-      }
-
-      try {
-        setUsers(await usersService.usersList())
-      } catch (error) {
-        let code = error.response.status
-        if (code != 404) toast.error("Error Getting Users. Please Refresh ...")
-      }
+    if (!loggedUser.email) {
+      navigate('/');
+      toast.error("O utilizador não tem sessão iniciada.")
     }
     
     fetchData()
@@ -85,11 +87,20 @@ export default function Templates() {
     let options = []
 
     availableTemplates.forEach ((template, index) =>  {
-        options.push(<option key={index} value={template}>{template}</option>)
+        options.push(<option key={index} value={template.nome}>{template.nome}</option>)
     })
 
     return options;
   } 
+
+  async function changeTemplateAvailability(name, value) {
+    try {
+      await templatesService.setTemplateAvailability(name, value)
+      fetchData()
+    } catch (err) {
+      toast.error("Erro ao ativar/desativar template. Tenta novamente...")
+    }
+  }
 
   function resetStageParams() {
     // Reset the stage name, description, and responsibles to empty strings and arrays
@@ -123,8 +134,8 @@ export default function Templates() {
     setStages(newStages)
   }
 
-  const saveTemplate = () => {
-    if (availableTemplates.find(name => name === templateName)) {
+  const saveTemplate = async () => {
+    if (availableTemplates.find(temp => temp.nome === templateName)) {
       setError("Nome do template já existe.")
       return
     }
@@ -145,7 +156,13 @@ export default function Templates() {
       stages: stages
     }
 
-    templatesService.saveTemplate(template)
+    try {
+      await templatesService.saveTemplate(template)
+      navigate("/newprocess")
+    } catch (err) {
+      const resMessage = err.response.data || err.toString();
+      toast.error(resMessage)
+    }
   }
 
   function handleOnDragEnd(result) {
@@ -160,72 +177,122 @@ export default function Templates() {
 
   return (
     <div>
-      <div className="templateParams">
-        <h2>Templates disponíveis</h2>
-        { availableTemplates.length === 0 ?
-              <p className="error">Não existem templates disponíveis.</p>
-          : 
-            <div>  
-              <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                  {templateOptions()}
-              </select>
-              <button onClick={() => setShowDetailsModal(true)}>Detalhes</button>
-              <button onClick={() => {setShowUsersModal(true)}}>Utilizadores</button>
-              <button onClick={() => {
-                  templatesService.deleteTemplate(selectedTemplate)
-                  setAvailableTemplates(available => available.filter(name => name !== selectedTemplate))
-                }}>Apagar template</button>
+      <div className="container-fluid">
+
+        <div className="row">
+          <p></p>
+          <h2>Templates disponíveis</h2>
+          <p></p>
+          
+          { availableTemplates.length === 0 ?
+            <div className="row">
+              <div className="col">
+                <p className="error">Não existem templates disponíveis.</p>
+              </div>
             </div>
-        }
-        <h2>Novo template de processo</h2>
-        <p><b>Nome: </b></p>
-        <input className="name-input" type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/>
-        <p><b>Descrição: </b></p>
-        <textarea className="description-area" value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/>
-        <p className="error">{error}</p>
+          : 
+            <div className="row row-cols-auto"> 
+              <div className="col-4">
+                <select 
+                  className="form-select"
+                  value={selectedTemplate.nome} 
+                  onChange={(e) => {setSelectedTemplate(availableTemplates.find(temp => temp.nome === e.target.value))}}>
+                  {templateOptions()}
+                </select>
+              </div> 
+              <div className="col">
+                <button className="btn btn-primary" onClick={() => setShowDetailsModal(true)}>Detalhes</button>
+              </div>
+              <div className="col">
+                <button className="btn btn-primary" onClick={() => {setShowUsersModal(true)}}>Utilizadores</button>
+              </div>
+              <div className="col">
+                {selectedTemplate.ativo ?
+                  <button className="btn btn-danger" onClick={() => changeTemplateAvailability(selectedTemplate.nome, false)}>Desativar template</button>
+                :
+                  <button className="btn btn-success" onClick={() => changeTemplateAvailability(selectedTemplate.nome, true)}>Ativar template</button>
+                }
+              </div>
+            </div>
+          }
+        </div>  
+        
+        <div className="row row-cols-auto">
 
-        <button onClick={() => setShowModal(true)}>Adicionar etapa</button>
-        <button onClick={saveTemplate}>Guardar template</button>
-      </div>
+          <div className="col-6">
+              
+            <div className="col">
+              <p></p>
+              <h2>Novo template de processo</h2>
+              <p><b>Nome: </b></p>
+              <input className="form-control" type="text" value={templateName} onChange={e => {setTemplateName(e.target.value)}}/>
+              <p></p>
+              <p><b>Descrição: </b></p>
+              <textarea className="form-control" style={{ resize: "none" }} value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/>
+              <p></p>
+              <p className="error">{error}</p>
+            </div>
 
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId="characters">
-          {(provided) => (
-            <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
-              {stages.map((stage, index) => {
-                return (
-                  <Draggable key={stage.name} draggableId={stage.name} index={index}>
-                    {(provided) => (
-                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="clipping-container" key={index}>
-                        <b>Nome: </b>{stage.name}
-                        <p><b>Descrição: </b>{stage.description}</p>
-                        <p><b>Prazo: </b>{stage.duration} dias</p>
-                        <p><b>Modo de assinatura: </b>{stage.mode}</p>
-                        <p><b>Responsáveis: </b>
-                          {stage.responsibles.map((resp, index) => {
-                            return (
-                              <a key={index}> {resp}; </a>
-                            )
-                          })}
-                        </p>
-                        <button onClick={() => deleteStage(index)}>Apagar etapa</button>
-                      </div>
-                    )}
-                  </Draggable>
-                )
-              })}
-              {provided.placeholder}
-            </ul>
-          )}
-        </Droppable>
-      </DragDropContext>
+            <div className="row row-cols-auto">
+              <div className="col">
+                <button className="btn btn-primary" onClick={() => setShowModal(true)}>Adicionar etapa</button>
+              </div>
+              
+              <div className="col">
+                <button className="btn btn-success" onClick={saveTemplate}>Guardar template</button>
+              </div>
+            </div>
+            <p></p>
+
+          </div>
+          
+          <div className="col align-self-center">
+            <DragDropContext onDragEnd={handleOnDragEnd}>
+              <Droppable droppableId="characters">
+                {(provided) => (
+                  <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
+                    {stages.map((stage, index) => {
+                      return (
+                        <div>
+                          <p></p>
+                          <Draggable key={stage.name} draggableId={stage.name} index={index}>
+                            {(provided) => (
+                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="clipping-container" key={index}>
+                                <p><b>Nome: </b>{stage.name}</p>
+                                <p><b>Descrição: </b>{stage.description}</p>
+                                <p><b>Prazo: </b>{stage.duration} dias</p>
+                                <p><b>Modo de assinatura: </b>{modo(stage.mode)}</p>
+                                <p><b>Responsáveis: </b>
+                                  {stage.responsibles.map((resp, index) => {
+                                    return (
+                                      <a key={index}> {resp}; </a>
+                                    )
+                                  })}
+                                </p>
+                                <button className="btn btn-danger" onClick={() => deleteStage(index)}>Apagar etapa</button>
+                              </div>
+                            )}
+                          </Draggable>
+                        </div>
+                        
+                      )
+                    })}
+                    {provided.placeholder}
+                  </ul>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div> 
+        </div>
       
+      </div>
+        
       <div>
         {showUsersModal && createPortal(
           <TemplateUsersModal 
             onClose={() => setShowUsersModal(false)}
             loggedUser={loggedUser}
-            selectedTemplate={selectedTemplate}
+            selectedTemplate={selectedTemplate.nome}
           />,
           document.body
         )}
@@ -234,7 +301,7 @@ export default function Templates() {
         {showDetailsModal && createPortal(
           <TemplateDetailsModal 
             onClose={() => setShowDetailsModal(false)}
-            selectedTemplate={selectedTemplate}
+            selectedTemplate={selectedTemplate.nome}
           />,
           document.body
         )}

@@ -2,6 +2,7 @@ package isel.ps.dwp.controllers
 
 import isel.ps.dwp.model.Comment
 import isel.ps.dwp.model.NewComment
+import isel.ps.dwp.model.State
 import isel.ps.dwp.model.UserAuth
 import isel.ps.dwp.services.StageServices
 import org.springframework.http.HttpStatus
@@ -17,7 +18,7 @@ class StagesController(
     /** --------------------------- Stages -------------------------------**/
     @GetMapping("/{stageId}")
     fun stageDetails(@PathVariable stageId: String, user: UserAuth): ResponseEntity<*> {
-        val stage = stageServices.stageDetails(stageId)
+        val stage = stageServices.stageDetails(stageId,user)
         return ResponseEntity.ok(stage)
     }
 
@@ -36,26 +37,26 @@ class StagesController(
 
     // Etapa pendentes que um responsável tem que assinar
     @GetMapping("/pending")
-    fun pendingStages(userEmail: String?, user: UserAuth): ResponseEntity<List<*>> {
-        val stages = stageServices.pendingStages(user, userEmail)
+    fun pendingStages(userEmail: String?, @RequestParam limit: Int?, @RequestParam skip: Int?, user: UserAuth): ResponseEntity<*> {
+        val stages = stageServices.stagesOfState(State.PENDING, user, limit, skip, userEmail)
         return ResponseEntity.ok(stages)
     }
 
     @GetMapping("/finished")
-    fun finishedStages(userEmail: String?, user: UserAuth): ResponseEntity<List<*>> {
-        val stages = stageServices.finishedStages(user, userEmail)
+    fun finishedStages(userEmail: String?, @RequestParam limit: Int?, @RequestParam skip: Int?, user: UserAuth): ResponseEntity<*> {
+        val stages = stageServices.stagesOfState(State.FINISHED, user, limit, skip, userEmail)
         return ResponseEntity.ok(stages)
     }
 
     @GetMapping("/{stageId}/users")
     fun stageResponsible(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
-        val users = stageServices.stageUsers(stageId)
+        val users = stageServices.stageUsers(stageId,user)
         return ResponseEntity.ok(users)
     }
 
     @GetMapping("/{stageId}/signatures")
     fun stageSignatures(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<*>> {
-        val signatures = stageServices.stageSignatures(stageId)
+        val signatures = stageServices.stageSignatures(stageId,user)
         return ResponseEntity.ok(signatures)
     }
 
@@ -65,7 +66,7 @@ class StagesController(
 
     @GetMapping("/{stageId}/comments")
     fun stageComments(@PathVariable stageId: String, user: UserAuth): ResponseEntity<List<Comment>> {
-        val comments = stageServices.stageComments(stageId)
+        val comments = stageServices.stageComments(stageId,user)
         return ResponseEntity.ok(comments)
     }
 

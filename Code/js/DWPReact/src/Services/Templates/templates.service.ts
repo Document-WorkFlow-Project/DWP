@@ -2,6 +2,18 @@ import axios from 'axios';
 import { API_URL } from '../../utils';
 
 class TemplatesService {
+
+    async allTemplates() {
+        try {
+            const response = await axios.get(`${API_URL}/templates/all`, {withCredentials: true})
+            return response.data
+        }
+        catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     async availableTemplates() {
         try {
             const response = await axios.get(`${API_URL}/templates`, {withCredentials: true})
@@ -24,9 +36,9 @@ class TemplatesService {
         }
     }
 
-    async deleteTemplate(templateName) {
+    async setTemplateAvailability(templateName, value) {
         try {
-            const response = await axios.delete(`${API_URL}/templates/${templateName}`, {withCredentials: true})
+            const response = await axios.put(`${API_URL}/templates/${templateName}?active=${value}`, {withCredentials: true})
             console.log(response.data)
         }
         catch (error) {
@@ -75,7 +87,6 @@ class TemplatesService {
         try {
             const response = await axios.post(`${API_URL}/templates`, templateJson, { withCredentials: true })
             console.log(response)
-            window.location.href = "/newprocess"
         }
         catch (error) {
             console.log(error)

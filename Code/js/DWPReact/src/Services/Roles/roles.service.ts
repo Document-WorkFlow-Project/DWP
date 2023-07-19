@@ -18,7 +18,6 @@ class RolesService {
         try {
             const response = await axios.post(`${API_URL}/roles`, role, {withCredentials: true})
             console.log(response.data)
-            window.location.href = "/roles"
         }
         catch (error) {
             console.log(error)
@@ -30,7 +29,6 @@ class RolesService {
         try {
             const response = await axios.delete(`${API_URL}/roles/${roleName}`, {withCredentials: true})
             console.log(response.data)
-            window.location.href = "/roles"
         }
         catch (error) {
             console.log(error)

@@ -1,6 +1,7 @@
 package isel.ps.dwp.interfaces
 
 import isel.ps.dwp.model.EmailDetails
+import isel.ps.dwp.model.StageInfo
 
 interface NotificationsServicesInterface {
 
@@ -9,10 +10,10 @@ interface NotificationsServicesInterface {
     /**
      * Schedules an email for the defined frequency in days
      */
-    fun scheduleEmail(details: EmailDetails, period: Long): String
+    fun scheduleStageNotifications(stageInfo: StageInfo, stageResponsible: List<String>)
 
     /**
      * Cancel the defined emails schedule
      */
-    fun cancelScheduledEmails(notificationId: String)
+    fun cancelScheduledNotification(notificationId: String)
 }

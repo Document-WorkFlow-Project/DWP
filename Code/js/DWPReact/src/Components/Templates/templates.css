@@ -1,7 +1,7 @@
 div.scroll-resp {
     background-color: #eae9e9;
-    width: 270px;
-    height: 50px;
+    width: 420px;
+    height: 200px;
     overflow-x: hidden;
     overflow-y: auto;
     text-align: center;
@@ -22,12 +22,11 @@ div.scroll-resp {
 }
 
 .responsible-container {
-    position: relative;
     border: 1px solid #aaa;
     margin-bottom: 12px;
     padding: 12px;
-    width: 300px;
-    height: 100px;
+    width: 420px;
+    height: 200px;
     overflow: auto;
     background-color: white;
 }
@@ -55,7 +54,7 @@ div.scroll-resp {
     background-color: rgba(228, 1, 1, 0.748);
 }
 
-.bg{
+.bg {
     position: fixed;
     top: 0;
     left: 0;
@@ -64,6 +63,10 @@ div.scroll-resp {
     height: 100vh;
     background-color: rgba(179, 179, 179, 0.4);
     backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
 }
 
 .modal {
@@ -82,24 +85,26 @@ div.scroll-resp {
     flex-direction: column;
     flex-wrap: wrap;
     align-content: center;
+    overflow-y: auto;
 }
 
 .stage-modal {
     display: flex;
+    flex-direction: column;
     align-items: center;
     box-shadow: rgba(100, 100, 111, 0.3) 0px 7px 29px 0px;
     background-color: white;
     border: 2px solid rgb(240, 240, 240);
     border-radius: 12px;
     position: absolute;
-    width: 400px;
-    height: 730px;
+    width: 500px;
+    max-height: 730px;
     top: 50px;
     left: calc(50% - 250px);
-    justify-content: space-evenly;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: center;
+    justify-content: flex-start;
+    padding: 20px; 
+    overflow-y: auto;
+    flex-grow: 1;
 }
 
 .error {

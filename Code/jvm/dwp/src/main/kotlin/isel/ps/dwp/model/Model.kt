@@ -71,19 +71,27 @@ data class EmailDetails(
     val subject: String
 )
 
-data class EmailSchedule(
-    val email: EmailDetails,
-    val period: Long
-)
-
-data class StageInfo(
+data class StageDetails(
     val id: String,
     val nome: String,
     val data_inicio: Timestamp?,
     val data_fim: Timestamp?,
     val id_processo: String,
     val processo_nome: String,
+    val descricao: String,
     val estado: String
+)
+
+data class StageInfo(
+    val id: String,
+    val prazo: Int
+)
+
+data class StageNotification(
+    val id_notificacao: String,
+    val data_inicio_notif: Timestamp,
+    val email_utilizador: String,
+    val id_etapa: String
 )
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

@@ -15,6 +15,12 @@ class TemplatesServices(
     private val objectMapper: ObjectMapper
 ): TemplatesInterface {
 
+    override fun allTemplates(): List<TemplateWStatus> {
+        return transactionManager.run {
+            it.templatesRepository.allTemplates()
+        }
+    }
+
     override fun availableTemplates(user: UserAuth): List<String> {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.templatesRepository.availableTemplates(user)
@@ -71,12 +77,12 @@ class TemplatesServices(
         }
     }
 
-    override fun deleteTemplate(templateName: String) {
+    override fun setTemplateAvailability(active: Boolean, templateName: String) {
         if (templateName.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing template name.")
 
         transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.templatesRepository.deleteTemplate(templateName)
+            it.templatesRepository.setTemplateAvailability(active, templateName)
         }
     }
 }

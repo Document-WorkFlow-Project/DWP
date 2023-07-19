@@ -1,7 +1,7 @@
 package isel.ps.dwp.services
 
 import isel.ps.dwp.ExceptionControllerAdvice
-import isel.ps.dwp.NOTIFICATION_FREQUENCY
+import isel.ps.dwp.REDIRECT_URL
 import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
@@ -10,28 +10,34 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 import org.springframework.stereotype.Service
 
 @Service
-class StageServices (
+class StageServices(
     private val transactionManager: TransactionManager,
     private val notificationServices: NotificationsServicesInterface,
     private val userServices: UserServices
 ) : StagesInterface {
 
-    override fun stageDetails(stageId: String): Stage {
+    override fun stageDetails(stageId: String,userAuth: UserAuth): Stage {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.stageDetails(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
         }
     }
 
-    private fun finalStageEmail(stageId: String) {
+    private fun finalStageEmail(stageId: String, userAuth: UserAuth) {
         val processDetails = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             val processId = it.stagesRepository.findProcessFromStage(stageId)
-            it.processesRepository.processDetails(processId)
+            it.processesRepository.processDetails(userAuth, processId)
         }
+
+        val state = if (processDetails.estado == "APPROVED") "aprovado" else "não aprovado"
 
         val emailDetails = EmailDetails(
                 processDetails.autor,
-                "O processo ${processDetails.id} foi concluido com estado ${processDetails.estado}.",
-                "Processo ${processDetails.id} concluído"
+                "O processo ${processDetails.nome} foi concluído com estado $state.\nVer detalhes:\n$REDIRECT_URL/process/${processDetails.id}\n\nObrigado,\nDWP",
+                "Processo ${processDetails.nome} concluído"
         )
         notificationServices.sendSimpleMail(emailDetails)
     }
@@ -42,10 +48,12 @@ class StageServices (
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-            it.stagesRepository.stageUsers(stageId).find {
-                det -> det.email == userAuth.email
-            } ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não faz parte da etapa.")
-            //it.stagesRepository.checkStage(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.userAdminOrInStage(
+                            stageId, userAuth
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageUsers(stageId,userAuth)
+
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
 
@@ -55,38 +63,42 @@ class StageServices (
         if (approve) {
             // Selecionar apenas a notificação associada ao user que assinou
             notificationIds = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-                it.stagesRepository.getStageNotifications(stageId, userEmail)
+                it.stagesRepository.getStageNotifications(stageId, userEmail, userAuth)
             }
 
             // Verificar se todos os responsáveis já assinaram
             // Se sim, marcar etapa como completa e prosseguir para a etapa seguinte
             // Se não existirem mais etapas o processo é terminado
-            if (transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-                it.stagesRepository.verifySignatures(stageId)
-            }) {
+            if (transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
+                    it.stagesRepository.verifySignatures(stageId)
+                }) {
                 //Se não existir etapa seguinte, o processo acaba e deve ser enviado email informativo ao autor
                 startNextPendingStage(stageId) ?: run {
-                    finalStageEmail(stageId)
+                    finalStageEmail(stageId, userAuth)
                 }
             }
         } else {
             // Selecionar todas as notificações associadas à etapa
             notificationIds = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-                it.stagesRepository.getStageNotifications(stageId, null)
+                it.stagesRepository.getStageNotifications(stageId, null, userAuth)
             }
-            finalStageEmail(stageId)
+            finalStageEmail(stageId, userAuth)
         }
 
         // Cancelar emails agendados
         notificationIds.forEach {
-            notificationServices.cancelScheduledEmails(it)
+            notificationServices.cancelScheduledNotification(it)
         }
     }
 
-    override fun stageSignatures(stageId: String): List<Signature> {
+    override fun stageSignatures(stageId: String,userAuth: UserAuth): List<Signature> {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageSignatures(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageSignatures(stageId,userAuth)
         }
     }
 
@@ -94,50 +106,53 @@ class StageServices (
      * Inicia a próxima etapa pendente do processo associado
      * Notifica utilizadores resposáveis pela etapa e agendando notificações recorrentes
      */
-    override fun startNextPendingStage(stageId: String): String? {
+    override fun startNextPendingStage(stageId: String): StageInfo? {
         // Ver qual a próxima etapa e atualizar com data inicio
-        val nextStageId = transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
+        val nextStage = transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.stagesRepository.startNextPendingStage(stageId)
         }
 
-        if (nextStageId != null) {
-            // Notificar utilizadores da próxima etapa e agendar notificações recorrentes de acordo com NOTIFICATION_FREQUENCY
+        if (nextStage != null) {
+            // Notificar utilizadores da próxima etapa e agendar notificações recorrentes
             transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-                it.stagesRepository.stageResponsible(nextStageId).forEach { resp ->
-                    val message = "Olá $resp,\n\nTem uma tarefa pendente.\nVer detalhes:\nhttp://localhost:3000/stage/$nextStageId\n\nObrigado,\nDWP"
-                    val email = EmailDetails(resp, message, "Tarefa pendente")
-                    val notificationId = notificationServices.scheduleEmail(email, NOTIFICATION_FREQUENCY)
-                    it.stagesRepository.addNotificationId(resp, notificationId, nextStageId)
-                }
+                val stageResponsible = it.stagesRepository.stageResponsible(nextStage.id)
+                notificationServices.scheduleStageNotifications(nextStage, stageResponsible)
             }
         }
 
-        return nextStageId
+        return nextStage
     }
 
-    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
+    override fun createStage(
+        processId: String,
+        index: Int,
+        name: String,
+        description: String,
+        mode: String,
+        responsible: List<String>,
+        duration: Int,
+        userAuth: UserAuth
+    ): String {
         return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-            it.processesRepository.processDetails(processId)
-            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
+            it.processesRepository.processDetails(userAuth, processId)
+            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration,userAuth)
         }
     }
 
-    override fun stageUsers(stageId: String): List<UserDetails> {
+    override fun stageUsers(stageId: String,userAuth: UserAuth): List<UserDetails> {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageUsers(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageUsers(stageId,userAuth)
         }
     }
 
-    override fun pendingStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
+    override fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.pendingStages(userAuth, userEmail)
-        }
-    }
-
-    override fun finishedStages(userAuth: UserAuth, userEmail: String?): List<StageInfo> {
-        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.finishedStages(userAuth, userEmail)
+            it.stagesRepository.stagesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
 
@@ -152,7 +167,11 @@ class StageServices (
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-            it.stagesRepository.stageDetails(stageId)
+            if (!user.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, user.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId, user)
             it.stagesRepository.addComment(stageId, comment, user)
         }
     }
@@ -160,14 +179,18 @@ class StageServices (
     override fun deleteComment(commentId: String, user: UserAuth) {
         return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.stagesRepository.checkComment(commentId)
-            it.stagesRepository.deleteComment(commentId,user)
+            it.stagesRepository.deleteComment(commentId, user)
         }
     }
 
-    override fun stageComments(stageId: String): List<Comment> {
+    override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
         return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageComments(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageComments(stageId,userAuth)
         }
     }
 

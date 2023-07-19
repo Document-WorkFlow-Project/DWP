@@ -1,5 +1,3 @@
-import { isEmail } from "validator";
-
 export const API_URL = 'http://localhost:3000/api'
 
 export function convertTimestamp(timestamp) {
@@ -22,6 +20,13 @@ export const estado = (value) => {
         return "Não aprovado"
 }
 
+export const modo = (value) => {
+    if (value == "Unanimous")
+        return "Unânime"
+    else
+        return "Maioritário"
+}
+
 export function formatBytes(bytes) {
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
     let i = 0;
@@ -33,44 +38,4 @@ export function formatBytes(bytes) {
   
     return `${bytes.toFixed(2)} ${units[i]}`;
 }
-
-export function required(value) {
-    if (!value) {
-        return (
-            <div className="invalid-feedback d-block">
-                This field is required!
-            </div>
-        )
-    }
-}
-
-export function validEmail(value) {
-    if (!isEmail(value)) {
-        return (
-            <div className="invalid-feedback d-block">
-                This is not a valid email.
-            </div>
-        )
-    }
-}
-
-export function vusername (value) {
-    if (value.length < 3 || value.length > 20) {
-        return (
-            <div className="invalid-feedback d-block">
-                The username must be between 3 and 20 characters.
-            </div>
-        )
-    }
-}
-
-export function vpassword(value) {
-    if (value.length < 6 || value.length > 40) {
-        return (
-            <div className="invalid-feedback d-block">
-                The password must be between 6 and 40 characters.
-            </div>
-        );
-    }
-};
   

@@ -3,14 +3,14 @@ import {Link} from "react-router-dom";
 import { useParams } from 'react-router';
 import stagesService from "../../Services/Stages/stages.service";
 import { Comments } from "../Comments/commentBox";
-import { convertTimestamp, estado } from "../../utils";
+import { convertTimestamp, estado, modo } from "../../utils";
 import { createPortal } from 'react-dom'
 import { SignaturesModal } from "./signaturesModal";
 import { AuthContext } from "../../AuthProvider";
 import {toast} from "react-toastify";
 
 
-export const StageDetails = () => {
+export const StageDetails = ({ navigate }) => {
     
     const { id } = useParams();
     
@@ -32,41 +32,59 @@ export const StageDetails = () => {
 
     const { loggedUser } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!loggedUser.email)
-                window.location.href = '/';
-            try {
-                const stageDetails = await stagesService.stageDetails(id)
+    const [loadingApprove, setLoadingApprove] = useState(false);
+    const [loadingReject, setLoadingReject] = useState(false);
 
-                if (typeof stageDetails === 'object')
-                    setStageDetails(stageDetails)
+    const fetchData = async () => {
+        try {
+            const stageDetails = await stagesService.stageDetails(id)
+            setStageDetails(stageDetails)
 
-                const signatures = await stagesService.stageSignatures(id)
-                setStageSignatures(signatures)
+            const signatures = await stagesService.stageSignatures(id)
+            setStageSignatures(signatures)
 
-                if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
-                    setHasToSign(true)
-            } catch (error) {
-                let code = error.response.status
-                if (code != 404) toast.error("Something Wrong Happened. Please Refresh ...")
-            }
+            if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
+                setHasToSign(true)
+        } catch (error) {
+            toast.error("Erro a obter assinaturas. Tenta novamente...")
         }
+    }
+
+    useEffect(() => {
+        if (!loggedUser.email) {
+            navigate('/');
+            toast.error("O utilizador não tem sessão iniciada.")
+        }
+        
         fetchData()
     }, [])
 
     const signStage = async (value) => {
+        if (value) 
+            setLoadingApprove(true);
+        else 
+            setLoadingReject(true);
+        
         try {
             await stagesService.signStage(id, value)
+            fetchData()
+            setHasToSign(false)
         } catch (error) {
-            toast.error(error.message)
+            const resMessage = error.response.data || error.toString();
+            toast.error(resMessage);
         }
+        
+        setLoadingApprove(false);
+        setLoadingReject(false);
     }
 
     return (
-        <div>
-            <Link to={`/process/${stageDetails.id_processo}`}>Voltar ao processo</Link>
+        <div className="container-fluid">
+            <p></p>
+            <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/process/${stageDetails.id_processo}`}>Voltar ao processo</Link>
+            <p></p>
             <h2>{stageDetails.nome}</h2>
+            <p></p>
             <p><b>Descrição: </b>{stageDetails.descricao}</p>
             <p><b>Estado: </b><a>{estado(stageDetails.estado)}</a></p>
             <p><b>Prazo: </b>{stageDetails.prazo} dias</p>
@@ -77,27 +95,41 @@ export const StageDetails = () => {
             }
                 
             {stageDetails.data_fim && <p><b>Data de fim: </b>{convertTimestamp(stageDetails.data_fim)}</p>}
-            <p><b>Modo de assinatura: </b>{stageDetails.modo}</p>
-            <p><button onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
+            <p><b>Modo de assinatura: </b>{modo(stageDetails.modo)}</p>
+            <p><button className="btn btn-primary" onClick={() => setShowSignatureModal(true)}>Assinaturas</button></p>
 
             {hasToSign &&
-                <div>
-                    <button onClick={() => signStage(true)}>Aprovar etapa</button>
-                    <button onClick={() => signStage(false)}>Reprovar etapa</button>
+                <div className="row row-cols-auto">
+                    <div className="col">
+                        <button className="btn btn-success" disabled={loadingApprove || loadingReject} onClick={() => signStage(true)}>
+                            {loadingApprove && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span> Aprovar etapa</span>
+                        </button>
+                    </div>
+                    <div className="col">
+                        <button className="btn btn-danger" disabled={loadingApprove || loadingReject} onClick={() => signStage(false)}>
+                            {loadingReject && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                            <span> Não aprovar etapa</span>
+                        </button>
+                    </div>
                 </div>
             }
+
+            <p></p>
             
             <Comments stageId={id}/>
 
-            <div>
-                {showSignatureModal && createPortal(
-                    <SignaturesModal 
-                        onClose={() => setShowSignatureModal(false)}
-                        signatures={stageSignatures}
-                    />,
-                    document.body
-                )}
-            </div>
+            {showSignatureModal && createPortal(
+                <SignaturesModal 
+                    onClose={() => setShowSignatureModal(false)}
+                    signatures={stageSignatures}
+                />,
+                document.body
+            )}
         </div>
     )
 }
