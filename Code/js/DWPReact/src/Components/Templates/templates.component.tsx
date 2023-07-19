@@ -229,6 +229,7 @@ export default function Templates({ navigate }) {
               <p></p>
               <p><b>Descrição: </b></p>
               <textarea className="form-control" style={{ resize: "none" }} value={templateDescription} onChange={e => setTemplateDescription(e.target.value)}/>
+              <p></p>
               <p className="error">{error}</p>
             </div>
 

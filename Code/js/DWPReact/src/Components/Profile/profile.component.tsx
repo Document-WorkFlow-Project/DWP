@@ -18,6 +18,7 @@ export const Profile = ({ navigate }) => {
     const [repeatNewPass, setRepeatNewPass] = useState("")
 
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false);
 
     async function fetchUserDetails(email) {
         try {
@@ -44,7 +45,9 @@ export const Profile = ({ navigate }) => {
         }
     }, [userEmail])
 
-    async function changePassword() {
+    async function changePassword(e) {
+        e.preventDefault()
+
         if (newPass !== repeatNewPass) {
             setError("Palavras passe não coincidem.")
             return;
@@ -53,14 +56,21 @@ export const Profile = ({ navigate }) => {
             return;
         }
 
+        setLoading(true)
+
         try {
             const res = await authService.updatePass(currentPass, newPass)
             toast.success(res);
+            setCurrentPass("")
+            setNewPass("")
+            setRepeatNewPass("")
             setError("")
         } catch(err) {
             const resMessage = err.response.data || err.toString();
             toast.error(resMessage);
         }
+
+        setLoading(false)
     }
 
     return (
@@ -106,7 +116,7 @@ export const Profile = ({ navigate }) => {
                                 <p></p>
                                 <p className="error">{error}</p>
 
-                                <input className="btn btn-primary" type="submit" value="Alterar palavra-passe"></input>
+                                <input className="btn btn-primary" type="submit" value={loading ? "Loading..." : "Alterar palavra-passe"} disabled={loading}></input>
                             </form>
                         </div>
                     </>

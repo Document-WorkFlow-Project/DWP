@@ -20,6 +20,8 @@ export const NewProcess = ({ navigate }) => {
 
     const [showDetailsModal, setShowDetailsModal] = useState(false)
 
+    const [loading, setLoading] = useState(false);
+
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
@@ -128,6 +130,8 @@ export const NewProcess = ({ navigate }) => {
                 setError("Nenhum documento carregado.")
                 return
             }
+            
+            setLoading(true)
 
             const formData = new FormData()
             formData.append('templateName', selectedTemplate)
@@ -144,6 +148,8 @@ export const NewProcess = ({ navigate }) => {
                 const resMessage = err.response.data || err.toString();
                 toast.error(resMessage);
             }
+
+            setLoading(false)
         }
 
         return (
@@ -170,7 +176,12 @@ export const NewProcess = ({ navigate }) => {
                 </label>
                 { dragActive && <div id="drag-file-element" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div> }
                 <p></p>
-                <input className="btn btn-success" type="submit" value="Criar Processo"/>
+                <input
+                    className="btn btn-success"
+                    type="submit"
+                    value={loading ? "Loading..." : "Criar Processo"}
+                    disabled={loading}
+                />
             </form>
         )
     }
@@ -214,7 +225,7 @@ export const NewProcess = ({ navigate }) => {
                         <p><b>Descrição: </b></p>
                         <textarea className="form-control" style={{ resize: "none" }} value={processDescription} onChange={e => setProcessDescription(e.target.value)}/>
                     </div>
-                    
+                    <p></p>
                     <p className="error">{error}</p>
                     
                     
