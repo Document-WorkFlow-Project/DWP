@@ -26,7 +26,7 @@ class ProcessesController(
 
     @GetMapping
     fun userProcesses(@RequestParam type: String?, user: UserAuth): ResponseEntity<*> {
-        val processes = processesServices.getProcesses(type)
+        val processes = processesServices.getProcesses(user,type)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +53,7 @@ class ProcessesController(
 
     @GetMapping("/{processId}/stages")
     fun processStages(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
-        val stages = processesServices.processStages(processId)
+        val stages = processesServices.processStages(user,processId)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -62,7 +62,7 @@ class ProcessesController(
 
     @GetMapping("/{processId}")
     fun processDetails(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
-        val details = processesServices.processDetails(processId)
+        val details = processesServices.processDetails(user,processId)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +75,7 @@ class ProcessesController(
         response: HttpServletResponse,
         user: UserAuth
     ): ResponseEntity<out Any> {
-        val docDetailsList = processesServices.processDocs(processId)
+        val docDetailsList = processesServices.processDocs(user,processId)
 
         // Create temporary zip file to hold all the files
         val zipFile = File.createTempFile("${processId}_documents", ".zip")
@@ -120,7 +120,7 @@ class ProcessesController(
 
     @GetMapping("/{processId}/docsInfo")
     fun processDocsDetails(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
-        val details = processesServices.processDocsDetails(processId)
+        val details = processesServices.processDocsDetails(user,processId)
         return ResponseEntity
             .status(200)
             .contentType(MediaType.APPLICATION_JSON)
@@ -144,7 +144,7 @@ class ProcessesController(
 
     @DeleteMapping("/{processId}")
     fun deleteProcess(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
-        processesServices.deleteProcess(processId)
+        processesServices.deleteProcess(user,processId)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)
@@ -153,7 +153,7 @@ class ProcessesController(
 
     @PutMapping("/{processId}")
     fun cancelProcess(@PathVariable processId: String, user: UserAuth): ResponseEntity<*> {
-        processesServices.cancelProcess(processId)
+        processesServices.cancelProcess(user,processId)
         return ResponseEntity
             .status(201)
             .contentType(MediaType.APPLICATION_JSON)

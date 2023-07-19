@@ -9,22 +9,26 @@ import isel.ps.dwp.model.*
 import org.springframework.stereotype.Service
 
 @Service
-class StageServices (
+class StageServices(
     private val transactionManager: TransactionManager,
     private val notificationServices: NotificationsServicesInterface,
     private val userServices: UserServices
 ) : StagesInterface {
 
-    override fun stageDetails(stageId: String): Stage {
+    override fun stageDetails(stageId: String,userAuth: UserAuth): Stage {
         return transactionManager.run {
-            it.stagesRepository.stageDetails(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
         }
     }
 
-    private fun finalStageEmail(stageId: String) {
+    private fun finalStageEmail(stageId: String, userAuth: UserAuth) {
         val processDetails = transactionManager.run {
             val processId = it.stagesRepository.findProcessFromStage(stageId)
-            it.processesRepository.processDetails(processId)
+            it.processesRepository.processDetails(userAuth, processId)
         }
 
         val state = if (processDetails.estado == "APPROVED") "aprovado" else "não aprovado"
@@ -43,9 +47,11 @@ class StageServices (
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run {
-            it.stagesRepository.stageUsers(stageId).find {
-                user -> user.email == userAuth.email
-            } ?: throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não faz parte da etapa.")
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.userAdminOrInStage(
+                            stageId, userAuth
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageUsers(stageId,userAuth)
 
             it.stagesRepository.signStage(stageId, approve, userAuth)
         }
@@ -56,26 +62,26 @@ class StageServices (
         if (approve) {
             // Selecionar apenas a notificação associada ao user que assinou
             notificationIds = transactionManager.run {
-                it.stagesRepository.getStageNotifications(stageId, userEmail)
+                it.stagesRepository.getStageNotifications(stageId, userEmail, userAuth)
             }
 
             // Verificar se todos os responsáveis já assinaram
             // Se sim, marcar etapa como completa e prosseguir para a etapa seguinte
             // Se não existirem mais etapas o processo é terminado
             if (transactionManager.run {
-                it.stagesRepository.verifySignatures(stageId)
-            }) {
+                    it.stagesRepository.verifySignatures(stageId)
+                }) {
                 //Se não existir etapa seguinte, o processo acaba e deve ser enviado email informativo ao autor
                 startNextPendingStage(stageId) ?: run {
-                    finalStageEmail(stageId)
+                    finalStageEmail(stageId, userAuth)
                 }
             }
         } else {
             // Selecionar todas as notificações associadas à etapa
             notificationIds = transactionManager.run {
-                it.stagesRepository.getStageNotifications(stageId, null)
+                it.stagesRepository.getStageNotifications(stageId, null, userAuth)
             }
-            finalStageEmail(stageId)
+            finalStageEmail(stageId, userAuth)
         }
 
         // Cancelar emails agendados
@@ -84,10 +90,14 @@ class StageServices (
         }
     }
 
-    override fun stageSignatures(stageId: String): List<Signature> {
+    override fun stageSignatures(stageId: String,userAuth: UserAuth): List<Signature> {
         return transactionManager.run {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageSignatures(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageSignatures(stageId,userAuth)
         }
     }
 
@@ -112,17 +122,30 @@ class StageServices (
         return nextStage
     }
 
-    override fun createStage(processId: String, index: Int, name: String, description: String, mode: String, responsible: List<String>, duration: Int): String {
+    override fun createStage(
+        processId: String,
+        index: Int,
+        name: String,
+        description: String,
+        mode: String,
+        responsible: List<String>,
+        duration: Int,
+        userAuth: UserAuth
+    ): String {
         return transactionManager.run {
-            it.processesRepository.processDetails(processId)
-            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration)
+            it.processesRepository.processDetails(userAuth, processId)
+            it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration,userAuth)
         }
     }
 
-    override fun stageUsers(stageId: String): List<UserDetails> {
+    override fun stageUsers(stageId: String,userAuth: UserAuth): List<UserDetails> {
         return transactionManager.run {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageUsers(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageUsers(stageId,userAuth)
         }
     }
 
@@ -143,7 +166,11 @@ class StageServices (
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
         return transactionManager.run {
-            it.stagesRepository.stageDetails(stageId)
+            if (!user.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, user.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId, user)
             it.stagesRepository.addComment(stageId, comment, user)
         }
     }
@@ -151,14 +178,18 @@ class StageServices (
     override fun deleteComment(commentId: String, user: UserAuth) {
         return transactionManager.run {
             it.stagesRepository.checkComment(commentId)
-            it.stagesRepository.deleteComment(commentId,user)
+            it.stagesRepository.deleteComment(commentId, user)
         }
     }
 
-    override fun stageComments(stageId: String): List<Comment> {
+    override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
         return transactionManager.run {
-            it.stagesRepository.stageDetails(stageId)
-            it.stagesRepository.stageComments(stageId)
+            if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
+                            stageId, userAuth.email
+                    )
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            it.stagesRepository.stageDetails(stageId,userAuth)
+            it.stagesRepository.stageComments(stageId,userAuth)
         }
     }
 
