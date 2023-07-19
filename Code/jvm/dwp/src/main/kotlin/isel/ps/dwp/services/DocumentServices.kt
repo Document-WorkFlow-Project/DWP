@@ -6,6 +6,7 @@ import isel.ps.dwp.interfaces.DocumentServicesInterface
 import isel.ps.dwp.model.Document
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.saveInFilesystem
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
@@ -23,7 +24,7 @@ class DocumentServices(private val transactionManager: TransactionManager): Docu
         saveInFilesystem(file, "$uploadsFolderPath/$uuid-${file.originalFilename}")
 
         // Save file description in database
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.documentsRepository.saveDocReference(file, uuid)
         }
         return uuid
@@ -32,7 +33,7 @@ class DocumentServices(private val transactionManager: TransactionManager): Docu
     override fun downloadDoc(fileId: String): Result<Resource> =
         runCatching {
             val filePath =
-                transactionManager.run {
+                transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
                     it.documentsRepository.findPathById(fileId)
                 } ?: throw ExceptionControllerAdvice.DocumentNotFoundException("Documento $fileId não encontrado.")
 
@@ -47,7 +48,7 @@ class DocumentServices(private val transactionManager: TransactionManager): Docu
         }
 
     override fun documentDetails(fileId: String): Document? {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.documentsRepository.documentDetails(fileId)
         }
     }

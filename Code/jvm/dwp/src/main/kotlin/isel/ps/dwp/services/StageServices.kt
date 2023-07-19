@@ -6,6 +6,7 @@ import isel.ps.dwp.database.jdbi.TransactionManager
 import isel.ps.dwp.interfaces.NotificationsServicesInterface
 import isel.ps.dwp.interfaces.StagesInterface
 import isel.ps.dwp.model.*
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,7 +17,7 @@ class StageServices(
 ) : StagesInterface {
 
     override fun stageDetails(stageId: String,userAuth: UserAuth): Stage {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
                             stageId, userAuth.email
                     )
@@ -26,7 +27,7 @@ class StageServices(
     }
 
     private fun finalStageEmail(stageId: String, userAuth: UserAuth) {
-        val processDetails = transactionManager.run {
+        val processDetails = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             val processId = it.stagesRepository.findProcessFromStage(stageId)
             it.processesRepository.processDetails(userAuth, processId)
         }
@@ -46,7 +47,7 @@ class StageServices(
      * Cancela notificações recorrentes associadas
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             if (!userAuth.roles.contains("admin") && !it.stagesRepository.userAdminOrInStage(
                             stageId, userAuth
                     )
@@ -61,14 +62,14 @@ class StageServices(
 
         if (approve) {
             // Selecionar apenas a notificação associada ao user que assinou
-            notificationIds = transactionManager.run {
+            notificationIds = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
                 it.stagesRepository.getStageNotifications(stageId, userEmail, userAuth)
             }
 
             // Verificar se todos os responsáveis já assinaram
             // Se sim, marcar etapa como completa e prosseguir para a etapa seguinte
             // Se não existirem mais etapas o processo é terminado
-            if (transactionManager.run {
+            if (transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
                     it.stagesRepository.verifySignatures(stageId)
                 }) {
                 //Se não existir etapa seguinte, o processo acaba e deve ser enviado email informativo ao autor
@@ -78,7 +79,7 @@ class StageServices(
             }
         } else {
             // Selecionar todas as notificações associadas à etapa
-            notificationIds = transactionManager.run {
+            notificationIds = transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
                 it.stagesRepository.getStageNotifications(stageId, null, userAuth)
             }
             finalStageEmail(stageId, userAuth)
@@ -91,7 +92,7 @@ class StageServices(
     }
 
     override fun stageSignatures(stageId: String,userAuth: UserAuth): List<Signature> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
                             stageId, userAuth.email
                     )
@@ -107,13 +108,13 @@ class StageServices(
      */
     override fun startNextPendingStage(stageId: String): StageInfo? {
         // Ver qual a próxima etapa e atualizar com data inicio
-        val nextStage = transactionManager.run {
+        val nextStage = transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.stagesRepository.startNextPendingStage(stageId)
         }
 
         if (nextStage != null) {
             // Notificar utilizadores da próxima etapa e agendar notificações recorrentes
-            transactionManager.run {
+            transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
                 val stageResponsible = it.stagesRepository.stageResponsible(nextStage.id)
                 notificationServices.scheduleStageNotifications(nextStage, stageResponsible)
             }
@@ -132,14 +133,14 @@ class StageServices(
         duration: Int,
         userAuth: UserAuth
     ): String {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.processesRepository.processDetails(userAuth, processId)
             it.stagesRepository.createStage(processId, index, name, description, mode, responsible, duration,userAuth)
         }
     }
 
     override fun stageUsers(stageId: String,userAuth: UserAuth): List<UserDetails> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
                             stageId, userAuth.email
                     )
@@ -150,7 +151,7 @@ class StageServices(
     }
 
     override fun stagesOfState(state: State, userAuth: UserAuth, limit: Int?, skip: Int?, userEmail: String?): TaskPage {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.stagesRepository.stagesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
@@ -165,7 +166,7 @@ class StageServices(
         if (comment.length > 150)
             throw ExceptionControllerAdvice.InvalidParameterException("text length can't be bigger than 150 chars.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             if (!user.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
                             stageId, user.email
                     )
@@ -176,14 +177,14 @@ class StageServices(
     }
 
     override fun deleteComment(commentId: String, user: UserAuth) {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.stagesRepository.checkComment(commentId)
             it.stagesRepository.deleteComment(commentId, user)
         }
     }
 
     override fun stageComments(stageId: String, userAuth: UserAuth): List<Comment> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             if (!userAuth.roles.contains("admin") && !it.stagesRepository.isUserInProcessFromStageId(
                             stageId, userAuth.email
                     )

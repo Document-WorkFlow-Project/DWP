@@ -9,6 +9,8 @@ import isel.ps.dwp.model.*
 import isel.ps.dwp.uploadsFolderPath
 import isel.ps.dwp.utils.deleteFromFilesystem
 import isel.ps.dwp.utils.saveInFilesystem
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.IsolationLevel
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -21,7 +23,7 @@ class ProcessServices(
 ) : ProcessesInterface {
 
     override fun getProcesses(userAuth: UserAuth, type: String?): List<String> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.getProcesses(userAuth, type)
         }
     }
@@ -33,7 +35,7 @@ class ProcessServices(
         skip: Int?,
         userEmail: String?
     ): ProcessPage {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processesOfState(state, userAuth, limit, skip, userEmail)
         }
     }
@@ -42,7 +44,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processStages(userAuth, processId)
         }
     }
@@ -51,19 +53,19 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDetails(userAuth, processId)
         }
     }
 
     override fun processDocs(userAuth: UserAuth, processId: String): List<Document> {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDocs(userAuth, processId)
         }
     }
 
     override fun processDocsDetails(userAuth: UserAuth, processId: String): ProcessDocInfo {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.READ_COMMITTED) {
             it.processesRepository.processDocsDetails(userAuth, processId)
         }
     }
@@ -75,7 +77,7 @@ class ProcessServices(
         files: List<MultipartFile>,
         userAuth: UserAuth
     ): String {
-        return transactionManager.run {
+        return transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             // Create process
             val processId = it.processesRepository.newProcess(templateName, name, description, files, userAuth)
 
@@ -150,7 +152,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.processesRepository.deleteProcess(userAuth, processId)
         }
     }
@@ -159,7 +161,7 @@ class ProcessServices(
         if (processId.isBlank())
             throw ExceptionControllerAdvice.ParameterIsBlank("Missing process id.")
 
-        transactionManager.run {
+        transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
             it.processesRepository.cancelProcess(userAuth, processId)
         }
     }
