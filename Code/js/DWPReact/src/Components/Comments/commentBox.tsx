@@ -8,6 +8,7 @@ export function Comments ({stageId}) {
 
     const [comments, setCommments] = useState([])
     const [newComment, setNewComment] = useState("")
+    const [loading, setLoading] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -23,9 +24,9 @@ export function Comments ({stageId}) {
     }, [])
 
     const publishComment = async () => {
-        if (newComment === "")
-           return
-        else {
+        setLoading(true)
+
+        if (newComment !== "") {
             try {
                 await commentsService.postComment(stageId, newComment)
                 setNewComment("")
@@ -34,6 +35,8 @@ export function Comments ({stageId}) {
                 toast.error("Erro ao adicionar comentário. Tenta novamente...")
             }
         } 	
+
+        setLoading(false)
     }
 
     return (
@@ -47,7 +50,12 @@ export function Comments ({stageId}) {
                 </div>
                 <p></p>
                 <div className="col">
-                    <button className="btn btn-primary" onClick={publishComment}>Adicionar comentário</button>
+                    <button className="btn btn-primary" disabled={loading} onClick={publishComment}>
+                        {loading && (
+                            <span className="spinner-border spinner-border-sm"></span>
+                        )}
+                        <span> Adicionar comentário</span>
+                    </button>
                 </div>
             </div>
 
