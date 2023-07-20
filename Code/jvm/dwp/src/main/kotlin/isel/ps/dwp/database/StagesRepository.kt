@@ -375,7 +375,7 @@ class StagesRepository(private val handle: Handle) : StagesInterface {
                 .singleOrNull() ?: throw ExceptionControllerAdvice.CommentNotFound("Comentário não encontrado.")
     }
 
-    private fun isUserInStage(stageId: String, userEmail: String): Boolean {
+    fun isUserInStage(stageId: String, userEmail: String): Boolean {
         val sql = """SELECT CASE
                 WHEN COUNT(*) > 0 THEN true
         ELSE false

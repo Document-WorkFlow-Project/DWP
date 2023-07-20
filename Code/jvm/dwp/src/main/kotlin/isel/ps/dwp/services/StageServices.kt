@@ -48,10 +48,10 @@ class StageServices(
      */
     override fun signStage(stageId: String, approve: Boolean, userAuth: UserAuth) {
         transactionManager.run(TransactionIsolationLevel.REPEATABLE_READ) {
-            if (!userAuth.roles.contains("admin") && !it.stagesRepository.userAdminOrInStage(
-                            stageId, userAuth
+            if (!it.stagesRepository.isUserInStage(
+                            stageId, userAuth.email
                     )
-            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não é Admin nem está associado à etapa")
+            ) throw ExceptionControllerAdvice.UserNotAuthorizedException("Utilizador não está associado à etapa")
             it.stagesRepository.stageUsers(stageId,userAuth)
 
             it.stagesRepository.signStage(stageId, approve, userAuth)
