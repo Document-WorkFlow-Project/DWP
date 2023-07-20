@@ -27,7 +27,6 @@ export const Processes = ({ navigate }) => {
     const { loggedUser } = useContext(AuthContext);
 
     useEffect(() => {
-        console.log(loggedUser)
         if (!loggedUser.email) {
             navigate('/');
             toast.error("O utilizador não tem sessão iniciada.")

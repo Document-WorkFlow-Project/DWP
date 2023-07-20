@@ -34,6 +34,7 @@ export const Profile = ({ navigate }) => {
         if (!loggedUser.email) {
             navigate('/');
             toast.error("O utilizador não tem sessão iniciada.")
+            return
         }
 
         if (userEmail === loggedUser.email){

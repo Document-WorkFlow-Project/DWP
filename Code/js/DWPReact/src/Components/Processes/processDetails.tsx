@@ -34,6 +34,7 @@ export const ProcessDetails = ({ navigate }) => {
         if (!loggedUser.email) {
             navigate('/');
             toast.error("O utilizador não tem sessão iniciada.")
+            return
         }
 
         const fetchData = async () => {
