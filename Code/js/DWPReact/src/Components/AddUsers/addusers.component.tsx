@@ -14,6 +14,12 @@ const adduserscomponent = ({ navigate }) => {
         if (!loggedUser.email) {
             navigate('/');
             toast.error("O utilizador não tem sessão iniciada.")
+            return
+        }
+
+        if (!loggedUser.roles.includes("admin")){
+            navigate('/');
+            toast.error("O utilizador não tem acesso de administrador.")
         }
     }, [])
 

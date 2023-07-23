@@ -46,7 +46,9 @@ export const StageDetails = ({ navigate }) => {
             if (stageDetails.data_inicio != null && stageDetails.estado === "PENDING" && signatures.find(obj => obj.email_utilizador === loggedUser.email && obj.assinatura === null) !== undefined)
                 setHasToSign(true)
         } catch (error) {
-            toast.error("Erro a obter assinaturas. Tenta novamente...")
+            const resMessage = error.response.data || error.toString();
+            toast.error(resMessage);
+            navigate("/processes")
         }
     }
 
@@ -54,6 +56,7 @@ export const StageDetails = ({ navigate }) => {
         if (!loggedUser.email) {
             navigate('/');
             toast.error("O utilizador não tem sessão iniciada.")
+            return
         }
         
         fetchData()
